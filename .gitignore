@@ -111,5 +111,5 @@ Thumbs.db
 coverage/
 *.lcov
 
-# Railway
-.railway/
+# Google Cloud
+.gcloudignore

@@ -84,14 +84,14 @@ docker-compose -f docker-compose.prod.yml up -d
 docker-compose -f docker-compose.prod.yml down
 ```
 
-### Railway Deployment Testing
+### Google Cloud Run Testing
 ```bash
-# Test Railway configuration locally
-docker-compose -f docker-compose.railway.yml up --build
-
-# Test single container (alternative)
+# Test Cloud Run configuration locally
 docker build -t mnemos-web .
 docker run -p 80:80 mnemos-web
+
+# Test with Cloud Run environment variables
+docker run -p 80:80 -e PORT=80 mnemos-web
 ```
 
 ### Production Access Points
@@ -123,23 +123,22 @@ curl -X POST http://localhost/api/items \
 docker-compose -f docker-compose.prod.yml down
 ```
 
-### Railway Deployment Steps
+### Google Cloud Run Deployment Steps
 1. **Test locally first**:
    ```bash
-   docker-compose -f docker-compose.railway.yml up --build
+   docker build -t mnemos-web .
+   docker run -p 80:80 mnemos-web
    ```
 
-2. **Push to GitHub**:
+2. **Build and push to Google Container Registry**:
    ```bash
-   git add .
-   git commit -m "Deploy to Railway"
-   git push origin main
+   gcloud builds submit --tag gcr.io/PROJECT_ID/mnemos-web
    ```
 
-3. **Deploy on Railway**:
-   - Connect GitHub repo
-   - Railway auto-detects `docker-compose.railway.yml`
-   - Deploy automatically
+3. **Deploy to Cloud Run**:
+   ```bash
+   gcloud run deploy mnemos-web --image gcr.io/PROJECT_ID/mnemos-web --platform managed
+   ```
 
 ### Debugging Production Issues
 ```bash
@@ -184,7 +183,7 @@ time curl http://localhost/api/data
 |------|---------|
 | Start dev | `docker-compose up` |
 | Start prod test | `docker-compose -f docker-compose.prod.yml up` |
-| Start Railway test | `docker-compose -f docker-compose.railway.yml up` |
+| Start Cloud Run test | `docker run -p 80:80 mnemos-web` |
 | Rebuild | `docker-compose up --build` |
 | Background | `docker-compose up -d` |
 | Stop | `docker-compose down` |
@@ -196,7 +195,7 @@ time curl http://localhost/api/data
 mnemos-web/
 ├── docker-compose.yml          # Development
 ├── docker-compose.prod.yml     # Production testing  
-├── docker-compose.railway.yml  # Railway deployment
+├── .gcloudignore              # Google Cloud ignore file
 ├── Dockerfile                  # Railway single container
 ├── Dockerfile.backend          # Backend service
 ├── Dockerfile.frontend         # Frontend service

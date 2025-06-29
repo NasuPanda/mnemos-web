@@ -17,11 +17,11 @@ docker-compose -f docker-compose.prod.yml up
 ```
 - App: http://localhost (nginx serving React + API proxy)
 
-### Railway Deployment
+### Google Cloud Run Deployment
 ```bash
-docker-compose -f docker-compose.railway.yml up
-```
-- Single container optimized for Railway
+# Build and deploy to Google Cloud Run
+docker build -t mnemos-web .
+# See CLOUD_RUN_DEPLOYMENT.md for full instructions
 
 ## Architecture
 
@@ -33,5 +33,5 @@ docker-compose -f docker-compose.railway.yml up
 
 - Backend: FastAPI + Python
 - Frontend: React + TypeScript + Tailwind CSS + Vite
-- Deployment: Docker + Railway
+- Deployment: Docker + Google Cloud Run
 - Data: JSON file storage

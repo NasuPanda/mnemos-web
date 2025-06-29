@@ -22,7 +22,7 @@
 
 ### Deployment
 - **Docker** - Containerization for consistent builds and deployment
-- **Railway** - Cloud platform with free tier
+- **Google Cloud Run** - Serverless container platform with generous free tier
 
 ## Architecture Decision: JSON vs Database
 
@@ -53,24 +53,24 @@
 
 ## Deployment
 
-### Railway (Chosen Platform)
-- **Free Tier**: $5 monthly credit (sufficient for personal use)
-- **Always On**: No sleep mode - instant response time
-- **Simple Setup**: Connect GitHub repository for automatic deployment
-- **Full Stack**: Supports both FastAPI backend and React frontend
-- **HTTPS**: Free SSL certificates included
+### Google Cloud Run (Chosen Platform)
+- **Free Tier**: 2 million requests/month forever (no expiry)
+- **Auto Scaling**: Scales to zero when not used, unlimited scale up
+- **Docker Native**: Direct container deployment from Docker images
+- **Global Edge**: Automatic global distribution and HTTPS
+- **Pay-per-use**: Only charged for actual compute time (sub-second billing)
 
 ### Docker Benefits
 - **Consistent Environment**: Same setup locally and in production
 - **Multi-stage Builds**: Optimized container size (build React, serve with FastAPI)
 - **Full Control**: Custom Python/Node versions and dependencies
-- **Railway Compatible**: Automatic Docker detection and deployment
+- **Cloud Run Compatible**: Direct Docker image deployment
 
 ### Deployment Benefits
-- **No Cold Starts**: Unlike other free tiers, Railway keeps apps responsive
-- **Cost Effective**: Personal spaced repetition app typically uses $1-2/month
-- **Container Registry**: Built-in Docker image storage
-- **Git Integration**: Push to deploy workflow with Dockerfile
+- **True Serverless**: Zero maintenance, automatic scaling
+- **Cost Effective**: Personal apps typically stay within free tier
+- **Container Registry**: Google Container Registry included
+- **Git Integration**: Deploy from GitHub or local Docker builds
 
 ## Development Setup
 - Zero infrastructure requirements
@@ -78,4 +78,4 @@
 - Local file storage for images
 - Docker for consistent local/production environment
 - Fast development cycle (~10 minute setup)
-- One-click deployment to Railway via Docker
+- One-command deployment to Google Cloud Run via Docker
