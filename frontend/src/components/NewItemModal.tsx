@@ -27,7 +27,8 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
     problemUrl: '',
     problemImages: [] as string[],
     answerUrl: '',
-    answerImages: [] as string[]
+    answerImages: [] as string[],
+    nextReviewDate: ''
   });
 
   const [uploading, setUploading] = useState({
@@ -46,7 +47,8 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
         problemUrl: editItem.problemUrl || '',
         problemImages: editItem.problemImages || [],
         answerUrl: editItem.answerUrl || '',
-        answerImages: editItem.answerImages || []
+        answerImages: editItem.answerImages || [],
+        nextReviewDate: editItem.nextReviewDate || ''
       });
     } else {
       setFormData({
@@ -58,7 +60,8 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
         problemUrl: '',
         problemImages: [],
         answerUrl: '',
-        answerImages: []
+        answerImages: [],
+        nextReviewDate: ''
       });
     }
   }, [editItem, selectedCategory, isOpen]);
@@ -80,7 +83,8 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
       problemUrl: formData.problemUrl,
       problemImages: formData.problemImages,
       answerUrl: formData.answerUrl,
-      answerImages: formData.answerImages
+      answerImages: formData.answerImages,
+      nextReviewDate: formData.nextReviewDate || undefined
     });
 
     onClose();
@@ -666,6 +670,19 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
               onChange={(e) => handleInputChange('sideNote', e.target.value)}
               placeholder="Additional notes or comments"
             />
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>Next Review Date</label>
+            <input
+              type="date"
+              style={inputStyle}
+              value={formData.nextReviewDate}
+              onChange={(e) => handleInputChange('nextReviewDate', e.target.value)}
+            />
+            <div style={helperTextStyle}>
+              Set when this item should be reviewed next. Leave empty for new items to show on all dates.
+            </div>
           </div>
 
           <button

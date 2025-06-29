@@ -102,6 +102,171 @@ const DUMMY_ITEMS: StudyItem[] = [
     // Review system - was due yesterday (won't show unless user navigates to yesterday)
     nextReviewDate: getYesterdayString(),
     reviewDates: ['2024-06-28']
+  },
+  // Additional Vocabulary items for testing horizontal scroll
+  {
+    id: '6',
+    name: 'Ubiquitous',
+    problem: 'What does ubiquitous mean?',
+    answer: 'Present, appearing, or found everywhere',
+    category: 'Vocabulary',
+    createdAt: '2024-06-25',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '7',
+    name: 'Serendipity',
+    problem: 'Define serendipity',
+    answer: 'The occurrence of events by chance in a happy or beneficial way',
+    category: 'Vocabulary',
+    createdAt: '2024-06-26',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '8',
+    name: 'Mellifluous',
+    problem: 'What does mellifluous mean?',
+    answer: 'Sweet or musical; pleasant to hear',
+    category: 'Vocabulary',
+    createdAt: '2024-06-27',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '9',
+    name: 'Perspicacious',
+    problem: 'Define perspicacious',
+    answer: 'Having a ready insight into and understanding of things',
+    category: 'Vocabulary',
+    createdAt: '2024-06-28',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '10',
+    name: 'Quixotic',
+    problem: 'What does quixotic mean?',
+    answer: 'Extremely idealistic; unrealistic and impractical',
+    category: 'Vocabulary',
+    createdAt: '2024-06-29',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '11',
+    name: 'Surreptitious',
+    problem: 'Define surreptitious',
+    answer: 'Kept secret, especially because it would not be approved of',
+    category: 'Vocabulary',
+    createdAt: '2024-06-25',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '12',
+    name: 'Vicarious',
+    problem: 'What does vicarious mean?',
+    answer: 'Experienced in the imagination through the feelings or actions of another person',
+    category: 'Vocabulary',
+    createdAt: '2024-06-26',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '13',
+    name: 'Zeitgeist',
+    problem: 'Define zeitgeist',
+    answer: 'The defining spirit or mood of a particular period of history',
+    category: 'Vocabulary',
+    createdAt: '2024-06-27',
+    isReviewed: false,
+    hasImage: false
+  },
+  {
+    id: '14',
+    name: 'Cacophony',
+    problem: 'What does cacophony mean?',
+    answer: 'A harsh, discordant mixture of sounds',
+    category: 'Vocabulary',
+    createdAt: '2024-06-28',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '15',
+    name: 'Enigmatic',
+    problem: 'Define enigmatic',
+    answer: 'Difficult to interpret or understand; mysterious',
+    category: 'Vocabulary',
+    createdAt: '2024-06-29',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '16',
+    name: 'Fastidious',
+    problem: 'What does fastidious mean?',
+    answer: 'Very attentive to and concerned about accuracy and detail',
+    category: 'Vocabulary',
+    createdAt: '2024-06-25',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '17',
+    name: 'Gregarious',
+    problem: 'Define gregarious',
+    answer: 'Fond of the company of others; sociable',
+    category: 'Vocabulary',
+    createdAt: '2024-06-26',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '18',
+    name: 'Indelible',
+    problem: 'What does indelible mean?',
+    answer: 'Making marks that cannot be removed; not able to be forgotten',
+    category: 'Vocabulary',
+    createdAt: '2024-06-27',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '19',
+    name: 'Juxtaposition',
+    problem: 'Define juxtaposition',
+    answer: 'The fact of two things being seen or placed close together with contrasting effect',
+    category: 'Vocabulary',
+    createdAt: '2024-06-28',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
+  },
+  {
+    id: '20',
+    name: 'Lackadaisical',
+    problem: 'What does lackadaisical mean?',
+    answer: 'Lacking enthusiasm and determination; carelessly lazy',
+    category: 'Vocabulary',
+    createdAt: '2024-06-29',
+    isReviewed: false,
+    hasLink: false,
+    hasImage: false
   }
 ];
 
@@ -225,12 +390,45 @@ function App() {
   };
 
   const handleReview = (itemId: string, reviewType: 'confident' | 'medium' | 'wtf' | 'custom', customDays?: number) => {
+    // Calculate days based on review type
+    let daysToAdd: number;
+    switch (reviewType) {
+      case 'confident':
+        daysToAdd = 7;
+        break;
+      case 'medium':
+        daysToAdd = 3;
+        break;
+      case 'wtf':
+        daysToAdd = 1;
+        break;
+      case 'custom':
+        daysToAdd = customDays || 1;
+        break;
+      default:
+        daysToAdd = 1;
+    }
+
+    // Calculate next review date
+    const nextReviewDate = new Date();
+    nextReviewDate.setDate(nextReviewDate.getDate() + daysToAdd);
+    const nextReviewDateString = nextReviewDate.toISOString().split('T')[0];
+
+    // Current date for review history
+    const currentDateString = new Date().toISOString().split('T')[0];
+
     setItems(prev => prev.map(item => 
       item.id === itemId 
-        ? { ...item, isReviewed: true, lastAccessedAt: new Date().toISOString().split('T')[0] }
+        ? { 
+            ...item, 
+            isReviewed: true, 
+            lastAccessedAt: currentDateString,
+            nextReviewDate: nextReviewDateString,
+            reviewDates: [...(item.reviewDates || []), currentDateString]
+          }
         : item
     ));
-    console.log(`Item ${itemId} reviewed with ${reviewType}${customDays ? ` for ${customDays} days` : ''}`);
+    console.log(`Item ${itemId} reviewed with ${reviewType}${customDays ? ` for ${customDays} days` : ` for ${daysToAdd} days`} - next review: ${nextReviewDateString}`);
   };
 
   const handleArchive = (itemId: string) => {
