@@ -1,0 +1,33 @@
+# Development setup with separate frontend/backend containers
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app  # Hot reload: mount source code
+    environment:
+      - DATA_FILE=/app/data/mnemos_data.json
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app  # Hot reload: mount source code
+      - /app/node_modules  # Prevent node_modules override
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+
+volumes:
+  data:
