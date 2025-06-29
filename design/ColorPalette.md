@@ -1,6 +1,0 @@
-- Primary Navy (#1e3a5f) - Deep navy for titles
-- Accent Navy (#2d5a87) - Medium navy for buttons and text
-- Light Blue (#4a90b8) - Soft blue for borders and accents
-- Soft Background (#e8f0f5) - Light blue-gray background
-- Warm Accent (`#f5c842`) - Golden yellow for edit buttons
-- Darker Navy (#1a2e42) - Delete buttons
