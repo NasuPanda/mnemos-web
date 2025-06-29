@@ -381,13 +381,194 @@ const hoverStates = {
 }
 ```
 
+## Responsive Design System
+
+### Breakpoint System (Mobile-First)
+```javascript
+const breakpoints = {
+  mobile: '0px',        // 320px-767px (phones)
+  tablet: '768px',      // 768px-1023px (tablets) 
+  desktop: '1024px',    // 1024px+ (desktops)
+  wide: '1440px'        // 1440px+ (large screens)
+}
+
+// Tailwind responsive prefixes
+// sm: 640px+, md: 768px+, lg: 1024px+, xl: 1280px+, 2xl: 1536px+
+```
+
+### Responsive Card Dimensions
+```javascript
+const responsiveCardStyles = {
+  // Mobile: Single column, full-width cards
+  mobile: {
+    width: '100%',
+    minWidth: '280px',
+    maxWidth: '400px',
+    margin: '0 auto 15px auto'
+  },
+  
+  // Tablet: 2-3 cards per row with flexible sizing  
+  tablet: {
+    width: 'calc(50% - 10px)',
+    minWidth: '200px',
+    maxWidth: '300px'
+  },
+  
+  // Desktop: Current horizontal scroll + responsive width
+  desktop: {
+    width: '140px',           // Current implementation
+    minHeight: '120px',
+    flexShrink: 0
+  },
+  
+  // Wide: More cards visible, optimized spacing
+  wide: {
+    width: '160px',
+    minHeight: '120px',
+    flexShrink: 0
+  }
+}
+```
+
+### Responsive Typography Scale
+```javascript
+const responsiveTypography = {
+  // App Title
+  appTitle: {
+    mobile: { fontSize: '20px', lineHeight: '1.2' },
+    tablet: { fontSize: '22px', lineHeight: '1.2' },
+    desktop: { fontSize: '24px', lineHeight: '1.2' },  // Current
+    wide: { fontSize: '26px', lineHeight: '1.2' }
+  },
+  
+  // Card Title
+  cardTitle: {
+    mobile: { fontSize: '14px', lineHeight: '1.3' },
+    tablet: { fontSize: '13px', lineHeight: '1.3' },
+    desktop: { fontSize: '12px', lineHeight: '1.3' },  // Current
+    wide: { fontSize: '12px', lineHeight: '1.3' }
+  },
+  
+  // Body Text
+  bodyText: {
+    mobile: { fontSize: '14px', lineHeight: '1.4' },
+    tablet: { fontSize: '13px', lineHeight: '1.4' },
+    desktop: { fontSize: '12px', lineHeight: '1.4' },  // Current
+    wide: { fontSize: '12px', lineHeight: '1.4' }
+  }
+}
+```
+
+### Responsive Modal Dimensions
+```javascript
+const responsiveModalStyles = {
+  // Mobile: Full-screen modals
+  mobile: {
+    width: '100vw',
+    height: '100vh',
+    borderRadius: '0px',
+    padding: '20px'
+  },
+  
+  // Tablet: Large centered modals
+  tablet: {
+    width: '90vw',
+    maxWidth: '600px',
+    maxHeight: '80vh',
+    borderRadius: '12px'
+  },
+  
+  // Desktop: Current implementation
+  desktop: {
+    reviewModal: { width: '400px', height: '300px' },
+    editModal: { width: '640px', height: '540px' },
+    settingsModal: { width: '450px', maxHeight: '80vh' }
+  }
+}
+```
+
+### Touch Interaction Guidelines
+```javascript
+const touchTargets = {
+  // Minimum touch target sizes (accessibility compliance)
+  minTouchSize: {
+    ios: '44px',        // iOS Human Interface Guidelines
+    android: '48px',    // Material Design Guidelines
+    recommended: '48px' // Use Android standard for consistency
+  },
+  
+  // Button sizing for different devices
+  buttonSizes: {
+    mobile: {
+      primary: { padding: '12px 20px', fontSize: '16px' },
+      secondary: { padding: '10px 16px', fontSize: '14px' },
+      small: { padding: '8px 12px', fontSize: '14px' }
+    },
+    desktop: {
+      primary: { padding: '6px 12px', fontSize: '12px' },    // Current
+      secondary: { padding: '6px 12px', fontSize: '12px' },  // Current
+      small: { padding: '3px 8px', fontSize: '11px' }        // Current
+    }
+  }
+}
+```
+
+### Responsive Grid System
+```javascript
+const responsiveLayouts = {
+  // Item Grid Behavior
+  itemGrid: {
+    mobile: {
+      display: 'grid',
+      gridTemplateColumns: '1fr',
+      gap: '15px',
+      padding: '15px'
+    },
+    tablet: {
+      display: 'grid', 
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gap: '15px',
+      padding: '20px'
+    },
+    desktop: {
+      display: 'flex',           // Current horizontal scroll
+      gap: '10px',
+      overflowX: 'auto',
+      padding: '10px 0'
+    }
+  },
+  
+  // Header Layout
+  header: {
+    mobile: {
+      flexDirection: 'column',
+      height: 'auto',
+      padding: '15px',
+      gap: '15px'
+    },
+    tablet: {
+      flexDirection: 'row',
+      height: '70px',
+      justifyContent: 'space-between'
+    },
+    desktop: {
+      // Current implementation
+      height: '70px',
+      flexDirection: 'row',
+      justifyContent: 'space-between'
+    }
+  }
+}
+```
+
 ## Implementation Notes
 
 ### Current Architecture
 - **Inline React Styles**: All styling defined within component files
 - **Style Objects**: Consistent style objects for reusability
 - **Event-based Interactions**: Hover states via onMouseOver/onMouseOut
-- **Responsive Values**: Fixed pixel values optimized for the target use case
+- **Tailwind Integration**: Utility classes available for responsive enhancements
+- **Responsive Strategy**: Progressive enhancement from mobile-first base
 
 ### Consistency Guidelines
 1. **Color Usage**: Always use the exact hex values from the color palette
