@@ -1,5 +1,10 @@
 # Google Cloud Build configuration for automatic deployment
 # Uses ~3 minutes per deployment from 120 free minutes/day
+
+# Configure logging to use Cloud Logging only (fixes service account logging requirement)
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
