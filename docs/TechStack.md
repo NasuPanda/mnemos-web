@@ -4,8 +4,8 @@
 
 ### Backend
 - **FastAPI** - Modern Python web framework
-- **SQLite** - File-based database (no server setup required)
-- **SQLAlchemy** - ORM for database operations
+- **JSON File Storage** - Single file-based data storage (no database required)
+- **FastAPI StaticFiles** - Static image serving for uploaded content
 - **Pydantic** - Data validation (built into FastAPI)
 - **Uvicorn** - ASGI server
 
@@ -13,12 +13,11 @@
 - **React** - UI framework
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Hook Form** - Form handling
+- **Inline Styling** - Component-based React styling for maintainability
 
 ### Data Storage
 - **JSON File** - Single file storage for all application data
-- **Local Filesystem** - Image storage for uploaded content
+- **Local Filesystem** - UUID-based image storage for uploaded content
 
 ### Deployment
 - **Docker** - Containerization for consistent builds and deployment
@@ -50,6 +49,39 @@
 - Cross-date queries and operations simplified
 - Easy statistics calculation across all items
 - Supports review scheduling and overdue item tracking
+
+## Image Storage Architecture
+
+### Local File Storage
+- **Upload Endpoint**: `/api/upload-image` accepts multipart form data
+- **UUID Naming**: Secure unique filenames to prevent conflicts
+- **Static Serving**: `/images/` route serves uploaded content
+- **File Validation**: Type, size, and extension checking
+- **Multiple Images**: Array support for multiple images per problem/answer
+
+### Image Management
+```python
+# Upload process
+1. Validate file (type, size, extension)
+2. Generate UUID filename
+3. Save to /app/data/images/
+4. Return path: /images/{uuid}.{ext}
+5. Store path in JSON data arrays
+```
+
+## Frontend Architecture
+
+### Component Structure
+- **React with TypeScript** for type safety
+- **Inline Styling** for component encapsulation
+- **Modal-based UI** for item creation/editing/review
+- **State Management** via React hooks and local state
+
+### Styling Approach
+- **Inline React Styles** - All styling defined within components
+- **Design System Colors** - Consistent navy-blue color palette
+- **Responsive Design** - Flexible layouts that adapt to content
+- **Component Encapsulation** - Styles co-located with components
 
 ## Deployment
 

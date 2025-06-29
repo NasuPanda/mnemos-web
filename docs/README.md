@@ -21,14 +21,14 @@ class Item:
         self.side_note: str = ""
 
         # Problem Content (all optional)
-        self.problem_text: Optional[str] = None
+        self.problem: Optional[str] = None  # Main problem text
         self.problem_url: Optional[str] = None
-        self.problem_image: Optional[str] = None  # file path (to the in-app folder)
+        self.problem_images: Optional[List[str]] = []  # Array of file paths
 
         # Answer Content (all optional)
-        self.answer_text: Optional[str] = None
+        self.answer: Optional[str] = None  # Main answer text
         self.answer_url: Optional[str] = None
-        self.answer_image: Optional[str] = None  # file path (to the in-app folder)
+        self.answer_images: Optional[List[str]] = []  # Array of file paths
 
         # Review System
         self.reviewed: bool = False  # T/F for reviewed status
@@ -45,11 +45,11 @@ class Item:
 
     def has_problem_content(self) -> bool:
         """Check if item has any problem content"""
-        return any([self.problem_text, self.problem_url, self.problem_image])
+        return any([self.problem, self.problem_url, self.problem_images])
 
     def has_answer_content(self) -> bool:
         """Check if item has any answer content"""
-        return any([self.answer_text, self.answer_url, self.answer_image])
+        return any([self.answer, self.answer_url, self.answer_images])
 
 # ...
 ```
@@ -58,7 +58,7 @@ class Item:
 
 **Architecture**: Single JSON file storage
 - All application data stored in one JSON file
-- Local filesystem for image storage
+- Local filesystem for image storage with UUID-based filenames
 - Simple backup and portability
 - No database setup required
 
@@ -72,13 +72,13 @@ class Item:
       "section": "Category Name",
       "side_note": "Optional notes",
 
-      "problem_text": "Problem description",
+      "problem": "Problem description text",
       "problem_url": "https://example.com",
-      "problem_image": "path/to/image.jpg",
+      "problem_images": ["path/to/image1.jpg", "path/to/image2.png"],
 
-      "answer_text": "Answer content",
+      "answer": "Answer content text",
       "answer_url": "https://answer.com",
-      "answer_image": "path/to/answer.jpg",
+      "answer_images": ["path/to/answer1.jpg", "path/to/answer2.jpg"],
 
       "reviewed": false,
       "next_review_date": "2025-07-06T10:30:00Z",

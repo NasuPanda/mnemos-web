@@ -3,8 +3,8 @@
 ### Grid Organization
 - Items flow **left to right** in rows within each category
 - Multiple items can appear on the same row
-- Cards have **consistent width** (110px) but **flexible height** based on content
-- Cards have a **minimum height** (100px) and expand vertically as needed
+- Cards have **consistent width** (140px) but **flexible height** based on content
+- Cards have a **minimum height** (120px) and expand vertically as needed
 - **Category height** matches the tallest card in that category
 - All cards within a category align to the same top baseline
 - When items in a category cannot be displayed at once, there will appear a horizontal scrollable bar.
@@ -22,7 +22,7 @@
 - Full opacity and visibility
 - Clear, readable text
 **Reviewed Items** (Secondary Display):
-- Dimmed appearance (60% opacity)
+- Dimmed appearance (70% opacity)
 - Gray borders and muted colors
 - "Reviewed ✓" status indicator
 
@@ -32,7 +32,7 @@ Each card displays:
 2. **Problem Content** - Full problem text with automatic word wrapping
 3. **Media Indicators** - Visual buttons for additional content (if present):
     - 📎 "Link" - for URL references
-    - 🖼️ "Image" - for visual content
+    - 🖼️ "Image" or 🖼️ "3" - for visual content (shows count for multiple images)
 4. **Show Answer Button** - Blue action button to reveal the answer
 5. **Action Buttons** - Edit and Delete buttons in a horizontal row
 6. **Date stamp** - shows when it was created/last accessed (e.g., "06/25/2024")
@@ -49,12 +49,19 @@ Each card displays:
 **Problem Content** (shown on cards):
 - **Text**: Displayed in full with automatic word wrapping
 - **URLs**: Shown as clickable link buttons
-- **Images**: Displayed as "show the image" buttons (for data efficiency)
+- **Images**: Multiple images supported - displayed as "🖼️ Image" or "🖼️ 3" buttons
 
 **Answer Content** (hidden until requested):
 - Accessed via "Show Answer" button
-- Opens in separate interface
-- Can contain text, URLs, and/or images
+- Opens in separate modal interface
+- Can contain text, URLs, and/or multiple images
+- Images displayed in separate sections for Problem Images and Answer Images
+
+### Multiple Images Support
+- **Problem Images**: Array of image paths, displayed as numbered buttons
+- **Answer Images**: Array of image paths, displayed as numbered buttons
+- **Image Count Display**: Shows count when multiple images (e.g., "🖼️ 3")
+- **Click Behavior**: Opens first image in new tab, or shows count tooltip
 
 ### Sorting Logic
 
@@ -68,6 +75,10 @@ Each card displays:
 Within each review status, items are sorted by:
 - Created date or last accessed time
 - Most recent items appear last
+
+### Filtering
+
+Only items displayed are the ones due the date. E.g., if the current display date is "June 29, 2025," then only the items with the `review_date = 2025-06-29` will be displayed.
 
 ### Sidebar Information
 
