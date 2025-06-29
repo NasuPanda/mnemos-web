@@ -1,7 +1,6 @@
 # Header
 - "Mnemos" title and "Memory & Knowledge Organization" subtitle are positioned above the header box
-- "Today" button at the top left
-- "Default" category select box at the top center
-- The current date display (e.g., June 27, 2025) at the bottom center
-- Left (←) and right (→) arrow navigation buttons for moving between dates
-- "Setting" (⚙️) at the top right
+- Header box contains three sections:
+  - **Left**: "Today" button and category select box positioned next to each other with mild distance
+  - **Center**: Date navigation with left (←) and right (→) arrow buttons and current date display (e.g., June 27, 2025)
+  - **Right**: "Setting" (⚙️) button
