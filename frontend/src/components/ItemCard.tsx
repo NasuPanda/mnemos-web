@@ -14,12 +14,10 @@ export interface StudyItem {
   
   // Extended fields for complete testing
   sideNote?: string;
-  problemText?: string;
   problemUrl?: string;
-  problemImage?: string;
-  answerText?: string;
+  problemImages?: string[];
   answerUrl?: string;
-  answerImage?: string;
+  answerImages?: string[];
 }
 
 interface ItemCardProps {
@@ -185,7 +183,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
       {(() => {
         const hasLinks = !!(item.problemUrl || item.answerUrl);
-        const hasImages = !!(item.problemImage || item.answerImage);
+        const hasImages = !!(item.problemImages?.length || item.answerImages?.length);
         
         const handleLinkClick = (e: React.MouseEvent) => {
           e.stopPropagation();
@@ -197,11 +195,13 @@ const ItemCard: React.FC<ItemCardProps> = ({
         
         const handleImageClick = (e: React.MouseEvent) => {
           e.stopPropagation();
-          const imageUrl = item.problemImage || item.answerImage;
+          const imageUrl = item.problemImages?.[0] || item.answerImages?.[0];
           if (imageUrl) {
             window.open(imageUrl, '_blank', 'noopener,noreferrer');
           }
         };
+        
+        const imageCount = (item.problemImages?.length || 0) + (item.answerImages?.length || 0);
         
         return (hasLinks || hasImages) ? (
           <div style={mediaIndicatorsStyle}>
@@ -218,9 +218,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
               <button 
                 style={mediaButtonStyle}
                 onClick={handleImageClick}
-                title={item.problemImage || item.answerImage}
+                title={`${imageCount} image${imageCount > 1 ? 's' : ''}`}
               >
-                🖼️ Image
+                🖼️ {imageCount > 1 ? `${imageCount}` : 'Image'}
               </button>
             )}
           </div>

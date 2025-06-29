@@ -21,12 +21,10 @@ const DUMMY_ITEMS: StudyItem[] = [
     
     // Extended fields with all possible content
     sideNote: 'This is a side note that provides additional context or personal thoughts about this item.',
-    problemText: 'Detailed problem description: Find the derivative of the polynomial function f(x) = x^2 + 3x + 1 using the power rule.',
     problemUrl: 'https://www.wolframalpha.com/input/?i=derivative+of+x%5E2%2B3x%2B1',
-    problemImage: '/design/wireframe_images/DisplayItemsView.png',
-    answerText: 'Step-by-step solution: Using the power rule, d/dx(x^n) = nx^(n-1), we get: d/dx(x^2) = 2x, d/dx(3x) = 3, d/dx(1) = 0. Therefore: f\'(x) = 2x + 3 + 0 = 2x + 3',
+    problemImages: ['/design/wireframe_images/DisplayItemsView.png', '/design/wireframe_images/NewItemView.png'],
     answerUrl: 'https://tutorial.math.lamar.edu/classes/calci/defnofderivative.aspx',
-    answerImage: '/design/wireframe_images/ReviewItem.png'
+    answerImages: ['/design/wireframe_images/ReviewItem.png']
   },
   {
     id: '2',

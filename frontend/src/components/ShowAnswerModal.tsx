@@ -194,17 +194,41 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
           )}
         </div>
 
-        {item.hasImage && (
+        {item.problemImages && item.problemImages.length > 0 && (
           <div style={sectionStyle}>
-            <div style={sectionTitleStyle}>Images</div>
-            <button
-              style={imageButtonStyle}
-              onClick={() => alert('Image viewing would be implemented here')}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-            >
-              🖼️ View Image
-            </button>
+            <div style={sectionTitleStyle}>Problem Images</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              {item.problemImages.map((imagePath, index) => (
+                <button
+                  key={index}
+                  style={imageButtonStyle}
+                  onClick={() => window.open(imagePath, '_blank', 'noopener,noreferrer')}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
+                >
+                  🖼️ Image {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {item.answerImages && item.answerImages.length > 0 && (
+          <div style={sectionStyle}>
+            <div style={sectionTitleStyle}>Answer Images</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              {item.answerImages.map((imagePath, index) => (
+                <button
+                  key={index}
+                  style={imageButtonStyle}
+                  onClick={() => window.open(imagePath, '_blank', 'noopener,noreferrer')}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
+                >
+                  🖼️ Image {index + 1}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

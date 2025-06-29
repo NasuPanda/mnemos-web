@@ -1,13 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import json
 import os
+import shutil
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 import uuid
+from pathlib import Path
 
 app = FastAPI(title="Mnemos API", description="Spaced repetition learning app")
+
+# Ensure images directory exists
+IMAGES_DIR = Path("/app/data/images")
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+
+# Serve static images
+app.mount("/images", StaticFiles(directory=str(IMAGES_DIR)), name="images")
 
 # CORS middleware for React frontend
 app.add_middleware(
@@ -77,6 +87,44 @@ def save_data(data: AppData):
 @app.get("/")
 async def root():
     return {"message": "Mnemos API is running"}
+
+@app.post("/api/upload-image")
+async def upload_image(file: UploadFile = File(...)):
+    """Upload an image file and return its path"""
+    # Validate file type
+    if not file.content_type or not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    # Validate file size (max 10MB)
+    if file.size and file.size > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size must be less than 10MB")
+    
+    # Generate unique filename
+    file_extension = "jpg"  # Default extension
+    if file.filename and "." in file.filename:
+        file_extension = file.filename.split('.')[-1].lower()
+    
+    # Validate file extension
+    allowed_extensions = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'}
+    if file_extension not in allowed_extensions:
+        raise HTTPException(status_code=400, detail=f"File extension must be one of: {', '.join(allowed_extensions)}")
+    
+    unique_filename = f"{uuid.uuid4()}.{file_extension}"
+    file_path = IMAGES_DIR / unique_filename
+    
+    try:
+        # Save file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Return path relative to server root
+        return {"image_path": f"/images/{unique_filename}"}
+    
+    except Exception as e:
+        # Clean up file if it was partially created
+        if file_path.exists():
+            file_path.unlink()
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
 @app.get("/api/data")
 async def get_data():

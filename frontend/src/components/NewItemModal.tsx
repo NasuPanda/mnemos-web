@@ -25,9 +25,14 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
     answer: '',
     sideNote: '',
     problemUrl: '',
-    problemImage: '',
+    problemImages: [] as string[],
     answerUrl: '',
-    answerImage: ''
+    answerImages: [] as string[]
+  });
+
+  const [uploading, setUploading] = useState({
+    problemImages: false,
+    answerImages: false
   });
 
   useEffect(() => {
@@ -37,11 +42,11 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
         category: editItem.category,
         problem: editItem.problem,
         answer: editItem.answer,
-        sideNote: '',
-        problemUrl: '',
-        problemImage: '',
-        answerUrl: '',
-        answerImage: ''
+        sideNote: editItem.sideNote || '',
+        problemUrl: editItem.problemUrl || '',
+        problemImages: editItem.problemImages || [],
+        answerUrl: editItem.answerUrl || '',
+        answerImages: editItem.answerImages || []
       });
     } else {
       setFormData({
@@ -51,36 +56,128 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
         answer: '',
         sideNote: '',
         problemUrl: '',
-        problemImage: '',
+        problemImages: [],
         answerUrl: '',
-        answerImage: ''
+        answerImages: []
       });
     }
   }, [editItem, selectedCategory, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const hasLink = !!(formData.problemUrl || formData.answerUrl);
-    const hasImage = !!(formData.problemImage || formData.answerImage);
-    
+    const hasImage = !!(formData.problemImages.length || formData.answerImages.length);
+
     onSubmit({
       name: formData.name,
       category: formData.category,
       problem: formData.problem,
       answer: formData.answer,
       hasLink,
-      hasImage
+      hasImage,
+      sideNote: formData.sideNote,
+      problemUrl: formData.problemUrl,
+      problemImages: formData.problemImages,
+      answerUrl: formData.answerUrl,
+      answerImages: formData.answerImages
     });
-    
+
     onClose();
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleRemoveImage = (field: 'problemImages' | 'answerImages', index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleClearAllImages = (field: 'problemImages' | 'answerImages') => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: []
+    }));
+  };
+
+  const handleFileUpload = async (field: 'problemImages' | 'answerImages', files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setUploading(prev => ({ ...prev, [field]: true }));
+
+    try {
+      const uploadedPaths: string[] = [];
+      
+      // Upload all selected files
+      for (let i = 0; i < files.length; i++) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', files[i]);
+
+        const response = await fetch('http://localhost:8000/api/upload-image', {
+          method: 'POST',
+          body: formDataUpload
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Upload response:', response.status, errorText);
+          try {
+            const errorData = JSON.parse(errorText);
+            throw new Error(errorData.detail || 'Upload failed');
+          } catch {
+            throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+          }
+        }
+
+        const responseText = await response.text();
+        const { image_path } = JSON.parse(responseText);
+        uploadedPaths.push(image_path);
+      }
+      
+      // Add new images to existing array
+      setFormData(prev => ({
+        ...prev,
+        [field]: [...prev[field], ...uploadedPaths]
+      }));
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setUploading(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const handlePaste = async (field: 'problemImages' | 'answerImages', event: React.ClipboardEvent) => {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith('image/')) {
+        event.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          // Create a FileList-like object with the pasted file
+          const fileList = {
+            0: file,
+            length: 1,
+            item: (index: number) => index === 0 ? file : null,
+            [Symbol.iterator]: function* () { yield file; }
+          } as FileList;
+
+          await handleFileUpload(field, fileList);
+        }
+        break;
+      }
+    }
   };
 
   if (!isOpen) return null;
@@ -264,14 +361,139 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Problem Image URL</label>
-            <input
-              type="url"
-              style={inputStyle}
-              value={formData.problemImage}
-              onChange={(e) => handleInputChange('problemImage', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-            />
+            <label style={labelStyle}>Problem Image</label>
+
+            {/* Upload Button Section */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleFileUpload('problemImages', e.target.files)}
+                disabled={uploading.problemImages}
+                style={{ display: 'none' }}
+                id="problemImageUpload"
+              />
+              <label
+                htmlFor="problemImageUpload"
+                style={{
+                  ...inputStyle,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: uploading.problemImages ? 'not-allowed' : 'pointer',
+                  backgroundColor: uploading.problemImages ? '#f0f8ff' : '#e8f0f5',
+                  padding: '10px 15px',
+                  width: 'auto',
+                  fontSize: '12px'
+                }}
+              >
+                📎 Select Image Files
+              </label>
+            </div>
+
+            {/* Paste Area Section */}
+            <div
+              style={{
+                ...inputStyle,
+                minHeight: '50px',
+                border: '2px dashed #4a90b8',
+                backgroundColor: '#f8fcff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'text',
+                marginBottom: '8px'
+              }}
+              onPaste={(e) => handlePaste('problemImages', e)}
+              tabIndex={0}
+            >
+              <div style={{ fontSize: '12px', color: '#2d5a87', textAlign: 'center' }}>
+                📋 Paste Image Here (Cmd+V)
+              </div>
+            </div>
+
+            {/* Images Display Section */}
+            {formData.problemImages.length > 0 && (
+              <div style={{
+                ...inputStyle,
+                backgroundColor: '#f8fcff',
+                padding: '8px 12px',
+                marginBottom: '8px'
+              }}>
+                <div style={{ fontSize: '11px', color: '#2d5a87', marginBottom: '5px' }}>
+                  Uploaded Images:
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                  {formData.problemImages.map((imagePath, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: '#e8f0f5',
+                        border: '1px solid #4a90b8',
+                        borderRadius: '3px',
+                        padding: '3px 6px',
+                        fontSize: '10px'
+                      }}
+                    >
+                      <span>🖼️ Image {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage('problemImages', index)}
+                        style={{
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          color: '#2d5a87',
+                          cursor: 'pointer',
+                          marginLeft: '5px',
+                          fontSize: '10px'
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Status Section */}
+            <div style={{
+              ...inputStyle,
+              backgroundColor: '#f5f9fc',
+              padding: '8px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '11px',
+              color: '#2d5a87'
+            }}>
+              {uploading.problemImages ? (
+                <span>🔄 Uploading...</span>
+              ) : formData.problemImages.length > 0 ? (
+                <>
+                  <span>✅ {formData.problemImages.length} image{formData.problemImages.length > 1 ? 's' : ''} ready</span>
+                  <button
+                    type="button"
+                    onClick={() => handleClearAllImages('problemImages')}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: '#2d5a87',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Clear All
+                  </button>
+                </>
+              ) : (
+                <span>No images selected</span>
+              )}
+            </div>
           </div>
 
           <div style={sectionTitleStyle}>Answer</div>
@@ -301,14 +523,139 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Answer Image URL</label>
-            <input
-              type="url"
-              style={inputStyle}
-              value={formData.answerImage}
-              onChange={(e) => handleInputChange('answerImage', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-            />
+            <label style={labelStyle}>Answer Image</label>
+
+            {/* Upload Button Section */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleFileUpload('answerImages', e.target.files)}
+                disabled={uploading.answerImages}
+                style={{ display: 'none' }}
+                id="answerImageUpload"
+              />
+              <label
+                htmlFor="answerImageUpload"
+                style={{
+                  ...inputStyle,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: uploading.answerImages ? 'not-allowed' : 'pointer',
+                  backgroundColor: uploading.answerImages ? '#f0f8ff' : '#e8f0f5',
+                  padding: '10px 15px',
+                  width: 'auto',
+                  fontSize: '12px'
+                }}
+              >
+                📎 Select Image Files
+              </label>
+            </div>
+
+            {/* Paste Area Section */}
+            <div
+              style={{
+                ...inputStyle,
+                minHeight: '50px',
+                border: '2px dashed #4a90b8',
+                backgroundColor: '#f8fcff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'text',
+                marginBottom: '8px'
+              }}
+              onPaste={(e) => handlePaste('answerImages', e)}
+              tabIndex={0}
+            >
+              <div style={{ fontSize: '12px', color: '#2d5a87', textAlign: 'center' }}>
+                📋 Paste Image Here (Cmd+V)
+              </div>
+            </div>
+
+            {/* Images Display Section */}
+            {formData.answerImages.length > 0 && (
+              <div style={{
+                ...inputStyle,
+                backgroundColor: '#f8fcff',
+                padding: '8px 12px',
+                marginBottom: '8px'
+              }}>
+                <div style={{ fontSize: '11px', color: '#2d5a87', marginBottom: '5px' }}>
+                  Uploaded Images:
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                  {formData.answerImages.map((imagePath, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: '#e8f0f5',
+                        border: '1px solid #4a90b8',
+                        borderRadius: '3px',
+                        padding: '3px 6px',
+                        fontSize: '10px'
+                      }}
+                    >
+                      <span>🖼️ Image {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage('answerImages', index)}
+                        style={{
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          color: '#2d5a87',
+                          cursor: 'pointer',
+                          marginLeft: '5px',
+                          fontSize: '10px'
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Status Section */}
+            <div style={{
+              ...inputStyle,
+              backgroundColor: '#f5f9fc',
+              padding: '8px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '11px',
+              color: '#2d5a87'
+            }}>
+              {uploading.answerImages ? (
+                <span>🔄 Uploading...</span>
+              ) : formData.answerImages.length > 0 ? (
+                <>
+                  <span>✅ {formData.answerImages.length} image{formData.answerImages.length > 1 ? 's' : ''} ready</span>
+                  <button
+                    type="button"
+                    onClick={() => handleClearAllImages('answerImages')}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: '#2d5a87',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Clear All
+                  </button>
+                </>
+              ) : (
+                <span>No images selected</span>
+              )}
+            </div>
           </div>
 
           <div style={formGroupStyle}>
