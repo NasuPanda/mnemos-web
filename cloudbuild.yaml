@@ -1,0 +1,38 @@
+# Google Cloud Build configuration for automatic deployment
+# Uses ~3 minutes per deployment from 120 free minutes/day
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/mnemos-web', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/mnemos-web']
+  
+  # Deploy container image to Cloud Run (free tier optimized)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'mnemos-web'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/mnemos-web'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '80'
+      - '--memory'
+      - '256Mi'
+      - '--cpu'
+      - '1000m'
+      - '--max-instances'
+      - '3'
+      - '--concurrency'
+      - '100'
+
+images:
+  - 'gcr.io/$PROJECT_ID/mnemos-web'
