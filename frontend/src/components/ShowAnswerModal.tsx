@@ -114,8 +114,49 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
     padding: '20px'
   };
 
-  // For demo purposes, assuming URL and image data would be stored in the answer field
-  // In a real implementation, these would be separate fields
+  const linkStyle = {
+    color: '#2d5a87',
+    textDecoration: 'underline',
+    fontSize: '12px',
+    wordBreak: 'break-all' as const,
+    lineHeight: '1.4',
+    display: 'block',
+    marginBottom: '8px'
+  };
+
+  // Function to render answer content with URLs as clickable links
+  const renderAnswerContent = (answer: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = answer.match(urlRegex);
+    const textWithoutUrls = answer.replace(urlRegex, '').trim();
+    
+    return (
+      <>
+        {textWithoutUrls && (
+          <div style={contentStyle}>
+            {textWithoutUrls}
+          </div>
+        )}
+        {urls && urls.length > 0 && (
+          <div style={{ marginTop: textWithoutUrls ? '10px' : '0' }}>
+            <div style={sectionTitleStyle}>Links</div>
+            {urls.map((url, index) => (
+              <a 
+                key={index}
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={linkStyle}
+              >
+                {url}
+              </a>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
+
   const hasAnswerContent = item.answer && item.answer.trim().length > 0;
 
   return (
@@ -145,30 +186,13 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
         <div style={sectionStyle}>
           <div style={sectionTitleStyle}>Answer</div>
           {hasAnswerContent ? (
-            <div style={contentStyle}>
-              {item.answer}
-            </div>
+            renderAnswerContent(item.answer)
           ) : (
             <div style={emptyStateStyle}>
               No answer provided for this item.
             </div>
           )}
         </div>
-
-        {/* Demo buttons for URL and image content */}
-        {item.hasLink && (
-          <div style={sectionStyle}>
-            <div style={sectionTitleStyle}>Links</div>
-            <button
-              style={imageButtonStyle}
-              onClick={() => window.open('#', '_blank')}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-            >
-              📎 Open Reference Link
-            </button>
-          </div>
-        )}
 
         {item.hasImage && (
           <div style={sectionStyle}>

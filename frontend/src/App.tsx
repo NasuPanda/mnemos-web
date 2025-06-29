@@ -10,20 +10,29 @@ import type { StudyItem } from './components/ItemCard';
 const DUMMY_ITEMS: StudyItem[] = [
   {
     id: '1',
-    name: 'Derivatives',
-    problem: 'What is the derivative of x^2 + 3x + 1?',
-    answer: '2x + 3',
+    name: 'Complete Test Item with All Fields',
+    problem: 'This is the main problem text that appears on the card. What is the derivative of x^2 + 3x + 1?',
+    answer: 'The derivative is 2x + 3\n\nDetailed explanation: https://www.khanacademy.org/math/calculus-1/cs1-derivatives-definition-and-basic-rules\n\nAdditional reference: https://mathworld.wolfram.com/Derivative.html',
     category: 'Calculus 1',
     createdAt: '2024-06-25',
     isReviewed: false,
     hasLink: true,
-    hasImage: false
+    hasImage: true,
+    
+    // Extended fields with all possible content
+    sideNote: 'This is a side note that provides additional context or personal thoughts about this item.',
+    problemText: 'Detailed problem description: Find the derivative of the polynomial function f(x) = x^2 + 3x + 1 using the power rule.',
+    problemUrl: 'https://www.wolframalpha.com/input/?i=derivative+of+x%5E2%2B3x%2B1',
+    problemImage: '/design/wireframe_images/DisplayItemsView.png',
+    answerText: 'Step-by-step solution: Using the power rule, d/dx(x^n) = nx^(n-1), we get: d/dx(x^2) = 2x, d/dx(3x) = 3, d/dx(1) = 0. Therefore: f\'(x) = 2x + 3 + 0 = 2x + 3',
+    answerUrl: 'https://tutorial.math.lamar.edu/classes/calci/defnofderivative.aspx',
+    answerImage: '/design/wireframe_images/ReviewItem.png'
   },
   {
     id: '2',
     name: 'Ephemeral',
     problem: 'What does ephemeral mean?',
-    answer: 'Lasting for a very short time',
+    answer: 'Lasting for a very short time\n\nhttps://www.merriam-webster.com/dictionary/ephemeral',
     category: 'Vocabulary',
     createdAt: '2024-06-26',
     isReviewed: true,
@@ -45,7 +54,7 @@ const DUMMY_ITEMS: StudyItem[] = [
     id: '4',
     name: 'Integration',
     problem: 'What is the integral of 2x?',
-    answer: 'x^2 + C',
+    answer: 'x^2 + C\n\nReference: https://mathworld.wolfram.com/Integral.html',
     category: 'Calculus 1',
     createdAt: '2024-06-24',
     isReviewed: true,
@@ -187,8 +196,8 @@ function App() {
             border: '1px solid #2d5a87',
             color: '#ffffff',
             borderRadius: '4px',
-            padding: '10px 20px',
-            fontSize: '14px',
+            padding: '12px 24px',
+            fontSize: '16px',
             cursor: 'pointer',
             marginBottom: '20px',
             fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'

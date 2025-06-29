@@ -40,7 +40,7 @@ const ItemGrid: React.FC<ItemGridProps> = ({
   };
 
   const headerStyle = {
-    fontSize: '16px',
+    fontSize: '18px',
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
     marginBottom: '10px',
@@ -50,7 +50,7 @@ const ItemGrid: React.FC<ItemGridProps> = ({
   const gridStyle = {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '10px',
+    gap: '12px',
     overflowX: 'auto' as const,
     overflowY: 'hidden' as const,
     padding: '10px 0',

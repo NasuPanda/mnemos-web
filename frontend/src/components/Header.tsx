@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({
       {/* Title and Subtitle - Above the header box */}
       <div style={{ textAlign: 'center', marginBottom: '10px' }}>
         <h1 style={{ 
-          fontSize: '18px', 
+          fontSize: '24px', 
           fontWeight: 'bold', 
           color: '#1e3a5f',
           margin: '0 0 5px 0',
@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({
           Mnemos
         </h1>
         <p style={{ 
-          fontSize: '12px', 
+          fontSize: '14px', 
           color: '#2d5a87',
           margin: '0',
           fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
@@ -55,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({
         backgroundColor: '#ffffff',
         border: '2px solid #4a90b8',
         borderRadius: '8px',
-        height: '60px',
+        height: '70px',
         padding: '0 20px',
         marginBottom: '20px',
         display: 'flex',
@@ -77,8 +77,8 @@ const Header: React.FC<HeaderProps> = ({
               border: '1px solid #2d5a87',
               color: '#ffffff',
               borderRadius: '4px',
-              padding: '6px 12px',
-              fontSize: '12px',
+              padding: '8px 14px',
+              fontSize: '14px',
               cursor: 'pointer',
               fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
             }}
@@ -96,11 +96,11 @@ const Header: React.FC<HeaderProps> = ({
               backgroundColor: '#e8f0f5',
               border: '1px solid #4a90b8',
               borderRadius: '4px',
-              padding: '8px 12px',
-              fontSize: '12px',
+              padding: '10px 14px',
+              fontSize: '14px',
               color: '#2d5a87',
               fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-              minWidth: '120px'
+              minWidth: '150px'
             }}
           >
             {categories.map((category) => (
@@ -128,8 +128,8 @@ const Header: React.FC<HeaderProps> = ({
               border: '1px solid #4a90b8',
               color: '#ffffff',
               borderRadius: '4px',
-              padding: '4px 8px',
-              fontSize: '12px',
+              padding: '6px 10px',
+              fontSize: '14px',
               cursor: 'pointer',
               fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
             }}
@@ -144,11 +144,11 @@ const Header: React.FC<HeaderProps> = ({
             backgroundColor: '#e8f0f5',
             border: '1px solid #4a90b8',
             borderRadius: '4px',
-            padding: '8px 12px',
-            fontSize: '12px',
+            padding: '10px 14px',
+            fontSize: '14px',
             color: '#2d5a87',
             fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-            minWidth: '160px',
+            minWidth: '180px',
             textAlign: 'center'
           }}>
             {formatDate(currentDate)}
@@ -162,8 +162,8 @@ const Header: React.FC<HeaderProps> = ({
               border: '1px solid #4a90b8',
               color: '#ffffff',
               borderRadius: '4px',
-              padding: '4px 8px',
-              fontSize: '12px',
+              padding: '6px 10px',
+              fontSize: '14px',
               cursor: 'pointer',
               fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
             }}

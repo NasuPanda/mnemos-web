@@ -11,6 +11,15 @@ export interface StudyItem {
   isReviewed: boolean;
   hasLink?: boolean;
   hasImage?: boolean;
+  
+  // Extended fields for complete testing
+  sideNote?: string;
+  problemText?: string;
+  problemUrl?: string;
+  problemImage?: string;
+  answerText?: string;
+  answerUrl?: string;
+  answerImage?: string;
 }
 
 interface ItemCardProps {
@@ -42,8 +51,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   const cardStyle = {
-    width: '110px',
-    minHeight: '100px',
+    width: '140px',
+    minHeight: '120px',
     flexShrink: 0,
     borderRadius: '6px',
     padding: '10px',
@@ -60,21 +69,22 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   const titleStyle = {
-    fontSize: '10px',
+    fontSize: '12px',
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
     margin: '0 0 5px 0',
     opacity: item.isReviewed ? 0.8 : 1,
     overflow: 'hidden',
     wordWrap: 'break-word',
-    overflowWrap: 'break-word'
+    overflowWrap: 'break-word',
+    lineHeight: '1.4'
   };
 
   const problemStyle = {
-    fontSize: '8px',
+    fontSize: '12px',
     color: '#2d5a87',
     margin: '0 0 8px 0',
-    lineHeight: '1.2',
+    lineHeight: '1.4',
     opacity: item.isReviewed ? 0.8 : 1,
     flexGrow: 1,
     overflow: 'hidden',
@@ -89,8 +99,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   const mediaButtonStyle = {
-    fontSize: '6px',
-    padding: '1px 3px',
+    fontSize: '10px',
+    padding: '2px 4px',
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     borderRadius: '2px',
@@ -110,8 +120,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
     border: '1px solid #2d5a87',
     color: '#ffffff',
     borderRadius: '2px',
-    padding: '3px 6px',
-    fontSize: '7px',
+    padding: '5px 8px',
+    fontSize: '12px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
   };
@@ -127,8 +137,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
     border: '1px solid #f5c842',
     color: '#1e3a5f',
     borderRadius: '2px',
-    padding: '2px 6px',
-    fontSize: '7px',
+    padding: '3px 7px',
+    fontSize: '11px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
   };
@@ -138,14 +148,14 @@ const ItemCard: React.FC<ItemCardProps> = ({
     border: '1px solid #1a2e42',
     color: '#ffffff',
     borderRadius: '2px',
-    padding: '2px 6px',
-    fontSize: '7px',
+    padding: '3px 7px',
+    fontSize: '11px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
   };
 
   const timestampStyle = {
-    fontSize: '6px',
+    fontSize: '10px',
     color: '#4a90b8',
     textAlign: 'center' as const,
     marginTop: '2px',
@@ -153,7 +163,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   const reviewedIndicatorStyle = {
-    fontSize: '6px',
+    fontSize: '10px',
     color: '#2d5a87',
     textAlign: 'center' as const,
     margin: '2px 0 0 0',
@@ -173,20 +183,49 @@ const ItemCard: React.FC<ItemCardProps> = ({
         {item.problem}
       </div>
 
-      {(item.hasLink || item.hasImage) && (
-        <div style={mediaIndicatorsStyle}>
-          {item.hasLink && (
-            <button style={mediaButtonStyle}>
-              📎 Link
-            </button>
-          )}
-          {item.hasImage && (
-            <button style={mediaButtonStyle}>
-              🖼️ Image
-            </button>
-          )}
-        </div>
-      )}
+      {(() => {
+        const hasLinks = !!(item.problemUrl || item.answerUrl);
+        const hasImages = !!(item.problemImage || item.answerImage);
+        
+        const handleLinkClick = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          const url = item.problemUrl || item.answerUrl;
+          if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+          }
+        };
+        
+        const handleImageClick = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          const imageUrl = item.problemImage || item.answerImage;
+          if (imageUrl) {
+            window.open(imageUrl, '_blank', 'noopener,noreferrer');
+          }
+        };
+        
+        return (hasLinks || hasImages) ? (
+          <div style={mediaIndicatorsStyle}>
+            {hasLinks && (
+              <button 
+                style={mediaButtonStyle}
+                onClick={handleLinkClick}
+                title={item.problemUrl || item.answerUrl}
+              >
+                📎 Link
+              </button>
+            )}
+            {hasImages && (
+              <button 
+                style={mediaButtonStyle}
+                onClick={handleImageClick}
+                title={item.problemImage || item.answerImage}
+              >
+                🖼️ Image
+              </button>
+            )}
+          </div>
+        ) : null;
+      })()}
 
       <div style={buttonsContainerStyle}>
         <button 
