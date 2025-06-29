@@ -1,15 +1,14 @@
 import React from 'react';
 
-// Dummy data - easy to replace with API calls later
-const DUMMY_CATEGORIES = ['Default', 'Calculus 1', 'Vocabulary', 'History'];
 
 interface HeaderProps {
-  selectedCategory: string;
+  selectedCategory: string | null;
   onCategoryChange: (category: string) => void;
   onTodayClick: () => void;
   onSettingsClick: () => void;
   onDateNavigate: (direction: 'prev' | 'next') => void;
   currentDate: Date;
+  categories: (string | null)[];
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -18,7 +17,8 @@ const Header: React.FC<HeaderProps> = ({
   onTodayClick,
   onSettingsClick,
   onDateNavigate,
-  currentDate
+  currentDate,
+  categories
 }) => {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', { 
@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <div style={{ backgroundColor: '#e8f0f5', padding: '20px', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#e8f0f5', padding: '20px' }}>
       {/* Title and Subtitle - Above the header box */}
       <div style={{ textAlign: 'center', marginBottom: '10px' }}>
         <h1 style={{ 
@@ -91,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* Category Selector */}
           <select
-            value={selectedCategory}
+            value={selectedCategory || ''}
             onChange={(e) => onCategoryChange(e.target.value)}
             style={{
               backgroundColor: '#e8f0f5',
@@ -104,9 +104,9 @@ const Header: React.FC<HeaderProps> = ({
               minWidth: '120px'
             }}
           >
-            {DUMMY_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
+            {categories.map((category) => (
+              <option key={category || 'all'} value={category || ''}>
+                {category || 'All Categories'}
               </option>
             ))}
           </select>
