@@ -3,20 +3,21 @@
 ## Overview
 Mnemos is a study-focused spaced repetition app with a calming navy color theme designed to promote concentration and reduce eye strain during long study sessions. The interface emphasizes clarity, professionalism, and visual hierarchy to support effective learning.
 
-This styling guide ensures consistency, maintainability, and a professional appearance while supporting the calming, study-focused aesthetic of the Mnemos application.
+This styling guide documents the current inline React styling approach used throughout the application, ensuring consistency and maintainability while supporting the calming, study-focused aesthetic.
 
 ## Color Palette
 
-### Primary Colors
-```css
-:root {
-  --primary-navy: #1e3a5f;      /* Deep navy - titles, primary text */
-  --accent-navy: #2d5a87;       /* Medium navy - buttons, secondary text */
-  --light-blue: #4a90b8;        /* Soft blue - borders, accents */
-  --background-blue: #e8f0f5;   /* Light blue-gray - backgrounds, inputs */
-  --warm-accent: #f5c842;       /* Golden yellow - edit buttons, highlights */
-  --dark-navy: #1a2e42;         /* Darker navy - delete buttons, secondary actions */
-  --white: #ffffff;             /* Pure white - card backgrounds, modal content */
+### Primary Colors (Used in Inline Styles)
+```javascript
+// Primary Colors - Use these exact values in inline styles
+const colors = {
+  primaryNavy: '#1e3a5f',      // Deep navy - titles, primary text
+  accentNavy: '#2d5a87',       // Medium navy - buttons, secondary text
+  lightBlue: '#4a90b8',        // Soft blue - borders, accents
+  backgroundBlue: '#e8f0f5',   // Light blue-gray - backgrounds, inputs
+  warmAccent: '#f5c842',       // Golden yellow - edit buttons, highlights
+  darkNavy: '#1a2e42',         // Darker navy - delete buttons, secondary actions
+  white: '#ffffff'             // Pure white - card backgrounds, modal content
 }
 ```
 
@@ -31,410 +32,380 @@ This styling guide ensures consistency, maintainability, and a professional appe
 
 ## Typography
 
-### Font Stack
-```css
-font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+### Font Stack (Inline Style)
+```javascript
+fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
 ```
 
-### Font Sizes & Weights
-```css
-/* Headers */
-.app-title { font-size: 18px; font-weight: bold; color: var(--primary-navy); }
-.category-header { font-size: 16px; font-weight: bold; color: var(--primary-navy); }
-.modal-title { font-size: 18px; font-weight: bold; color: var(--primary-navy); }
-.section-title { font-size: 14px; font-weight: bold; color: var(--primary-navy); }
+### Font Sizes & Weights (Current Implementation)
+```javascript
+// Headers
+const headerStyles = {
+  appTitle: { fontSize: '24px', fontWeight: 'bold', color: '#1e3a5f' },
+  categoryHeader: { fontSize: '16px', fontWeight: 'bold', color: '#1e3a5f' },
+  modalTitle: { fontSize: '18px', fontWeight: 'bold', color: '#1e3a5f' },
+  sectionTitle: { fontSize: '14px', fontWeight: 'bold', color: '#1e3a5f' }
+}
 
-/* Body Text */
-.item-title { font-size: 10-11px; font-weight: bold; color: var(--primary-navy); }
-.body-text { font-size: 12px; font-weight: normal; color: var(--accent-navy); }
-.secondary-text { font-size: 10-11px; font-weight: normal; color: var(--accent-navy); }
-.helper-text { font-size: 11px; font-weight: normal; color: var(--accent-navy); }
+// Body Text
+const textStyles = {
+  itemTitle: { fontSize: '12px', fontWeight: 'bold', color: '#1e3a5f' },
+  bodyText: { fontSize: '12px', fontWeight: 'normal', color: '#2d5a87' },
+  helperText: { fontSize: '11px', fontWeight: 'normal', color: '#2d5a87' }
+}
 
-/* Small Text */
-.timestamp { font-size: 7-8px; font-weight: normal; color: var(--light-blue); }
-.button-text { font-size: 8-12px; font-weight: normal; }
-.micro-text { font-size: 6-7px; font-weight: normal; }
+// Small Text
+const smallTextStyles = {
+  timestamp: { fontSize: '10px', fontWeight: 'normal', color: '#4a90b8' },
+  buttonText: { fontSize: '11-12px', fontWeight: 'normal' },
+  microText: { fontSize: '10px', fontWeight: 'normal' }
+}
 ```
 
 ## Layout & Spacing
 
-### Grid System
-```css
-.main-container {
-  padding: 20px;
-  background-color: var(--background-blue);
-  min-height: 100vh;
-}
-
-.category-section {
-  margin-bottom: 30px;
-}
-
-.item-grid {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 10px 0;
-}
-```
-
-### Card Dimensions
-```css
-.item-card {
-  width: 110px;
-  min-height: 100px; /* Flexible height - expands based on content */
-  flex-shrink: 0;
-  border-radius: 6px;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow: hidden;
-  word-wrap: break-word;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-title {
-  overflow: hidden;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.card-content {
-  margin-bottom: 8px;
-  flex-grow: 1;
-  overflow: hidden;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.card-buttons {
-  margin-top: auto;
-  display: flex;
-  gap: 5px;
-}
-
-/* Category Grid Layout */
-.category-grid {
-  display: flex;
-  align-items: flex-start; /* Align cards to same baseline */
-  gap: 10px;
-  min-height: fit-content; /* Category height matches tallest card */
+### Grid System (Inline Styles)
+```javascript
+const layoutStyles = {
+  mainContainer: {
+    padding: '20px',
+    backgroundColor: '#e8f0f5',
+    minHeight: '100vh'
+  },
+  
+  categorySection: {
+    marginBottom: '30px'
+  },
+  
+  itemGrid: {
+    display: 'flex',
+    gap: '10px',
+    overflowX: 'auto',
+    padding: '10px 0'
+  }
 }
 ```
 
-### Modal Dimensions
-```css
-.review-modal {
-  width: 400px;
-  height: 300px;
-  border-radius: 12px;
-}
+### Card Dimensions (Current Implementation)
+```javascript
+const cardStyles = {
+  itemCard: {
+    width: '140px',              // Updated from 110px
+    minHeight: '120px',          // Flexible height - expands based on content
+    flexShrink: 0,
+    borderRadius: '6px',
+    padding: '10px',
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    wordWrap: 'break-word',
+    display: 'flex',
+    flexDirection: 'column'
+  },
 
-.edit-modal {
-  width: 640px;
-  height: 540px;
-  border-radius: 12px;
+  cardTitle: {
+    overflow: 'hidden',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word'
+  },
+
+  cardContent: {
+    marginBottom: '8px',
+    flexGrow: 1,
+    overflow: 'hidden',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word'
+  },
+
+  cardButtons: {
+    marginTop: 'auto',
+    display: 'flex',
+    gap: '5px'
+  }
+}
+```
+
+### Modal Dimensions (Current Implementation)
+```javascript
+const modalStyles = {
+  reviewModal: {
+    width: '400px',
+    height: '300px',
+    borderRadius: '12px'
+  },
+  
+  editModal: {
+    width: '640px',
+    height: '540px',
+    borderRadius: '12px'
+  }
 }
 ```
 
 ## Component Styles
 
-### Header Component
-```css
-.app-header {
-  background-color: var(--white);
-  border: 2px solid var(--light-blue);
-  border-radius: 8px;
-  height: 60px;
-  padding: 0 20px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+### Header Component (Inline Styles)
+```javascript
+const headerStyles = {
+  container: {
+    backgroundColor: '#ffffff',
+    border: '2px solid #4a90b8',
+    borderRadius: '8px',
+    height: '60px',
+    padding: '0 20px',
+    marginBottom: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
 
-.header-title-section {
-  margin-bottom: 10px;
-}
+  titleSection: {
+    marginBottom: '10px'
+  },
 
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
+  controls: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '20px'
+  },
 
-.date-navigation {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-```
-
-### Item Cards
-```css
-/* Unreviewed Items */
-.item-card--unreviewed {
-  background-color: var(--white);
-  border: 2px solid var(--accent-navy);
-  opacity: 1;
-}
-
-/* Reviewed Items */
-.item-card--reviewed {
-  background-color: var(--background-blue);
-  border: 1px solid var(--light-blue);
-  opacity: 0.7;
-}
-
-.item-card--reviewed * {
-  opacity: 0.8;
+  dateNavigation: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  }
 }
 ```
 
-### Buttons
-```css
-/* Primary Action Buttons */
-.btn-primary {
-  background-color: var(--accent-navy);
-  border: 1px solid var(--accent-navy);
-  color: var(--white);
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
+### Item Cards (Inline Styles)
+```javascript
+// Unreviewed Items
+const unreviewed = {
+  backgroundColor: '#ffffff',
+  border: '2px solid #2d5a87',
+  opacity: 1
 }
 
-/* Secondary Buttons */
-.btn-secondary {
-  background-color: var(--background-blue);
-  border: 1px solid var(--light-blue);
-  color: var(--accent-navy);
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-/* Edit Buttons */
-.btn-edit {
-  background-color: var(--warm-accent);
-  border: 1px solid var(--warm-accent);
-  color: var(--primary-navy);
-  border-radius: 2px;
-  padding: 3px 8px;
-  font-size: 7px;
-  cursor: pointer;
-}
-
-/* Delete Buttons */
-.btn-delete {
-  background-color: var(--dark-navy);
-  border: 1px solid var(--dark-navy);
-  color: var(--white);
-  border-radius: 2px;
-  padding: 3px 8px;
-  font-size: 7px;
-  cursor: pointer;
-}
-
-/* Navigation Arrows */
-.btn-nav {
-  background-color: var(--light-blue);
-  border: 1px solid var(--light-blue);
-  color: var(--white);
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
+// Reviewed Items  
+const reviewed = {
+  backgroundColor: '#e8f0f5',
+  border: '1px solid #4a90b8',
+  opacity: 0.7
 }
 ```
 
-### Form Elements
-```css
-.form-input {
-  background-color: var(--background-blue);
-  border: 1px solid var(--light-blue);
-  border-radius: 4px;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--accent-navy);
-  width: 100%;
-  box-sizing: border-box;
-}
+### Buttons (Inline Styles)
+```javascript
+const buttonStyles = {
+  // Primary Action Buttons
+  primary: {
+    backgroundColor: '#2d5a87',
+    border: '1px solid #2d5a87',
+    color: '#ffffff',
+    borderRadius: '4px',
+    padding: '6px 12px',
+    fontSize: '12px',
+    cursor: 'pointer'
+  },
 
-.form-input::placeholder {
-  color: var(--accent-navy);
-  opacity: 0.7;
-}
+  // Secondary Buttons
+  secondary: {
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    color: '#2d5a87',
+    borderRadius: '4px',
+    padding: '6px 12px',
+    fontSize: '12px',
+    cursor: 'pointer'
+  },
 
-.form-label {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--primary-navy);
-  margin-bottom: 5px;
-  display: block;
-}
+  // Edit Buttons
+  edit: {
+    backgroundColor: '#f5c842',
+    border: '1px solid #f5c842',
+    color: '#1e3a5f',
+    borderRadius: '2px',
+    padding: '3px 8px',
+    fontSize: '11px',
+    cursor: 'pointer'
+  },
 
-.form-helper {
-  font-size: 11px;
-  color: var(--accent-navy);
-  margin-bottom: 10px;
-}
-```
-
-### Modals
-```css
-.modal-overlay {
-  background-color: rgba(30, 58, 95, 0.4);
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: var(--white);
-  border: 3px solid var(--light-blue);
-  border-radius: 12px;
-  padding: 20px;
-  position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background-color: var(--background-blue);
-  border: 1px solid var(--light-blue);
-  border-radius: 4px;
-  padding: 4px 8px;
-  color: var(--accent-navy);
-  cursor: pointer;
-  font-size: 12px;
+  // Delete Buttons
+  delete: {
+    backgroundColor: '#1a2e42',
+    border: '1px solid #1a2e42',
+    color: '#ffffff',
+    borderRadius: '2px',
+    padding: '3px 8px',
+    fontSize: '11px',
+    cursor: 'pointer'
+  }
 }
 ```
 
-## Scrollbars
-```css
-.horizontal-scroll {
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 10px;
-}
+### Form Elements (Inline Styles)
+```javascript
+const formStyles = {
+  input: {
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    borderRadius: '4px',
+    padding: '8px 12px',
+    fontSize: '12px',
+    color: '#2d5a87',
+    width: '100%',
+    boxSizing: 'border-box'
+  },
 
-.scroll-container::-webkit-scrollbar {
-  height: 8px;
-}
+  label: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: '#1e3a5f',
+    marginBottom: '5px',
+    display: 'block'
+  },
 
-.scroll-container::-webkit-scrollbar-track {
-  background-color: var(--background-blue);
-  border: 1px solid var(--light-blue);
-  border-radius: 4px;
+  helper: {
+    fontSize: '11px',
+    color: '#2d5a87',
+    marginBottom: '10px'
+  }
 }
+```
 
-.scroll-container::-webkit-scrollbar-thumb {
-  background-color: var(--accent-navy);
-  border-radius: 4px;
+### Modals (Inline Styles)
+```javascript
+const modalStyles = {
+  overlay: {
+    backgroundColor: 'rgba(30, 58, 95, 0.4)',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000
+  },
+
+  content: {
+    backgroundColor: '#ffffff',
+    border: '3px solid #4a90b8',
+    borderRadius: '12px',
+    padding: '20px',
+    position: 'relative',
+    maxWidth: '90vw',
+    maxHeight: '90vh',
+    overflowY: 'auto'
+  },
+
+  close: {
+    position: 'absolute',
+    top: '15px',
+    right: '15px',
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    borderRadius: '4px',
+    padding: '4px 8px',
+    color: '#2d5a87',
+    cursor: 'pointer',
+    fontSize: '12px'
+  }
+}
+```
+
+## Image Upload Interface Styles
+
+### Multiple Image Upload Components
+```javascript
+const imageUploadStyles = {
+  // Upload button
+  uploadButton: {
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    borderRadius: '4px',
+    padding: '10px 15px',
+    fontSize: '12px',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px'
+  },
+
+  // Paste area
+  pasteArea: {
+    border: '2px dashed #4a90b8',
+    backgroundColor: '#f8fcff',
+    borderRadius: '4px',
+    minHeight: '50px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'text'
+  },
+
+  // Image chips
+  imageChip: {
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    borderRadius: '3px',
+    padding: '3px 6px',
+    fontSize: '10px',
+    display: 'flex',
+    alignItems: 'center'
+  },
+
+  // Status display
+  status: {
+    backgroundColor: '#f5f9fc',
+    border: '1px solid #4a90b8',
+    borderRadius: '4px',
+    padding: '8px 12px',
+    fontSize: '11px',
+    color: '#2d5a87'
+  }
 }
 ```
 
 ## States & Interactions
 
-### Hover States
-```css
-.btn-primary:hover { background-color: #245073; }
-.btn-secondary:hover { background-color: #d1e3f0; }
-.btn-edit:hover { background-color: #f7d666; }
-.btn-delete:hover { background-color: #0f1a2a; }
-.btn-nav:hover { background-color: #3a7a9d; }
-```
-
-### Focus States
-```css
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-navy);
-  box-shadow: 0 0 0 2px rgba(45, 90, 135, 0.2);
-}
-
-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(45, 90, 135, 0.3);
+### Hover States (Implemented in Components)
+```javascript
+// Applied via onMouseOver/onMouseOut events
+const hoverStates = {
+  primaryButton: { backgroundColor: '#245073' },
+  secondaryButton: { backgroundColor: '#d1e3f0' },
+  editButton: { backgroundColor: '#f7d666' },
+  deleteButton: { backgroundColor: '#0f1a2a' },
+  navButton: { backgroundColor: '#3a7a9d' }
 }
 ```
 
-### Review Status Indicators
-```css
-.reviewed-indicator {
-  font-size: 8px;
-  color: var(--accent-navy);
-  opacity: 0.8;
-}
+## Implementation Notes
 
-.reviewed-indicator::before {
-  content: "✓ ";
-}
-```
+### Current Architecture
+- **Inline React Styles**: All styling defined within component files
+- **Style Objects**: Consistent style objects for reusability
+- **Event-based Interactions**: Hover states via onMouseOver/onMouseOut
+- **Responsive Values**: Fixed pixel values optimized for the target use case
 
-## Best Practices
+### Consistency Guidelines
+1. **Color Usage**: Always use the exact hex values from the color palette
+2. **Typography**: Maintain consistent font sizes and weights across components
+3. **Spacing**: Use consistent gap and padding values (5px, 8px, 10px, 15px, 20px)
+4. **Border Radius**: Standard values (2px, 4px, 6px, 8px, 12px)
+5. **Component Patterns**: Follow established patterns for buttons, inputs, and modals
 
-### CSS Organization
-1. **Use external CSS files** - Never use inline styles except for dynamic values
-2. **CSS Variables** - Always use CSS custom properties for colors and common values
-3. **BEM Methodology** - Use Block Element Modifier naming convention
-4. **Mobile-first** - Design for mobile, enhance for desktop
-5. **Semantic HTML** - Use proper HTML5 semantic elements
+### Multiple Images Support
+- **Arrays**: Store image paths as arrays in data structure
+- **Upload Interface**: Separate upload and paste areas
+- **Management**: Individual remove buttons and clear all functionality
+- **Display**: Numbered image buttons with count indicators
+- **File Validation**: Type, size, and extension checking
 
-### File Structure
-```
-styles/
-├── variables.css          /* CSS custom properties */
-├── base.css              /* Reset, typography, global styles */
-├── components/
-│   ├── header.css        /* Header component styles */
-│   ├── cards.css         /* Item card styles */
-│   ├── buttons.css       /* Button variants */
-│   ├── forms.css         /* Form elements */
-│   └── modals.css        /* Modal components */
-├── layouts/
-│   ├── grid.css          /* Grid layouts */
-│   └── spacing.css       /* Margin, padding utilities */
-└── main.css              /* Import all other files */
-```
-
-### Implementation Notes
-1. **Consistency**: Always use the defined color variables, never hardcode colors
-2. **Accessibility**: Maintain 4.5:1 contrast ratio minimum for text
-3. **Responsiveness**: Test on mobile devices (minimum 320px width)
-4. **Performance**: Use `will-change` sparingly, prefer `transform` for animations
-5. **Browser Support**: Support modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
-
-### Spacing Scale
-```css
-:root {
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 12px;
-  --space-lg: 20px;
-  --space-xl: 30px;
-}
-```
-
-### Border Radius Scale
-```css
-:root {
-  --radius-sm: 2px;    /* Small buttons */
-  --radius-md: 4px;    /* Standard buttons, inputs */
-  --radius-lg: 6px;    /* Cards */
-  --radius-xl: 8px;    /* Header */
-  --radius-xxl: 12px;  /* Modals */
-}
-```
+### Best Practices
+1. **Maintainability**: Keep related styles together in style objects
+2. **Reusability**: Extract common style patterns into shared objects
+3. **Readability**: Use descriptive names for style objects
+4. **Performance**: Avoid creating new style objects in render methods
+5. **Accessibility**: Maintain proper contrast ratios and focus states

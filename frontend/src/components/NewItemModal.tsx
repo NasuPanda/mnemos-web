@@ -425,7 +425,7 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
                   Uploaded Images:
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                  {formData.problemImages.map((imagePath, index) => (
+                  {formData.problemImages.map((_, index) => (
                     <div
                       key={index}
                       style={{
@@ -587,7 +587,7 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
                   Uploaded Images:
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                  {formData.answerImages.map((imagePath, index) => (
+                  {formData.answerImages.map((_, index) => (
                     <div
                       key={index}
                       style={{

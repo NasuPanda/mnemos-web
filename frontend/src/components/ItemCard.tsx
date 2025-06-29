@@ -12,6 +12,10 @@ export interface StudyItem {
   hasLink?: boolean;
   hasImage?: boolean;
   
+  // Review system fields
+  nextReviewDate?: string; // ISO date string (YYYY-MM-DD)
+  reviewDates?: string[];  // Array of past review dates
+  
   // Extended fields for complete testing
   sideNote?: string;
   problemUrl?: string;
@@ -43,10 +47,6 @@ const ItemCard: React.FC<ItemCardProps> = ({
     });
   };
 
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
 
   const cardStyle = {
     width: '140px',
@@ -63,7 +63,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
     flexDirection: 'column' as const,
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     overflow: 'hidden',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word' as const
   };
 
   const titleStyle = {
@@ -73,8 +73,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
     margin: '0 0 5px 0',
     opacity: item.isReviewed ? 0.8 : 1,
     overflow: 'hidden',
-    wordWrap: 'break-word',
-    overflowWrap: 'break-word',
+    wordWrap: 'break-word' as const,
+    overflowWrap: 'break-word' as const,
     lineHeight: '1.4'
   };
 
@@ -86,8 +86,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
     opacity: item.isReviewed ? 0.8 : 1,
     flexGrow: 1,
     overflow: 'hidden',
-    wordWrap: 'break-word',
-    overflowWrap: 'break-word'
+    wordWrap: 'break-word' as const,
+    overflowWrap: 'break-word' as const
   };
 
   const mediaIndicatorsStyle = {

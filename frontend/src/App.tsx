@@ -6,7 +6,20 @@ import ReviewModal from './components/ReviewModal';
 import ShowAnswerModal from './components/ShowAnswerModal';
 import type { StudyItem } from './components/ItemCard';
 
-// Dummy data for testing
+// Helper function to get today's date in YYYY-MM-DD format
+const getTodayString = () => new Date().toISOString().split('T')[0];
+const getTomorrowString = () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split('T')[0];
+};
+const getYesterdayString = () => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return yesterday.toISOString().split('T')[0];
+};
+
+// Dummy data for testing date-based filtering
 const DUMMY_ITEMS: StudyItem[] = [
   {
     id: '1',
@@ -18,6 +31,10 @@ const DUMMY_ITEMS: StudyItem[] = [
     isReviewed: false,
     hasLink: true,
     hasImage: true,
+    
+    // Review system - unreviewed item (shows on all dates)
+    nextReviewDate: undefined,
+    reviewDates: [],
     
     // Extended fields with all possible content
     sideNote: 'This is a side note that provides additional context or personal thoughts about this item.',
@@ -35,7 +52,11 @@ const DUMMY_ITEMS: StudyItem[] = [
     createdAt: '2024-06-26',
     isReviewed: true,
     hasLink: false,
-    hasImage: true
+    hasImage: true,
+    
+    // Review system - due today
+    nextReviewDate: getTodayString(),
+    reviewDates: ['2024-06-26']
   },
   {
     id: '3',
@@ -46,7 +67,11 @@ const DUMMY_ITEMS: StudyItem[] = [
     createdAt: '2024-06-27',
     isReviewed: false,
     hasLink: false,
-    hasImage: false
+    hasImage: false,
+    
+    // Review system - new unreviewed item (shows on all dates)
+    nextReviewDate: undefined,
+    reviewDates: []
   },
   {
     id: '4',
@@ -57,7 +82,26 @@ const DUMMY_ITEMS: StudyItem[] = [
     createdAt: '2024-06-24',
     isReviewed: true,
     hasLink: false,
-    hasImage: false
+    hasImage: false,
+    
+    // Review system - due tomorrow
+    nextReviewDate: getTomorrowString(),
+    reviewDates: ['2024-06-24', '2024-06-27']
+  },
+  {
+    id: '5',
+    name: 'Python List Comprehension',
+    problem: 'How do you create a list of squares from 1 to 10?',
+    answer: '[x**2 for x in range(1, 11)]',
+    category: 'Programming',
+    createdAt: '2024-06-28',
+    isReviewed: true,
+    hasLink: false,
+    hasImage: false,
+    
+    // Review system - was due yesterday (won't show unless user navigates to yesterday)
+    nextReviewDate: getYesterdayString(),
+    reviewDates: ['2024-06-28']
   }
 ];
 
@@ -76,10 +120,38 @@ function App() {
   const actualCategories = Array.from(new Set(items.map(item => item.category)));
   const categories = [null, ...actualCategories];
 
+  // Helper function to format date for comparison (YYYY-MM-DD)
+  const formatDateForComparison = (date: Date): string => {
+    return date.toISOString().split('T')[0];
+  };
+
+  // Helper function to check if item should be shown on current date
+  const shouldShowItemOnDate = (item: StudyItem, displayDate: Date): boolean => {
+    const dateString = formatDateForComparison(displayDate);
+    
+    // If item has a specific next review date, check if it matches
+    if (item.nextReviewDate) {
+      return item.nextReviewDate === dateString;
+    }
+    
+    // If item is unreviewed and has no review date, show it (new items)
+    if (!item.isReviewed) {
+      return true;
+    }
+    
+    // Reviewed items without a next review date are not shown
+    return false;
+  };
+
   // Filter items by category
-  const filteredItems = selectedCategory 
+  const categoryFilteredItems = selectedCategory 
     ? items.filter(item => item.category === selectedCategory)
     : items;
+
+  // Filter items by date
+  const filteredItems = categoryFilteredItems.filter(item => 
+    shouldShowItemOnDate(item, currentDate)
+  );
 
   // Group items by category for display
   const itemsByCategory = filteredItems.reduce((acc, item) => {
