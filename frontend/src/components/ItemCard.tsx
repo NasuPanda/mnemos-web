@@ -43,7 +43,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
   const cardStyle = {
     width: '110px',
-    height: '100px',
+    minHeight: '100px',
     flexShrink: 0,
     borderRadius: '6px',
     padding: '10px',
@@ -54,7 +54,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column' as const,
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    overflow: 'hidden',
+    wordWrap: 'break-word'
   };
 
   const titleStyle = {
@@ -62,7 +64,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
     margin: '0 0 5px 0',
-    opacity: item.isReviewed ? 0.8 : 1
+    opacity: item.isReviewed ? 0.8 : 1,
+    overflow: 'hidden',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word'
   };
 
   const problemStyle = {
@@ -71,7 +76,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
     margin: '0 0 8px 0',
     lineHeight: '1.2',
     opacity: item.isReviewed ? 0.8 : 1,
-    flexGrow: 1
+    flexGrow: 1,
+    overflow: 'hidden',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word'
   };
 
   const mediaIndicatorsStyle = {
@@ -158,11 +166,11 @@ const ItemCard: React.FC<ItemCardProps> = ({
       onDoubleClick={() => onDoubleClick(item)}
     >
       <div style={titleStyle}>
-        {truncateText(item.name, 15)}
+        {item.name}
       </div>
       
       <div style={problemStyle}>
-        {truncateText(item.problem, 60)}
+        {item.problem}
       </div>
 
       {(item.hasLink || item.hasImage) && (

@@ -82,21 +82,43 @@ font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 ```css
 .item-card {
   width: 110px;
-  height: 100px; /* 110px for vocabulary cards: 50px */
+  min-height: 100px; /* Flexible height - expands based on content */
   flex-shrink: 0;
   border-radius: 6px;
   padding: 10px;
   box-sizing: border-box;
+  overflow: hidden;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .card-content {
   margin-bottom: 8px;
+  flex-grow: 1;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .card-buttons {
   margin-top: auto;
   display: flex;
   gap: 5px;
+}
+
+/* Category Grid Layout */
+.category-grid {
+  display: flex;
+  align-items: flex-start; /* Align cards to same baseline */
+  gap: 10px;
+  min-height: fit-content; /* Category height matches tallest card */
 }
 ```
 

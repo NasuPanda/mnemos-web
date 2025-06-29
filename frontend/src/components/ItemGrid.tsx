@@ -49,11 +49,13 @@ const ItemGrid: React.FC<ItemGridProps> = ({
 
   const gridStyle = {
     display: 'flex',
+    alignItems: 'flex-start',
     gap: '10px',
     overflowX: 'auto' as const,
     overflowY: 'hidden' as const,
     padding: '10px 0',
-    paddingBottom: '20px'
+    paddingBottom: '20px',
+    minHeight: 'fit-content'
   };
 
   const scrollbarStyle = `

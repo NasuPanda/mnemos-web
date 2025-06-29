@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 interface HeaderProps {
   selectedCategory: string | null;
   onCategoryChange: (category: string) => void;
