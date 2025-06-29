@@ -21,7 +21,7 @@ A modal window (640px × 540px) with the following input fields and "Submit" but
 - Display:
 	- text as-is.
 	- url as a clickable link.
-	- images as numbered buttons ("🖼️ Image 1", "🖼️ Image 2", etc.) that open in new tabs
+	- images as buttons ("🖼️ Image" or "🖼️ 3 Images") that open in **ImageViewerModal**
 
 #### Answer
 - Fields can include text, url, and/or multiple images. All of them are optional.
@@ -33,7 +33,7 @@ A modal window (640px × 540px) with the following input fields and "Submit" but
   - 📋 "Paste Image Here" area - supports pasting clipboard images with Ctrl+V/Cmd+V
 - **Image Management**: Individual remove buttons (×) for each image, "Clear All" button
 - When the user clicks "Show answer," display text, url, and images in a separated interface.
-- Images displayed in separate "Answer Images" section with numbered buttons
+- Images displayed in separate "Answer Images" section with single button showing count that opens **ImageViewerModal**
 
 ### Image Upload Interface
 Each image field (Problem Images, Answer Images) contains:
@@ -73,3 +73,32 @@ Images are stored as arrays in the data:
 4. Path returned as `/images/{uuid}.{ext}`
 5. Multiple uploads processed sequentially
 6. Paths added to existing image arrays
+
+### ImageViewerModal Component
+The **ImageViewerModal** provides a full-screen image viewing experience when users click image buttons throughout the application.
+
+#### Features
+- **Full-screen modal** with dark overlay background
+- **All images displayed vertically** in one scrollable window
+- **ESC key support** - press Escape to close the modal
+- **Mobile gesture support** - swipe up or down to close on touch devices
+- **Image count indicator** - shows "X images" when multiple images present
+- **Responsive design** - adapts to different screen sizes
+- **White borders** around images for better visibility
+
+#### Behavior
+- **Single button per section** - replaces individual numbered buttons
+- **Button labels**: 
+  - "🖼️ Image" for single image
+  - "🖼️ 3 Images" for multiple images (shows count)
+- **Modal title** - shows context like "Problem Images" or "Answer Images"
+- **Vertical layout** - all images displayed in one scrollable column
+- **Click outside to close** - clicking the dark overlay closes the modal
+
+#### Technical Implementation
+- **Component**: `ImageViewerModal.tsx`
+- **State management**: Local React state for modal visibility and image data
+- **Touch handling**: Custom touch event handlers for swipe gestures
+- **Keyboard handling**: ESC key event listener with cleanup
+- **Z-index**: High z-index (2000) to appear above other modals
+- **Image loading**: Direct image src URLs served by backend

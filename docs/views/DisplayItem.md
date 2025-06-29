@@ -32,7 +32,7 @@ Each card displays:
 2. **Problem Content** - Full problem text with automatic word wrapping
 3. **Media Indicators** - Visual buttons for additional content (if present):
     - 📎 "Link" - for URL references
-    - 🖼️ "Image" or 🖼️ "3" - for visual content (shows count for multiple images)
+    - 🖼️ "Image" or 🖼️ "3 Images" - for visual content (opens **ImageViewerModal**)
 4. **Show Answer Button** - Blue action button to reveal the answer
 5. **Action Buttons** - Edit and Delete buttons in a horizontal row
 6. **Date stamp** - shows when it was created/last accessed (e.g., "06/25/2024")
@@ -49,19 +49,20 @@ Each card displays:
 **Problem Content** (shown on cards):
 - **Text**: Displayed in full with automatic word wrapping
 - **URLs**: Shown as clickable link buttons
-- **Images**: Multiple images supported - displayed as "🖼️ Image" or "🖼️ 3" buttons
+- **Images**: Multiple images supported - displayed as "🖼️ Image" or "🖼️ 3 Images" buttons that open **ImageViewerModal**
 
 **Answer Content** (hidden until requested):
 - Accessed via "Show Answer" button
 - Opens in separate modal interface
 - Can contain text, URLs, and/or multiple images
-- Images displayed in separate sections for Problem Images and Answer Images
+- Images displayed in separate sections with buttons that open **ImageViewerModal**
 
 ### Multiple Images Support
-- **Problem Images**: Array of image paths, displayed as numbered buttons
-- **Answer Images**: Array of image paths, displayed as numbered buttons
-- **Image Count Display**: Shows count when multiple images (e.g., "🖼️ 3")
-- **Click Behavior**: Opens first image in new tab, or shows count tooltip
+- **Problem Images**: Array of image paths, displayed as single button showing count
+- **Answer Images**: Array of image paths, displayed as single button showing count
+- **Image Count Display**: Shows count when multiple images (e.g., "🖼️ 3 Images")
+- **Click Behavior**: Opens **ImageViewerModal** with all images displayed vertically
+- **Modal Features**: ESC key support, swipe gestures (mobile), full-screen dark overlay
 
 ### Sorting Logic
 
