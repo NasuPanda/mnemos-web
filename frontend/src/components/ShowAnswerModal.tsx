@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { StudyItem } from './ItemCard';
+import ImageViewerModal from './ImageViewerModal';
 
 interface ShowAnswerModalProps {
   isOpen: boolean;
@@ -12,6 +13,16 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
   onClose,
   item
 }) => {
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [viewingImages, setViewingImages] = useState<string[]>([]);
+  const [imageViewerTitle, setImageViewerTitle] = useState('');
+
+  const handleImageClick = (images: string[], title: string) => {
+    setViewingImages(images);
+    setImageViewerTitle(title);
+    setIsImageViewerOpen(true);
+  };
+
   if (!isOpen || !item) return null;
 
   const overlayStyle = {
@@ -198,17 +209,14 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
           <div style={sectionStyle}>
             <div style={sectionTitleStyle}>Problem Images</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {item.problemImages.map((imagePath, index) => (
-                <button
-                  key={index}
-                  style={imageButtonStyle}
-                  onClick={() => window.open(imagePath, '_blank', 'noopener,noreferrer')}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-                >
-                  🖼️ Image {index + 1}
-                </button>
-              ))}
+              <button
+                style={imageButtonStyle}
+                onClick={() => handleImageClick(item.problemImages!, 'Problem Images')}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
+              >
+                🖼️ {item.problemImages.length === 1 ? 'Image' : `${item.problemImages.length} Images`}
+              </button>
             </div>
           </div>
         )}
@@ -217,21 +225,25 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
           <div style={sectionStyle}>
             <div style={sectionTitleStyle}>Answer Images</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {item.answerImages.map((imagePath, index) => (
-                <button
-                  key={index}
-                  style={imageButtonStyle}
-                  onClick={() => window.open(imagePath, '_blank', 'noopener,noreferrer')}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-                >
-                  🖼️ Image {index + 1}
-                </button>
-              ))}
+              <button
+                style={imageButtonStyle}
+                onClick={() => handleImageClick(item.answerImages!, 'Answer Images')}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
+              >
+                🖼️ {item.answerImages.length === 1 ? 'Image' : `${item.answerImages.length} Images`}
+              </button>
             </div>
           </div>
         )}
       </div>
+      
+      <ImageViewerModal
+        isOpen={isImageViewerOpen}
+        onClose={() => setIsImageViewerOpen(false)}
+        images={viewingImages}
+        title={imageViewerTitle}
+      />
     </div>
   );
 };

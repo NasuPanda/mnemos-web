@@ -39,9 +39,9 @@ const DUMMY_ITEMS: StudyItem[] = [
     // Extended fields with all possible content
     sideNote: 'This is a side note that provides additional context or personal thoughts about this item.',
     problemUrl: 'https://www.wolframalpha.com/input/?i=derivative+of+x%5E2%2B3x%2B1',
-    problemImages: ['/design/wireframe_images/DisplayItemsView.png', '/design/wireframe_images/NewItemView.png'],
+    problemImages: ['http://localhost:8000/images/1d759c84-2981-4abc-afd7-1f4970f068cb.jpeg', 'http://localhost:8000/images/4489e6f2-18a4-46e0-a8d4-f68519b11e3c.png'],
     answerUrl: 'https://tutorial.math.lamar.edu/classes/calci/defnofderivative.aspx',
-    answerImages: ['/design/wireframe_images/ReviewItem.png']
+    answerImages: ['http://localhost:8000/images/84178fd6-e79d-49f3-93c4-d5ca69ed4014.jpeg']
   },
   {
     id: '2',
@@ -82,11 +82,14 @@ const DUMMY_ITEMS: StudyItem[] = [
     createdAt: '2024-06-24',
     isReviewed: true,
     hasLink: false,
-    hasImage: false,
+    hasImage: true,
     
     // Review system - due tomorrow
     nextReviewDate: getTomorrowString(),
-    reviewDates: ['2024-06-24', '2024-06-27']
+    reviewDates: ['2024-06-24', '2024-06-27'],
+    
+    problemImages: ['http://localhost:8000/images/b570bda5-0275-4562-a21f-554402d7d9f2.jpeg'],
+    answerImages: ['http://localhost:8000/images/d4098a6b-bf60-469a-9f92-6718ff980218.png']
   },
   {
     id: '5',

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ImageViewerModal from './ImageViewerModal';
 
 export interface StudyItem {
   id: string;
@@ -39,6 +40,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
   onDelete,
   onDoubleClick
 }) => {
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [viewingImages, setViewingImages] = useState<string[]>([]);
+  const [imageViewerTitle, setImageViewerTitle] = useState('');
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -195,9 +200,11 @@ const ItemCard: React.FC<ItemCardProps> = ({
         
         const handleImageClick = (e: React.MouseEvent) => {
           e.stopPropagation();
-          const imageUrl = item.problemImages?.[0] || item.answerImages?.[0];
-          if (imageUrl) {
-            window.open(imageUrl, '_blank', 'noopener,noreferrer');
+          const allImages = [...(item.problemImages || []), ...(item.answerImages || [])];
+          if (allImages.length > 0) {
+            setViewingImages(allImages);
+            setImageViewerTitle(`${item.name} - Images`);
+            setIsImageViewerOpen(true);
           }
         };
         
@@ -275,6 +282,13 @@ const ItemCard: React.FC<ItemCardProps> = ({
           ✓ Reviewed
         </div>
       )}
+      
+      <ImageViewerModal
+        isOpen={isImageViewerOpen}
+        onClose={() => setIsImageViewerOpen(false)}
+        images={viewingImages}
+        title={imageViewerTitle}
+      />
     </div>
   );
 };
