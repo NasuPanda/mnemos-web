@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ItemGrid from './components/ItemGrid';
 import NewItemModal from './components/NewItemModal';
 import ReviewModal from './components/ReviewModal';
 import ShowAnswerModal from './components/ShowAnswerModal';
+import SettingsModal from './components/SettingsModal';
 import type { StudyItem } from './components/ItemCard';
+import type { AppSettings } from './types/Settings';
+import { loadSettings, saveSettings, DEFAULT_SETTINGS } from './types/Settings';
 
 // Helper function to get today's date in YYYY-MM-DD format
 const getTodayString = () => new Date().toISOString().split('T')[0];
@@ -283,6 +286,14 @@ function App() {
   const [isShowAnswerModalOpen, setIsShowAnswerModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StudyItem | null>(null);
   const [editingItem, setEditingItem] = useState<StudyItem | null>(null);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const loadedSettings = loadSettings();
+    setSettings(loadedSettings);
+  }, []);
 
   // Get unique categories from items
   const actualCategories = Array.from(new Set(items.map(item => item.category)));
@@ -341,7 +352,12 @@ function App() {
   };
 
   const handleSettingsClick = () => {
-    console.log('Settings clicked');
+    setIsSettingsModalOpen(true);
+  };
+
+  const handleSaveSettings = (newSettings: AppSettings) => {
+    setSettings(newSettings);
+    saveSettings(newSettings);
   };
 
   const handleDateNavigate = (direction: 'prev' | 'next') => {
@@ -393,20 +409,20 @@ function App() {
   };
 
   const handleReview = (itemId: string, reviewType: 'confident' | 'medium' | 'wtf' | 'custom', customDays?: number) => {
-    // Calculate days based on review type
+    // Calculate days based on review type using settings
     let daysToAdd: number;
     switch (reviewType) {
       case 'confident':
-        daysToAdd = 7;
+        daysToAdd = settings.confidentDays;
         break;
       case 'medium':
-        daysToAdd = 3;
+        daysToAdd = settings.mediumDays;
         break;
       case 'wtf':
-        daysToAdd = 1;
+        daysToAdd = settings.wtfDays;
         break;
       case 'custom':
-        daysToAdd = customDays || 1;
+        daysToAdd = customDays || settings.wtfDays;
         break;
       default:
         daysToAdd = 1;
@@ -505,12 +521,20 @@ function App() {
         onReview={handleReview}
         onArchive={handleArchive}
         item={selectedItem}
+        settings={settings}
       />
 
       <ShowAnswerModal
         isOpen={isShowAnswerModalOpen}
         onClose={handleCloseModals}
         item={selectedItem}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        settings={settings}
+        onSaveSettings={handleSaveSettings}
       />
     </div>
   );

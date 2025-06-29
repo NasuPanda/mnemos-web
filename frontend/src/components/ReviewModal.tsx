@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { StudyItem } from './ItemCard';
+import type { AppSettings } from '../types/Settings';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ interface ReviewModalProps {
   onReview: (itemId: string, reviewType: 'confident' | 'medium' | 'wtf' | 'custom', customDays?: number) => void;
   onArchive: (itemId: string) => void;
   item: StudyItem | null;
+  settings: AppSettings;
 }
 
 const ReviewModal: React.FC<ReviewModalProps> = ({
@@ -14,7 +16,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   onClose,
   onReview,
   onArchive,
-  item
+  item,
+  settings
 }) => {
   const [customDays, setCustomDays] = useState<number>(1);
 
@@ -217,7 +220,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
           >
             <span>🟢 Confident</span>
-            <span>Review in 7 days</span>
+            <span>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
           </button>
 
           <button
@@ -227,7 +230,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
           >
             <span>🔵 Medium</span>
-            <span>Review in 3 days</span>
+            <span>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
           </button>
 
           <button
@@ -237,7 +240,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F44336'}
           >
             <span>🔴 WTF</span>
-            <span>Review in 1 day</span>
+            <span>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
           </button>
         </div>
 
