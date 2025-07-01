@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { AppSettings } from '../types/Settings';
+import { useResponsive } from '../hooks/useBreakpoint';
+import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -77,9 +79,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     setErrors({});
   };
 
+  // Responsive design integration (must be before conditional return)
+  const { breakpoint } = useResponsive();
+  const responsiveModal = getResponsiveModalStyles(breakpoint, 'settings');
+  const responsiveTypography = getResponsiveTypography(breakpoint);
+  const responsiveSpacing = getResponsiveSpacing(breakpoint);
+
   if (!isOpen) return null;
 
-  const overlayStyle = {
+  const overlayStyle = mergeResponsiveStyles({
     backgroundColor: 'rgba(30, 58, 95, 0.4)',
     position: 'fixed' as const,
     top: 0,
@@ -90,51 +98,43 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000
-  };
+  }, responsiveModal.overlay);
 
-  const modalStyle = {
+  const modalStyle = mergeResponsiveStyles({
     backgroundColor: '#ffffff',
     border: '3px solid #4a90b8',
-    borderRadius: '12px',
-    padding: '20px',
     position: 'relative' as const,
-    width: '450px',
-    maxWidth: '90vw',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, responsiveModal.content);
 
-  const titleStyle = {
-    fontSize: '18px',
+  const titleStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    marginBottom: '20px',
+    marginBottom: responsiveSpacing.sectionGap,
     textAlign: 'center' as const
-  };
+  }, responsiveTypography.modalTitle);
 
-  const closeButtonStyle = {
+  const closeButtonStyle = mergeResponsiveStyles({
     position: 'absolute' as const,
     top: '15px',
     right: '15px',
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     borderRadius: '4px',
-    padding: '4px 8px',
     color: '#2d5a87',
-    cursor: 'pointer',
-    fontSize: '12px'
-  };
+    cursor: 'pointer'
+  }, getResponsiveButtonStyles(breakpoint, 'small'));
 
   const fieldGroupStyle = {
-    marginBottom: '20px'
+    marginBottom: responsiveSpacing.sectionGap
   };
 
-  const labelStyle = {
+  const labelStyle = mergeResponsiveStyles({
     display: 'block',
-    fontSize: '14px',
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    marginBottom: '8px'
-  };
+    marginBottom: responsiveSpacing.buttonGap
+  }, responsiveTypography.bodyText);
 
   const inputStyle = {
     width: '100%',
@@ -171,38 +171,32 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     marginTop: '30px'
   };
 
-  const resetButtonStyle = {
+  const resetButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#f5c842',
     border: '1px solid #f5c842',
     color: '#1e3a5f',
     borderRadius: '4px',
-    padding: '10px 20px',
-    fontSize: '14px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
-  const cancelButtonStyle = {
+  const cancelButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     color: '#2d5a87',
     borderRadius: '4px',
-    padding: '10px 20px',
-    fontSize: '14px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
-  const saveButtonStyle = {
+  const saveButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#2d5a87',
     border: '1px solid #2d5a87',
     color: '#ffffff',
     borderRadius: '4px',
-    padding: '10px 20px',
-    fontSize: '14px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'primary'));
 
   return (
     <div style={overlayStyle} onClick={onClose}>

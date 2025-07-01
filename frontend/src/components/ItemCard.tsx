@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import ImageViewerModal from './ImageViewerModal';
+import { useResponsive } from '../hooks/useBreakpoint';
+import { getResponsiveCardStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 export interface StudyItem {
   id: string;
@@ -52,13 +54,14 @@ const ItemCard: React.FC<ItemCardProps> = ({
     });
   };
 
+  // Responsive design integration
+  const { breakpoint } = useResponsive();
+  const responsiveCard = getResponsiveCardStyles(breakpoint);
+  const responsiveTypography = getResponsiveTypography(breakpoint);
+  const responsiveSpacing = getResponsiveSpacing(breakpoint);
 
-  const cardStyle = {
-    width: '140px',
-    minHeight: '120px',
-    flexShrink: 0,
-    borderRadius: '6px',
-    padding: '10px',
+  const cardStyle = mergeResponsiveStyles({
+    // Base styles that remain consistent
     boxSizing: 'border-box' as const,
     backgroundColor: item.isReviewed ? '#e8f0f5' : '#ffffff',
     border: item.isReviewed ? '1px solid #4a90b8' : '2px solid #2d5a87',
@@ -69,109 +72,95 @@ const ItemCard: React.FC<ItemCardProps> = ({
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     overflow: 'hidden',
     wordWrap: 'break-word' as const
-  };
+  }, responsiveCard);
 
-  const titleStyle = {
-    fontSize: '12px',
+  const titleStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    margin: '0 0 5px 0',
+    margin: `0 0 ${responsiveSpacing.buttonGap} 0`,
     opacity: item.isReviewed ? 0.8 : 1,
     overflow: 'hidden',
     wordWrap: 'break-word' as const,
-    overflowWrap: 'break-word' as const,
-    lineHeight: '1.4'
-  };
+    overflowWrap: 'break-word' as const
+  }, responsiveTypography.cardTitle);
 
-  const problemStyle = {
-    fontSize: '12px',
+  const problemStyle = mergeResponsiveStyles({
     color: '#2d5a87',
-    margin: '0 0 8px 0',
-    lineHeight: '1.4',
+    margin: `0 0 ${responsiveSpacing.buttonGap} 0`,
     opacity: item.isReviewed ? 0.8 : 1,
     flexGrow: 1,
     overflow: 'hidden',
     wordWrap: 'break-word' as const,
     overflowWrap: 'break-word' as const
-  };
+  }, responsiveTypography.bodyText);
 
   const mediaIndicatorsStyle = {
     display: 'flex',
-    gap: '3px',
-    marginBottom: '5px'
+    gap: responsiveSpacing.buttonGap,
+    marginBottom: responsiveSpacing.buttonGap
   };
 
-  const mediaButtonStyle = {
-    fontSize: '10px',
-    padding: '2px 4px',
+  const mediaButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     borderRadius: '2px',
     color: '#2d5a87',
     cursor: 'pointer'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'small'));
 
   const buttonsContainerStyle = {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '3px',
+    gap: responsiveSpacing.buttonGap,
     marginTop: 'auto'
   };
 
-  const showAnswerButtonStyle = {
+  const showAnswerButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#2d5a87',
     border: '1px solid #2d5a87',
     color: '#ffffff',
     borderRadius: '2px',
-    padding: '5px 8px',
-    fontSize: '12px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'primary'));
 
   const actionButtonsStyle = {
     display: 'flex',
     justifyContent: 'space-between',
-    gap: '3px'
+    gap: responsiveSpacing.buttonGap
   };
 
-  const editButtonStyle = {
+  const editButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#f5c842',
     border: '1px solid #f5c842',
     color: '#1e3a5f',
     borderRadius: '2px',
-    padding: '3px 7px',
-    fontSize: '11px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
-  const deleteButtonStyle = {
+  const deleteButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#1a2e42',
     border: '1px solid #1a2e42',
     color: '#ffffff',
     borderRadius: '2px',
-    padding: '3px 7px',
-    fontSize: '11px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
-  const timestampStyle = {
-    fontSize: '10px',
+  const timestampStyle = mergeResponsiveStyles({
     color: '#4a90b8',
     textAlign: 'center' as const,
     marginTop: '2px',
     opacity: item.isReviewed ? 0.8 : 1
-  };
+  }, responsiveTypography.smallText);
 
-  const reviewedIndicatorStyle = {
-    fontSize: '10px',
+  const reviewedIndicatorStyle = mergeResponsiveStyles({
     color: '#2d5a87',
     textAlign: 'center' as const,
     margin: '2px 0 0 0',
     opacity: 0.8
-  };
+  }, responsiveTypography.smallText);
 
   return (
     <div 
