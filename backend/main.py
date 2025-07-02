@@ -59,11 +59,11 @@ class Settings(BaseModel):
 class AppData(BaseModel):
     items: List[Item] = []
     categories: List[str] = []
-    settings: dict = {
-        "confident_days": 7,
-        "medium_days": 3,
-        "wtf_days": 1
-    }
+    settings: Settings = Settings(
+        confident_days=7,
+        medium_days=3,
+        wtf_days=1
+    )
     last_updated: str
 
 # Data file path
@@ -74,6 +74,12 @@ def load_data() -> AppData:
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as f:
             data = json.load(f)
+            
+            # Handle backward compatibility: convert dict settings to Settings model
+            if isinstance(data.get("settings"), dict):
+                settings_dict = data["settings"]
+                data["settings"] = Settings(**settings_dict)
+            
             return AppData(**data)
     else:
         # Create initial data
@@ -211,11 +217,7 @@ async def update_settings(new_settings: Settings):
         raise HTTPException(status_code=400, detail="All settings values must be positive integers")
     
     # Update settings
-    data.settings = {
-        "confident_days": new_settings.confident_days,
-        "medium_days": new_settings.medium_days,
-        "wtf_days": new_settings.wtf_days
-    }
+    data.settings = new_settings
     
     save_data(data)
     return data.settings
