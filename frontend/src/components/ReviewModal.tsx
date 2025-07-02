@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { StudyItem } from './ItemCard';
 import type { AppSettings } from '../types/Settings';
 import { useResponsive } from '../hooks/useBreakpoint';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface ReviewModalProps {
@@ -22,6 +23,9 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   settings
 }) => {
   const [customDays, setCustomDays] = useState<number>(1);
+
+  // Prevent background scrolling when modal is open
+  useBodyScrollLock(isOpen);
 
   // Responsive design integration (must be before conditional return)
   const { breakpoint } = useResponsive();

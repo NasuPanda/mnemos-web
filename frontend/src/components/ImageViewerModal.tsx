@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface ImageViewerModalProps {
   isOpen: boolean;
@@ -13,6 +14,9 @@ const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
   images,
   title = "Images"
 }) => {
+  // Prevent background scrolling when modal is open
+  useBodyScrollLock(isOpen);
+
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
 
   useEffect(() => {

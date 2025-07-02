@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { StudyItem } from './ItemCard';
 import ImageViewerModal from './ImageViewerModal';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface ShowAnswerModalProps {
   isOpen: boolean;
@@ -13,6 +14,9 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
   onClose,
   item
 }) => {
+  // Prevent background scrolling when modal is open
+  useBodyScrollLock(isOpen);
+
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [viewingImages, setViewingImages] = useState<string[]>([]);
   const [imageViewerTitle, setImageViewerTitle] = useState('');

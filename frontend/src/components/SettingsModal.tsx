@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { AppSettings } from '../types/Settings';
 import { useResponsive } from '../hooks/useBreakpoint';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface SettingsModalProps {
@@ -16,6 +17,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   onSaveSettings
 }) => {
+  // Prevent background scrolling when modal is open
+  useBodyScrollLock(isOpen);
+
   const [formData, setFormData] = useState<AppSettings>(settings);
   const [errors, setErrors] = useState<Record<string, string>>({});
 

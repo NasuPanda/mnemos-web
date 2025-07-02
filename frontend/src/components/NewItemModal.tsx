@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { StudyItem } from './ItemCard';
 import { useResponsive } from '../hooks/useBreakpoint';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface NewItemModalProps {
@@ -25,6 +26,9 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
   const responsiveModal = getResponsiveModalStyles(breakpoint, 'edit');
   const responsiveTypography = getResponsiveTypography(breakpoint);
   const responsiveSpacing = getResponsiveSpacing(breakpoint);
+
+  // Prevent background scrolling when modal is open
+  useBodyScrollLock(isOpen);
 
   const [formData, setFormData] = useState({
     name: '',
