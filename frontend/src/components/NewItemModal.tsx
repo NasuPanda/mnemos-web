@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { StudyItem } from './ItemCard';
+import { useResponsive } from '../hooks/useBreakpoint';
+import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface NewItemModalProps {
   isOpen: boolean;
@@ -18,6 +20,12 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
   categories,
   selectedCategory
 }) => {
+  // Responsive design integration (must be before conditional return)
+  const { breakpoint } = useResponsive();
+  const responsiveModal = getResponsiveModalStyles(breakpoint, 'edit');
+  const responsiveTypography = getResponsiveTypography(breakpoint);
+  const responsiveSpacing = getResponsiveSpacing(breakpoint);
+
   const [formData, setFormData] = useState({
     name: '',
     category: selectedCategory,
@@ -186,7 +194,7 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
 
   if (!isOpen) return null;
 
-  const overlayStyle = {
+  const overlayStyle = mergeResponsiveStyles({
     backgroundColor: 'rgba(30, 58, 95, 0.4)',
     position: 'fixed' as const,
     top: 0,
@@ -197,65 +205,53 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000
-  };
+  }, responsiveModal.overlay);
 
-  const modalStyle = {
+  const modalStyle = mergeResponsiveStyles({
     backgroundColor: '#ffffff',
     border: '3px solid #4a90b8',
-    borderRadius: '12px',
-    padding: '20px',
     position: 'relative' as const,
-    width: '640px',
-    height: '540px',
-    maxWidth: '90vw',
-    maxHeight: '90vh',
     overflowY: 'auto' as const,
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, responsiveModal.content);
 
-  const titleStyle = {
-    fontSize: '18px',
+  const titleStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    marginBottom: '20px',
+    marginBottom: responsiveSpacing.sectionGap,
     textAlign: 'center' as const
-  };
+  }, responsiveTypography.modalTitle);
 
-  const closeButtonStyle = {
+  const closeButtonStyle = mergeResponsiveStyles({
     position: 'absolute' as const,
     top: '15px',
     right: '15px',
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     borderRadius: '4px',
-    padding: '4px 8px',
     color: '#2d5a87',
-    cursor: 'pointer',
-    fontSize: '12px'
-  };
+    cursor: 'pointer'
+  }, getResponsiveButtonStyles(breakpoint, 'small'));
 
   const formGroupStyle = {
-    marginBottom: '15px'
+    marginBottom: responsiveSpacing.sectionGap
   };
 
-  const labelStyle = {
-    fontSize: '14px',
+  const labelStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    marginBottom: '5px',
+    marginBottom: responsiveSpacing.buttonGap,
     display: 'block'
-  };
+  }, responsiveTypography.bodyText);
 
-  const inputStyle = {
+  const inputStyle = mergeResponsiveStyles({
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     borderRadius: '4px',
-    padding: '8px 12px',
-    fontSize: '12px',
     color: '#2d5a87',
     width: '100%',
     boxSizing: 'border-box' as const
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
   const textareaStyle = {
     ...inputStyle,
@@ -268,31 +264,27 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
     cursor: 'pointer'
   };
 
-  const sectionTitleStyle = {
-    fontSize: '14px',
+  const sectionTitleStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    marginBottom: '10px',
-    marginTop: '20px'
-  };
+    marginBottom: responsiveSpacing.buttonGap,
+    marginTop: responsiveSpacing.sectionGap
+  }, responsiveTypography.bodyText);
 
-  const submitButtonStyle = {
+  const submitButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#2d5a87',
     border: '1px solid #2d5a87',
     color: '#ffffff',
     borderRadius: '4px',
-    padding: '10px 20px',
-    fontSize: '14px',
     cursor: 'pointer',
     width: '100%',
-    marginTop: '20px'
-  };
+    marginTop: responsiveSpacing.sectionGap
+  }, getResponsiveButtonStyles(breakpoint, 'primary'));
 
-  const helperTextStyle = {
-    fontSize: '11px',
+  const helperTextStyle = mergeResponsiveStyles({
     color: '#2d5a87',
-    marginBottom: '10px'
-  };
+    marginBottom: responsiveSpacing.buttonGap
+  }, responsiveTypography.smallText);
 
   return (
     <div style={overlayStyle} onClick={onClose}>
@@ -407,12 +399,12 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'text',
-                marginBottom: '8px'
+                marginBottom: responsiveSpacing.buttonGap
               }}
               onPaste={(e) => handlePaste('problemImages', e)}
               tabIndex={0}
             >
-              <div style={{ fontSize: '12px', color: '#2d5a87', textAlign: 'center' }}>
+              <div style={mergeResponsiveStyles({ color: '#2d5a87', textAlign: 'center' }, responsiveTypography.smallText)}>
                 📋 Paste Image Here (Cmd+V)
               </div>
             </div>
@@ -425,7 +417,7 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
                 padding: '8px 12px',
                 marginBottom: '8px'
               }}>
-                <div style={{ fontSize: '11px', color: '#2d5a87', marginBottom: '5px' }}>
+                <div style={mergeResponsiveStyles({ color: '#2d5a87', marginBottom: responsiveSpacing.buttonGap }, responsiveTypography.smallText)}>
                   Uploaded Images:
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
@@ -569,12 +561,12 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'text',
-                marginBottom: '8px'
+                marginBottom: responsiveSpacing.buttonGap
               }}
               onPaste={(e) => handlePaste('answerImages', e)}
               tabIndex={0}
             >
-              <div style={{ fontSize: '12px', color: '#2d5a87', textAlign: 'center' }}>
+              <div style={mergeResponsiveStyles({ color: '#2d5a87', textAlign: 'center' }, responsiveTypography.smallText)}>
                 📋 Paste Image Here (Cmd+V)
               </div>
             </div>
@@ -587,7 +579,7 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
                 padding: '8px 12px',
                 marginBottom: '8px'
               }}>
-                <div style={{ fontSize: '11px', color: '#2d5a87', marginBottom: '5px' }}>
+                <div style={mergeResponsiveStyles({ color: '#2d5a87', marginBottom: responsiveSpacing.buttonGap }, responsiveTypography.smallText)}>
                   Uploaded Images:
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
