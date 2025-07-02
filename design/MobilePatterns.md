@@ -62,42 +62,90 @@ const touchStates = {
 ### Mobile Header Pattern
 ```javascript
 const mobileHeader = {
-  // Collapsible header for space efficiency
+  // Two-row layout for efficient space usage
   container: {
-    position: 'sticky',
-    top: '0',
-    zIndex: '100',
     backgroundColor: '#ffffff',
-    borderBottom: '1px solid #4a90b8'
+    border: '2px solid #4a90b8',
+    borderRadius: '8px',
+    padding: '15px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
   },
   
-  // Compact title bar
-  titleBar: {
-    height: '56px',
-    padding: '0 16px',
+  // First row: Today button, Category selector, Settings button
+  topRow: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    gap: '12px',
+    height: '48px' // Touch-friendly height
   },
   
-  // Expandable controls section
-  controlsPanel: {
-    maxHeight: '0',
-    overflow: 'hidden',
-    transition: 'max-height 0.3s ease',
-    expanded: {
-      maxHeight: '200px',
-      padding: '16px'
-    }
+  // Today button (left)
+  todayButton: {
+    backgroundColor: '#2d5a87',
+    color: '#ffffff',
+    borderRadius: '4px',
+    padding: '12px 20px',
+    fontSize: '16px',
+    minHeight: '48px', // Touch target
+    flex: '1'
   },
   
-  // Hamburger menu toggle
-  menuToggle: {
-    width: '48px',
-    height: '48px',
+  // Category selector (center, flexible width)
+  categorySelector: {
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    borderRadius: '4px',
+    color: '#2d5a87',
+    padding: '10px 16px',
+    fontSize: '14px',
+    minHeight: '44px', // Touch target
+    flex: '2'
+  },
+  
+  // Settings button (right)
+  settingsButton: {
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    color: '#2d5a87',
+    borderRadius: '4px',
+    padding: '10px 16px',
+    fontSize: '14px',
+    minHeight: '44px', // Touch target
+    minWidth: '44px'
+  },
+  
+  // Second row: Date navigation (centered)
+  bottomRow: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    gap: '12px',
+    height: '48px' // Touch-friendly height
+  },
+  
+  // Navigation buttons
+  navButton: {
+    backgroundColor: '#4a90b8',
+    color: '#ffffff',
+    borderRadius: '4px',
+    padding: '8px 12px',
+    fontSize: '14px',
+    minHeight: '44px', // Touch target
+    minWidth: '44px'
+  },
+  
+  // Date display (center, flexible)
+  dateDisplay: {
+    backgroundColor: '#e8f0f5',
+    border: '1px solid #4a90b8',
+    borderRadius: '4px',
+    color: '#2d5a87',
+    padding: '10px 16px',
+    fontSize: '14px',
+    minHeight: '44px', // Touch target
+    textAlign: 'center',
+    flex: '1'
   }
 }
 ```

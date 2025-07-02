@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import type { StudyItem } from './ItemCard';
 import type { AppSettings } from '../types/Settings';
+import { useResponsive } from '../hooks/useBreakpoint';
+import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -20,6 +22,12 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   settings
 }) => {
   const [customDays, setCustomDays] = useState<number>(1);
+
+  // Responsive design integration (must be before conditional return)
+  const { breakpoint } = useResponsive();
+  const responsiveModal = getResponsiveModalStyles(breakpoint, 'review');
+  const responsiveTypography = getResponsiveTypography(breakpoint);
+  const responsiveSpacing = getResponsiveSpacing(breakpoint);
 
   const handleConfidenceClick = (type: 'confident' | 'medium' | 'wtf') => {
     if (!item) return;
@@ -41,7 +49,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
 
   if (!isOpen || !item) return null;
 
-  const overlayStyle = {
+  const overlayStyle = mergeResponsiveStyles({
     backgroundColor: 'rgba(30, 58, 95, 0.4)',
     position: 'fixed' as const,
     top: 0,
@@ -52,150 +60,127 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000
-  };
+  }, responsiveModal.overlay);
 
-  const modalStyle = {
+  const modalStyle = mergeResponsiveStyles({
     backgroundColor: '#ffffff',
     border: '3px solid #4a90b8',
-    borderRadius: '12px',
-    padding: '20px',
     position: 'relative' as const,
-    width: '400px',
-    height: '300px',
-    maxWidth: '90vw',
-    maxHeight: '90vh',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     display: 'flex',
     flexDirection: 'column' as const
-  };
+  }, responsiveModal.content);
 
-  const titleStyle = {
-    fontSize: '18px',
+  const titleStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    marginBottom: '10px',
+    marginBottom: responsiveSpacing.buttonGap,
     textAlign: 'center' as const
-  };
+  }, responsiveTypography.modalTitle);
 
-  const itemNameStyle = {
-    fontSize: '14px',
+  const itemNameStyle = mergeResponsiveStyles({
     color: '#2d5a87',
-    marginBottom: '20px',
+    marginBottom: responsiveSpacing.sectionGap,
     textAlign: 'center' as const,
     fontStyle: 'italic' as const
-  };
+  }, responsiveTypography.bodyText);
 
-  const closeButtonStyle = {
+  const closeButtonStyle = mergeResponsiveStyles({
     position: 'absolute' as const,
     top: '15px',
     right: '15px',
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     borderRadius: '4px',
-    padding: '4px 8px',
     color: '#2d5a87',
-    cursor: 'pointer',
-    fontSize: '12px'
-  };
+    cursor: 'pointer'
+  }, getResponsiveButtonStyles(breakpoint, 'small'));
 
   const confidenceButtonsStyle = {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '10px',
-    marginBottom: '20px'
+    gap: responsiveSpacing.buttonGap,
+    marginBottom: responsiveSpacing.sectionGap
   };
 
-  const confidentButtonStyle = {
+  const confidentButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#4CAF50',
     border: '1px solid #4CAF50',
     color: '#ffffff',
     borderRadius: '4px',
-    padding: '12px 16px',
-    fontSize: '14px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'primary'));
 
-  const mediumButtonStyle = {
+  const mediumButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#2196F3',
     border: '1px solid #2196F3',
     color: '#ffffff',
     borderRadius: '4px',
-    padding: '12px 16px',
-    fontSize: '14px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'primary'));
 
-  const wtfButtonStyle = {
+  const wtfButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#F44336',
     border: '1px solid #F44336',
     color: '#ffffff',
     borderRadius: '4px',
-    padding: '12px 16px',
-    fontSize: '14px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'primary'));
 
   const customSectionStyle = {
-    marginBottom: '15px'
+    marginBottom: responsiveSpacing.sectionGap
   };
 
-  const customLabelStyle = {
-    fontSize: '12px',
+  const customLabelStyle = mergeResponsiveStyles({
     color: '#1e3a5f',
-    marginBottom: '5px',
+    marginBottom: responsiveSpacing.buttonGap,
     display: 'block'
-  };
+  }, responsiveTypography.smallText);
 
   const customInputContainerStyle = {
     display: 'flex',
-    gap: '10px',
+    gap: responsiveSpacing.buttonGap,
     alignItems: 'center'
   };
 
-  const customInputStyle = {
+  const customInputStyle = mergeResponsiveStyles({
     backgroundColor: '#e8f0f5',
     border: '1px solid #4a90b8',
     borderRadius: '4px',
-    padding: '8px 12px',
-    fontSize: '12px',
     color: '#2d5a87',
     width: '80px'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'small'));
 
-  const customButtonStyle = {
+  const customButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#2d5a87',
     border: '1px solid #2d5a87',
     color: '#ffffff',
     borderRadius: '4px',
-    padding: '8px 12px',
-    fontSize: '12px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
-  const archiveButtonStyle = {
+  const archiveButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#1a2e42',
     border: '1px solid #1a2e42',
     color: '#ffffff',
     borderRadius: '4px',
-    padding: '8px 16px',
-    fontSize: '12px',
     cursor: 'pointer',
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     marginTop: 'auto'
-  };
+  }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
   return (
     <div style={overlayStyle} onClick={onClose}>
@@ -255,7 +240,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
               value={customDays}
               onChange={(e) => setCustomDays(parseInt(e.target.value) || 1)}
             />
-            <span style={{ fontSize: '12px', color: '#2d5a87' }}>days</span>
+            <span style={mergeResponsiveStyles({ color: '#2d5a87' }, responsiveTypography.smallText)}>days</span>
             <button
               style={customButtonStyle}
               onClick={handleCustomReview}

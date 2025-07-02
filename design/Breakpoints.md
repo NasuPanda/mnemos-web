@@ -64,39 +64,75 @@ module.exports = {
 ### Header Component
 
 #### Mobile (0px - 767px)
-**Layout**: Vertical stacked layout
+**Layout**: Two-row layout for efficient space usage
 ```javascript
 const headerMobile = {
   container: {
     flexDirection: 'column',
     height: 'auto',
     padding: '15px',
-    gap: '15px'
+    gap: '12px'
   },
   
-  // Title section (full width)
+  // Title section (full width, centered)
   title: {
     textAlign: 'center',
-    marginBottom: '10px'
+    marginBottom: '12px'
   },
   
-  // Controls section (stacked)
-  controls: {
-    width: '100%',
-    flexDirection: 'column',
-    gap: '10px'
+  // First row: Today + Category + Settings (horizontal)
+  topRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    height: '48px'
   },
   
-  // Date navigation (centered)
-  dateNav: {
-    justifyContent: 'center',
-    width: '100%'
+  // Today button (left, flexible)
+  todayButton: {
+    flex: '1',
+    minHeight: '48px',
+    padding: '12px 20px',
+    fontSize: '16px'
   },
   
-  // Action buttons (full width)
-  buttons: {
-    width: '100%',
-    minHeight: '48px'
+  // Category selector (center, more flexible width)
+  categorySelector: {
+    flex: '2',
+    minHeight: '44px',
+    padding: '10px 16px',
+    fontSize: '14px'
+  },
+  
+  // Settings button (right, fixed width)
+  settingsButton: {
+    minHeight: '44px',
+    minWidth: '44px',
+    padding: '10px 16px',
+    fontSize: '14px'
+  },
+  
+  // Second row: Date navigation (horizontal, centered)
+  bottomRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    height: '48px'
+  },
+  
+  // Navigation buttons
+  navButtons: {
+    minHeight: '44px',
+    minWidth: '44px',
+    padding: '8px 12px'
+  },
+  
+  // Date display (center, flexible)
+  dateDisplay: {
+    flex: '1',
+    minHeight: '44px',
+    padding: '10px 16px',
+    textAlign: 'center'
   }
 }
 ```

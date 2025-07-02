@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Responsive Header Box */}
       {isMobile ? (
-        // Mobile Layout: Vertical Stack
+        // Mobile Layout: Two-row horizontal layout
         <div style={{
           backgroundColor: '#ffffff',
           border: '2px solid #4a90b8',
@@ -91,12 +91,12 @@ const Header: React.FC<HeaderProps> = ({
           flexDirection: 'column',
           gap: responsiveSpacing.buttonGap
         }}>
-          {/* Top Row: Today Button and Settings */}
+          {/* First Row: Today + Category + Settings (horizontal) */}
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: responsiveSpacing.buttonGap
+            gap: responsiveSpacing.buttonGap,
+            height: '48px'
           }}>
             <button
               onClick={onTodayClick}
@@ -115,6 +115,25 @@ const Header: React.FC<HeaderProps> = ({
               Today
             </button>
             
+            <select
+              value={selectedCategory || ''}
+              onChange={(e) => onCategoryChange(e.target.value)}
+              style={mergeResponsiveStyles({
+                backgroundColor: '#e8f0f5',
+                border: '1px solid #4a90b8',
+                borderRadius: '4px',
+                color: '#2d5a87',
+                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                flex: '2'
+              }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
+            >
+              {categories.map((category) => (
+                <option key={category || 'all'} value={category || ''}>
+                  {category || 'All Categories'}
+                </option>
+              ))}
+            </select>
+            
             <button
               onClick={onSettingsClick}
               style={mergeResponsiveStyles({
@@ -132,31 +151,12 @@ const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Middle Row: Category Selector */}
-          <select
-            value={selectedCategory || ''}
-            onChange={(e) => onCategoryChange(e.target.value)}
-            style={mergeResponsiveStyles({
-              backgroundColor: '#e8f0f5',
-              border: '1px solid #4a90b8',
-              borderRadius: '4px',
-              color: '#2d5a87',
-              fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-              width: '100%'
-            }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
-          >
-            {categories.map((category) => (
-              <option key={category || 'all'} value={category || ''}>
-                {category || 'All Categories'}
-              </option>
-            ))}
-          </select>
-
-          {/* Bottom Row: Date Navigation */}
+          {/* Second Row: Date Navigation (horizontal) */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: responsiveSpacing.buttonGap
+            gap: responsiveSpacing.buttonGap,
+            height: '48px'
           }}>
             <button
               onClick={() => onDateNavigate('prev')}

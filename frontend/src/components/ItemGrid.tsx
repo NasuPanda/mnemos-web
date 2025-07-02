@@ -1,5 +1,7 @@
 import React from 'react';
 import ItemCard, { type StudyItem } from './ItemCard';
+import { useResponsive } from '../hooks/useBreakpoint';
+import { getResponsiveSpacing, getResponsiveTypography, mergeResponsiveStyles } from '../utils/responsive';
 
 interface ItemGridProps {
   items: StudyItem[];
@@ -18,6 +20,10 @@ const ItemGrid: React.FC<ItemGridProps> = ({
   onDelete,
   onDoubleClick
 }) => {
+  // Responsive design integration
+  const { breakpoint, isMobile, isTablet, isDesktopOrWide } = useResponsive();
+  const responsiveSpacing = getResponsiveSpacing(breakpoint);
+  const responsiveTypography = getResponsiveTypography(breakpoint);
   // Sort items: unreviewed first, then by date (most recent last)
   const sortedItems = [...items].sort((a, b) => {
     // Primary sort: unreviewed items first
@@ -36,29 +42,64 @@ const ItemGrid: React.FC<ItemGridProps> = ({
   }
 
   const containerStyle = {
-    marginBottom: '30px'
+    marginBottom: responsiveSpacing.sectionGap
   };
 
-  const headerStyle = {
-    fontSize: '18px',
+  const headerStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
-    marginBottom: '10px',
+    marginBottom: responsiveSpacing.buttonGap,
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+  }, responsiveTypography.modalTitle);
+
+  // Responsive grid layout based on breakpoint
+  const getGridStyle = () => {
+    const baseStyle = {
+      fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    };
+
+    if (isMobile) {
+      // Mobile: Vertical stack
+      return {
+        ...baseStyle,
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: responsiveSpacing.cardGap,
+        overflowX: 'visible' as const,
+        overflowY: 'visible' as const
+      };
+    }
+
+    if (isTablet) {
+      // Tablet: CSS Grid
+      return {
+        ...baseStyle,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: responsiveSpacing.cardGap,
+        overflowX: 'visible' as const,
+        overflowY: 'visible' as const
+      };
+    }
+
+    // Desktop/Wide: Current horizontal scroll
+    return {
+      ...baseStyle,
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: responsiveSpacing.cardGap,
+      overflowX: 'auto' as const,
+      overflowY: 'hidden' as const,
+      padding: '10px 0',
+      paddingBottom: '20px',
+      minHeight: 'fit-content'
+    };
   };
 
-  const gridStyle = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '12px',
-    overflowX: 'auto' as const,
-    overflowY: 'hidden' as const,
-    padding: '10px 0',
-    paddingBottom: '20px',
-    minHeight: 'fit-content'
-  };
+  const gridStyle = getGridStyle();
 
-  const scrollbarStyle = `
+  // Only apply scrollbar styles for desktop/wide screens
+  const scrollbarStyle = isDesktopOrWide ? `
     .item-grid-scroll::-webkit-scrollbar {
       height: 8px;
     }
@@ -71,7 +112,7 @@ const ItemGrid: React.FC<ItemGridProps> = ({
       background-color: #2d5a87;
       border-radius: 4px;
     }
-  `;
+  ` : '';
 
   return (
     <>
@@ -80,7 +121,7 @@ const ItemGrid: React.FC<ItemGridProps> = ({
         <h2 style={headerStyle}>
           {categoryName}
         </h2>
-        <div style={gridStyle} className="item-grid-scroll">
+        <div style={gridStyle} className={isDesktopOrWide ? "item-grid-scroll" : ""}>
           {sortedItems.map((item) => (
             <ItemCard
               key={item.id}
