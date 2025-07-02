@@ -51,6 +51,11 @@ class Item(BaseModel):
     last_accessed: str
     archived: bool = False
 
+class Settings(BaseModel):
+    confident_days: int
+    medium_days: int
+    wtf_days: int
+
 class AppData(BaseModel):
     items: List[Item] = []
     categories: List[str] = []
@@ -195,6 +200,25 @@ async def update_item(item_id: str, updated_item: Item):
             return updated_item
 
     raise HTTPException(status_code=404, detail="Item not found")
+
+@app.put("/api/settings")
+async def update_settings(new_settings: Settings):
+    """Update global settings"""
+    data = load_data()
+    
+    # Validate settings values
+    if new_settings.confident_days <= 0 or new_settings.medium_days <= 0 or new_settings.wtf_days <= 0:
+        raise HTTPException(status_code=400, detail="All settings values must be positive integers")
+    
+    # Update settings
+    data.settings = {
+        "confident_days": new_settings.confident_days,
+        "medium_days": new_settings.medium_days,
+        "wtf_days": new_settings.wtf_days
+    }
+    
+    save_data(data)
+    return data.settings
 
 if __name__ == "__main__":
     import uvicorn
