@@ -9,11 +9,11 @@
 - GET /api/data (returns complete AppData)
 - POST /api/items (create new item)
 - GET /api/items (get all items)
+- DELETE /api/items/{id} (delete item)
+- Dummy JSON file and storage testing
 
 ❌ **Missing Tasks:**
-- Create dummy JSON file and test JSON file storage functionality
 - PUT /api/items/{id} - Update existing item
-- DELETE /api/items/{id} - Delete item
 - PUT /api/settings - Update global settings
 
 ## Implementation Proposals
@@ -48,13 +48,46 @@ async def update_item(item_id: str, updated_item: Item):
 
 **Logic:** Personal app - single JSON file, find by ID, preserve creation date, update categories.
 
-### 2. DELETE /api/items/{id} - Delete Item
+### 2. DELETE /api/items/{id} - Delete Item ✅
 
-*To be proposed*
+```python
+@app.delete("/api/items/{item_id}")
+async def delete_item(item_id: str):
+    """Delete an existing item"""
+    data = load_data()
+    
+    # Find and remove item by ID
+    original_count = len(data.items)
+    data.items = [item for item in data.items if item.id != item_id]
+    
+    # Check if item was found and removed
+    if len(data.items) == original_count:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    save_data(data)
+    return {"message": "Item deleted successfully", "id": item_id}
+```
+
+**Implementation:** ✅ Completed in backend/main.py:159-173  
+**Testing:** ✅ All tests passed - deletes items, returns 404 for non-existent items
 
 ### 3. PUT /api/settings - Update Settings
 
 *To be proposed*
+
+## Test Results
+
+### JSON File Storage ✅
+- Created test_dummy_data.json with sample data
+- load_data() and save_data() functions working correctly
+- Empty file creation works
+- All CRUD operations persist to JSON file
+
+### DELETE Endpoint ✅
+- Successfully deletes existing items
+- Returns 404 for non-existent items
+- JSON file properly updated after deletion
+- Item count correctly reduced
 
 ## Notes
 - Personal app (single user)

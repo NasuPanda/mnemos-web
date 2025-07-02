@@ -156,6 +156,22 @@ async def get_items():
     data = load_data()
     return data.items
 
+@app.delete("/api/items/{item_id}")
+async def delete_item(item_id: str):
+    """Delete an existing item"""
+    data = load_data()
+    
+    # Find and remove item by ID
+    original_count = len(data.items)
+    data.items = [item for item in data.items if item.id != item_id]
+    
+    # Check if item was found and removed
+    if len(data.items) == original_count:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    save_data(data)
+    return {"message": "Item deleted successfully", "id": item_id}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
