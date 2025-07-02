@@ -10,11 +10,13 @@ class Item(BaseModel):
     
     problem_text: Optional[str] = None
     problem_url: Optional[str] = None
-    problem_image: Optional[str] = None
+    problem_image: Optional[str] = None  # Deprecated - kept for backward compatibility
+    problem_images: List[str] = []
     
     answer_text: Optional[str] = None
     answer_url: Optional[str] = None
-    answer_image: Optional[str] = None
+    answer_image: Optional[str] = None   # Deprecated - kept for backward compatibility
+    answer_images: List[str] = []
     
     reviewed: bool = False
     next_review_date: Optional[str] = None

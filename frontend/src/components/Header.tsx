@@ -9,7 +9,7 @@ interface HeaderProps {
   onSettingsClick: () => void;
   onDateNavigate: (direction: 'prev' | 'next') => void;
   currentDate: Date;
-  categories: (string | null)[];
+  categories: string[];
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -128,8 +128,8 @@ const Header: React.FC<HeaderProps> = ({
               }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
             >
               {categories.map((category) => (
-                <option key={category || 'all'} value={category || ''}>
-                  {category || 'All Categories'}
+                <option key={category} value={category}>
+                  {category}
                 </option>
               ))}
             </select>
@@ -252,8 +252,8 @@ const Header: React.FC<HeaderProps> = ({
               }, isTablet ? getResponsiveButtonStyles(breakpoint, 'secondary') : { padding: '10px 14px', fontSize: '14px' })}
             >
               {categories.map((category) => (
-                <option key={category || 'all'} value={category || ''}>
-                  {category || 'All Categories'}
+                <option key={category} value={category}>
+                  {category}
                 </option>
               ))}
             </select>

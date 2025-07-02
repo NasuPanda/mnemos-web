@@ -7,7 +7,8 @@ import ShowAnswerModal from './components/ShowAnswerModal';
 import SettingsModal from './components/SettingsModal';
 import type { StudyItem } from './components/ItemCard';
 import type { AppSettings } from './types/Settings';
-import { loadSettings, saveSettings, DEFAULT_SETTINGS } from './types/Settings';
+import { DEFAULT_SETTINGS } from './types/Settings';
+import { itemsApi, settingsApi, categoriesApi } from './services/api';
 
 // Helper function to get today's date in YYYY-MM-DD format
 const getTodayString = () => new Date().toISOString().split('T')[0];
@@ -22,7 +23,8 @@ const getYesterdayString = () => {
   return yesterday.toISOString().split('T')[0];
 };
 
-// Dummy data for testing date-based filtering
+// Dummy data for testing date-based filtering - COMMENTED OUT FOR API INTEGRATION
+/*
 const DUMMY_ITEMS: StudyItem[] = [
   {
     id: '1',
@@ -275,12 +277,14 @@ const DUMMY_ITEMS: StudyItem[] = [
     hasImage: false
   }
 ];
+*/
 
 function App() {
   // State management
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [items, setItems] = useState<StudyItem[]>(DUMMY_ITEMS);
+  const [items, setItems] = useState<StudyItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isShowAnswerModalOpen, setIsShowAnswerModalOpen] = useState(false);
@@ -288,16 +292,35 @@ function App() {
   const [editingItem, setEditingItem] = useState<StudyItem | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [allCategories, setAllCategories] = useState<string[]>([]);
 
-  // Load settings from localStorage on component mount
+  // Load data from API on component mount
   useEffect(() => {
-    const loadedSettings = loadSettings();
-    setSettings(loadedSettings);
+    loadData();
   }, []);
 
-  // Get unique categories from items
-  const actualCategories = Array.from(new Set(items.map(item => item.category)));
-  const categories = [null, ...actualCategories];
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [itemsData, settingsData, categoriesData] = await Promise.all([
+        itemsApi.getAll(),
+        settingsApi.get(),
+        categoriesApi.getAll()
+      ]);
+      setItems(itemsData);
+      setSettings(settingsData);
+      setAllCategories(categoriesData);
+    } catch (error) {
+      console.error('Failed to load data:', error);
+      // Fallback to default settings if API fails
+      setSettings(DEFAULT_SETTINGS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use predefined categories from backend for default selection (no filtering)
+  const categories = allCategories;
 
   // Helper function to format date for comparison (YYYY-MM-DD)
   const formatDateForComparison = (date: Date): string => {
@@ -322,13 +345,8 @@ function App() {
     return false;
   };
 
-  // Filter items by category
-  const categoryFilteredItems = selectedCategory 
-    ? items.filter(item => item.category === selectedCategory)
-    : items;
-
-  // Filter items by date
-  const filteredItems = categoryFilteredItems.filter(item => 
+  // Filter items by date only (no category filtering)
+  const filteredItems = items.filter(item => 
     shouldShowItemOnDate(item, currentDate)
   );
 
@@ -355,9 +373,14 @@ function App() {
     setIsSettingsModalOpen(true);
   };
 
-  const handleSaveSettings = (newSettings: AppSettings) => {
-    setSettings(newSettings);
-    saveSettings(newSettings);
+  const handleSaveSettings = async (newSettings: AppSettings) => {
+    try {
+      const updatedSettings = await settingsApi.update(newSettings);
+      setSettings(updatedSettings);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      // Optionally show error message to user
+    }
   };
 
   const handleDateNavigate = (direction: 'prev' | 'next') => {
@@ -376,9 +399,15 @@ function App() {
     setIsNewItemModalOpen(true);
   };
 
-  const handleDelete = (item: StudyItem) => {
+  const handleDelete = async (item: StudyItem) => {
     if (window.confirm(`Are you sure you want to delete "${item.name}"?`)) {
-      setItems(prev => prev.filter(i => i.id !== item.id));
+      try {
+        await itemsApi.delete(item.id);
+        setItems(prev => prev.filter(i => i.id !== item.id));
+      } catch (error) {
+        console.error('Failed to delete item:', error);
+        // Optionally show error message to user
+      }
     }
   };
 
@@ -387,28 +416,27 @@ function App() {
     setIsReviewModalOpen(true);
   };
 
-  const handleNewItem = (newItemData: Omit<StudyItem, 'id' | 'createdAt' | 'lastAccessedAt' | 'isReviewed'>) => {
-    if (editingItem) {
-      // Update existing item
-      setItems(prev => prev.map(item => 
-        item.id === editingItem.id 
-          ? { ...item, ...newItemData }
-          : item
-      ));
-      setEditingItem(null);
-    } else {
-      // Create new item
-      const newItem: StudyItem = {
-        ...newItemData,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString().split('T')[0],
-        isReviewed: false
-      };
-      setItems(prev => [...prev, newItem]);
+  const handleNewItem = async (newItemData: Omit<StudyItem, 'id' | 'createdAt' | 'lastAccessedAt' | 'isReviewed'>) => {
+    try {
+      if (editingItem) {
+        // Update existing item
+        const updatedItem = await itemsApi.update(editingItem.id, { ...editingItem, ...newItemData });
+        setItems(prev => prev.map(item => 
+          item.id === editingItem.id ? updatedItem : item
+        ));
+        setEditingItem(null);
+      } else {
+        // Create new item
+        const newItem = await itemsApi.create(newItemData);
+        setItems(prev => [...prev, newItem]);
+      }
+    } catch (error) {
+      console.error('Failed to save item:', error);
+      // Optionally show error message to user
     }
   };
 
-  const handleReview = (itemId: string, reviewType: 'confident' | 'medium' | 'wtf' | 'custom', customDays?: number) => {
+  const handleReview = async (itemId: string, reviewType: 'confident' | 'medium' | 'wtf' | 'custom', customDays?: number) => {
     // Calculate days based on review type using settings
     let daysToAdd: number;
     switch (reviewType) {
@@ -436,23 +464,38 @@ function App() {
     // Current date for review history
     const currentDateString = new Date().toISOString().split('T')[0];
 
-    setItems(prev => prev.map(item => 
-      item.id === itemId 
-        ? { 
-            ...item, 
-            isReviewed: true, 
-            lastAccessedAt: currentDateString,
-            nextReviewDate: nextReviewDateString,
-            reviewDates: [...(item.reviewDates || []), currentDateString]
-          }
-        : item
-    ));
-    console.log(`Item ${itemId} reviewed with ${reviewType}${customDays ? ` for ${customDays} days` : ` for ${daysToAdd} days`} - next review: ${nextReviewDateString}`);
+    try {
+      const currentItem = items.find(item => item.id === itemId);
+      if (!currentItem) return;
+
+      const updatedItem = {
+        ...currentItem,
+        isReviewed: true,
+        lastAccessedAt: currentDateString,
+        nextReviewDate: nextReviewDateString,
+        reviewDates: [...(currentItem.reviewDates || []), currentDateString]
+      };
+
+      const savedItem = await itemsApi.update(itemId, updatedItem);
+      setItems(prev => prev.map(item => 
+        item.id === itemId ? savedItem : item
+      ));
+      console.log(`Item ${itemId} reviewed with ${reviewType}${customDays ? ` for ${customDays} days` : ` for ${daysToAdd} days`} - next review: ${nextReviewDateString}`);
+    } catch (error) {
+      console.error('Failed to update review:', error);
+      // Optionally show error message to user
+    }
   };
 
-  const handleArchive = (itemId: string) => {
-    setItems(prev => prev.filter(item => item.id !== itemId));
-    console.log(`Item ${itemId} archived`);
+  const handleArchive = async (itemId: string) => {
+    try {
+      await itemsApi.delete(itemId);
+      setItems(prev => prev.filter(item => item.id !== itemId));
+      console.log(`Item ${itemId} archived`);
+    } catch (error) {
+      console.error('Failed to archive item:', error);
+      // Optionally show error message to user
+    }
   };
 
   const handleCloseModals = () => {
@@ -493,17 +536,23 @@ function App() {
           + New Item
         </button>
 
-        {Object.entries(itemsByCategory).map(([categoryName, categoryItems]) => (
-          <ItemGrid
-            key={categoryName}
-            items={categoryItems}
-            categoryName={categoryName}
-            onShowAnswer={handleShowAnswer}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onDoubleClick={handleDoubleClick}
-          />
-        ))}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            Loading...
+          </div>
+        ) : (
+          Object.entries(itemsByCategory).map(([categoryName, categoryItems]) => (
+            <ItemGrid
+              key={categoryName}
+              items={categoryItems}
+              categoryName={categoryName}
+              onShowAnswer={handleShowAnswer}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onDoubleClick={handleDoubleClick}
+            />
+          ))
+        )}
       </div>
 
       <NewItemModal
@@ -511,8 +560,8 @@ function App() {
         onClose={handleCloseModals}
         onSubmit={handleNewItem}
         editItem={editingItem}
-        categories={actualCategories}
-        selectedCategory={selectedCategory || actualCategories[0] || 'Default'}
+        categories={allCategories}
+        selectedCategory={selectedCategory || allCategories[0] || 'Default'}
       />
 
       <ReviewModal

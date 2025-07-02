@@ -189,10 +189,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
         
         const handleImageClick = (e: React.MouseEvent) => {
           e.stopPropagation();
-          const allImages = [...(item.problemImages || []), ...(item.answerImages || [])];
-          if (allImages.length > 0) {
-            setViewingImages(allImages);
-            setImageViewerTitle(`${item.name} - Images`);
+          const problemImages = item.problemImages || [];
+          if (problemImages.length > 0) {
+            setViewingImages(problemImages);
+            setImageViewerTitle(`${item.name} - Problem Images`);
             setIsImageViewerOpen(true);
           }
         };

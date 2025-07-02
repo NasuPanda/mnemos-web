@@ -16,6 +16,21 @@ def load_data() -> AppData:
                 settings_dict = data["settings"]
                 data["settings"] = Settings(**settings_dict)
             
+            # Handle backward compatibility: migrate single images to arrays
+            if "items" in data:
+                for item in data["items"]:
+                    # Migrate problem_image to problem_images
+                    if "problem_image" in item and item["problem_image"] and "problem_images" not in item:
+                        item["problem_images"] = [item["problem_image"]]
+                    elif "problem_images" not in item:
+                        item["problem_images"] = []
+                    
+                    # Migrate answer_image to answer_images
+                    if "answer_image" in item and item["answer_image"] and "answer_images" not in item:
+                        item["answer_images"] = [item["answer_image"]]
+                    elif "answer_images" not in item:
+                        item["answer_images"] = []
+            
             return AppData(**data)
     else:
         # Create initial data
