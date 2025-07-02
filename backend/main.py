@@ -172,6 +172,30 @@ async def delete_item(item_id: str):
     save_data(data)
     return {"message": "Item deleted successfully", "id": item_id}
 
+@app.put("/api/items/{item_id}")
+async def update_item(item_id: str, updated_item: Item):
+    """Update an existing item"""
+    data = load_data()
+
+    # Find item by ID
+    for i, item in enumerate(data.items):
+        if item.id == item_id:
+            # Preserve original metadata
+            updated_item.id = item_id
+            updated_item.created_date = item.created_date
+            updated_item.last_accessed = datetime.now().isoformat()
+
+            # Add new category if needed
+            if updated_item.section and updated_item.section not in data.categories:
+                data.categories.append(updated_item.section)
+
+            # Replace item
+            data.items[i] = updated_item
+            save_data(data)
+            return updated_item
+
+    raise HTTPException(status_code=404, detail="Item not found")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
