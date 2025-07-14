@@ -44,5 +44,9 @@ def load_data() -> AppData:
 def save_data(data: AppData):
     """Save data to JSON file"""
     data.last_updated = datetime.now().isoformat()
+    
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
+    
     with open(DATA_FILE, 'w') as f:
         json.dump(data.dict(), f, indent=2)
