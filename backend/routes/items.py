@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from datetime import datetime
 import uuid
 from models import Item
-from services import load_data, save_data
+from services.data_service import load_data, save_data
 
 router = APIRouter(prefix="/api/items", tags=["items"])
 
@@ -23,7 +23,7 @@ async def create_item(item: Item):
     if item.section and item.section not in data.categories:
         data.categories.append(item.section)
     
-    save_data(data)
+    await save_data(data)
     return item
 
 
@@ -47,7 +47,7 @@ async def delete_item(item_id: str):
     if len(data.items) == original_count:
         raise HTTPException(status_code=404, detail="Item not found")
     
-    save_data(data)
+    await save_data(data)
     return {"message": "Item deleted successfully", "id": item_id}
 
 
@@ -70,7 +70,7 @@ async def update_item(item_id: str, updated_item: Item):
 
             # Replace item
             data.items[i] = updated_item
-            save_data(data)
+            await save_data(data)
             return updated_item
 
     raise HTTPException(status_code=404, detail="Item not found")

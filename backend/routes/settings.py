@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from models import Settings
-from services import load_data, save_data
+from services.data_service import load_data, save_data
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
@@ -17,5 +17,5 @@ async def update_settings(new_settings: Settings):
     # Update settings
     data.settings = new_settings
     
-    save_data(data)
+    await save_data(data)
     return data.settings

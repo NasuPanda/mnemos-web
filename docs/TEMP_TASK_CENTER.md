@@ -28,7 +28,7 @@
 - [x] **LOCAL ENVIRONMENTS FIXED**: Moved data file to project root and updated config
 - [x] Test local development: FastAPI loads data from `../data/mnemos_data.json`
 - [x] Test docker-compose: Volume mount provides data file, API returns actual data
-- [ ] **PENDING**: Update main `Dockerfile` for Cloud Run deployment
+- [ ] **NEXT PHASE**: Implement Cloud Storage persistence for production data
 - [ ] Test Cloud Run deployment to verify FastAPI starts successfully
 
 **Important Notes**:
@@ -49,6 +49,83 @@
 - ⚙️ **Config update**: `DATA_FILE = os.getenv("DATA_FILE", "../data/mnemos_data.json")`
 - 🐳 **Docker Compose**: Works with existing volume mount `./data:/app/data`
 - ✅ **Verification**: Both local development and docker-compose load actual data
+
+---
+
+#### **Task 0.5: Cloud Storage Implementation (Production Data Persistence)**
+**Status**: 📋 **PLANNING PHASE**
+
+**Objective**: Implement Cloud Storage for JSON data persistence to eliminate data loss in Cloud Run production environment.
+
+**Architecture**: Async writes with memory cache for optimal performance
+- **Reads**: Serve from memory cache (~10ms response time)
+- **Writes**: Update memory immediately + async save to Cloud Storage (~20ms response time)
+- **Startup**: Load from Cloud Storage with fallback to empty data
+- **Error handling**: Graceful degradation when Storage unavailable
+
+**Implementation Plan**:
+
+**Phase 1: Storage Service Layer**
+- [ ] Create `backend/services/storage_service.py` with `CloudStorageService` class
+- [ ] Implement `async download_json(filename: str) -> dict` method
+- [ ] Implement `async upload_json(filename: str, data: dict)` method  
+- [ ] Add `is_available() -> bool` health check method
+
+**Phase 2: Data Service Integration**
+- [ ] Update `backend/services/data_service.py` to use memory cache
+- [ ] Modify `load_data()`: Try Cloud Storage first, fallback to local file
+- [ ] Modify `save_data()`: Update memory + async Cloud Storage upload
+- [ ] Implement global `cached_data` variable for memory storage
+
+**Phase 3: Environment Configuration**
+- [ ] Add Cloud Storage dependencies to `requirements.txt`: `google-cloud-storage>=2.10.0`
+- [ ] Create Cloud Storage bucket: `gs://mnemos-data-bucket`
+- [ ] Upload initial `data/mnemos_data.json` to bucket
+- [ ] Add environment variables to Cloud Run:
+  - `STORAGE_BUCKET_NAME=mnemos-data-bucket`
+  - `USE_CLOUD_STORAGE=true`
+
+**Phase 4: Cloud Run Integration**
+- [ ] Update main `Dockerfile` to copy initial data: `COPY data/mnemos_data.json /app/data/`
+- [ ] Test Cloud Run deployment with Cloud Storage integration
+- [ ] Verify data persistence across container restarts
+
+**Testing Strategy**:
+
+**Phase 1: Local Async Testing (File-Based)**
+- [ ] Create `FileStorageService` that simulates Cloud Storage with local files
+- [ ] Implement async pattern writing to `test_storage/` directory
+- [ ] Test async write performance: API response should be ~20ms, not 100ms+
+- [ ] Test memory cache consistency: POST → immediate GET should show new data
+- [ ] Test failure simulation: Make storage read-only, verify app continues working
+- [ ] Test restart simulation: POST → restart → GET should load from storage
+
+**Phase 2: Cloud Storage Testing**
+- [ ] Create test bucket: `gs://mnemos-test-bucket`
+- [ ] Swap storage backend from file-based to Cloud Storage
+- [ ] Run same test suite with real Cloud Storage
+- [ ] Test IAM permissions and authentication
+- [ ] Verify data persistence in production environment
+
+**Data Flow**:
+1. **Container starts** → Try Cloud Storage → Cache in memory → Fallback to local if needed
+2. **API reads** → Serve from memory cache (10ms response)
+3. **API writes** → Update memory + fire-and-forget async save (20ms response)  
+4. **Container restarts** → Load latest data from Cloud Storage
+
+**Error Handling Strategy**:
+- Storage unavailable → App works in "local mode" with logging
+- Async save fails → Log warning, continue (next save includes changes)
+- No degradation of user experience for temporary Storage issues
+
+**Success Criteria**:
+- [ ] API write operations complete in <50ms (vs >200ms synchronous)
+- [ ] Data persists across Cloud Run container restarts
+- [ ] App remains functional when Cloud Storage temporarily unavailable
+- [ ] Zero data loss during normal operations
+- [ ] Free tier usage (within 5GB storage, 50K reads, 5K writes per month)
+
+---
 
 #### **Task 1: Frontend-Backend Integration**
 - [x] Create API service layer in frontend
