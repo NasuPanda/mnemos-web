@@ -27,10 +27,14 @@
 ### **HIGH PRIORITY**
 
 #### **Task 3: Multiple Image Management**
-- [ ] Update backend data model to support image arrays (problem_images, answer_images)
-- [ ] Fix API transformation layer to handle multiple images properly
-- [ ] Test complete upload-to-display workflow
-- [ ] Verify image persistence across sessions
+- [x] Update backend data model to support image arrays (problem_images, answer_images)
+- [x] Fix API transformation layer to handle multiple images properly
+- [x] Test complete upload-to-display workflow
+- [x] Verify image persistence across sessions
+- [ ] **CRITICAL**: Fix production image storage using Cloudinary (images lost on container restart)
+- [ ] Implement Cloudinary integration for image uploads
+- [ ] Normalize all existing image paths to proper format
+- [ ] Fix frontend API base URL for production environment
 
 #### **Task 4: Review Progression System**
 - [ ] Connect review buttons to backend API
@@ -124,3 +128,43 @@
 - [ ] All image display components show correct counts and images
 - [ ] Backend stores image arrays, not single strings
 - [ ] No broken image links or 404 errors
+
+## Bug Fix - Task 3: Image Path Inconsistency
+
+### **Issue**
+Images not displaying properly in browser due to inconsistent path formats in JSON data.
+
+### **Problem Analysis**
+Two different image path formats exist in `mnemos_data.json`:
+
+**✅ Working format (new items):**
+```json
+"problem_images": ["/images/b7c0641f-853a-4594-b684-c35a392c6583.png"]
+```
+
+**❌ Broken format (older items):**
+```json
+"problem_images": ["1d759c84-2981-4abc-afd7-1f4970f068cb.jpeg"]
+```
+
+### **Root Cause**
+- Upload endpoint returns correct format: `/images/uuid.ext`
+- Manual test data and migration used filename-only format
+- Frontend expects consistent URL paths for `<img src={}>`
+- **Development**: Filename-only paths resolve to `http://localhost:3000/filename.jpg` instead of `http://localhost:8000/images/filename.jpg`
+- **Production**: Filename-only paths resolve to `https://mnemos-web-w7al5cdjra-uc.a.run.app/filename.jpg` instead of `https://mnemos-web-w7al5cdjra-uc.a.run.app/images/filename.jpg`
+
+### **Production Environment Impact**
+- **API Base URL Issue**: Frontend hardcoded to `localhost:8000` won't work in production
+- **Image Serving**: Production uses nginx → FastAPI proxy for `/images/` but frontend still calls wrong URLs
+- **Cloud Run URL**: https://mnemos-web-w7al5cdjra-uc.a.run.app/
+
+### **Fix Required**
+- [ ] **URGENT**: Implement Cloudinary integration to prevent image loss in production
+- [ ] Add Cloudinary Python SDK to backend dependencies
+- [ ] Create Cloudinary upload service with environment configuration
+- [ ] Update upload endpoint to use Cloudinary instead of local storage
+- [ ] Normalize all image paths in JSON to Cloudinary URLs
+- [ ] Fix frontend API base URL for production (use relative URLs or environment config)
+- [ ] Test image display in both development and production environments
+- [ ] Verify image persistence after Cloud Run container restarts

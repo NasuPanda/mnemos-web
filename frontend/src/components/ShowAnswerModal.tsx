@@ -209,37 +209,39 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
           )}
         </div>
 
-        {item.problemImages && item.problemImages.length > 0 && (
-          <div style={sectionStyle}>
-            <div style={sectionTitleStyle}>Problem Images</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              <button
-                style={imageButtonStyle}
-                onClick={() => handleImageClick(item.problemImages!, 'Problem Images')}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-              >
-                🖼️ {item.problemImages.length === 1 ? 'Image' : `${item.problemImages.length} Images`}
-              </button>
+        {((item.problemImages && item.problemImages.length > 0) || (item.answerImages && item.answerImages.length > 0)) && (() => {
+          const allImages = [...(item.problemImages || []), ...(item.answerImages || [])];
+          return (
+            <div style={sectionStyle}>
+              <div style={sectionTitleStyle}>Images</div>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                gap: '20px',
+                maxWidth: '100%'
+              }}>
+                {allImages.map((imageUrl, index) => (
+                  <img
+                    key={index}
+                    src={imageUrl}
+                    alt={`Image ${index + 1}`}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '300px',
+                      border: '2px solid #4a90b8',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                      objectFit: 'contain',
+                      cursor: 'pointer',
+                      backgroundColor: '#ffffff'
+                    }}
+                    onClick={() => handleImageClick(allImages, 'Images')}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-
-        {item.answerImages && item.answerImages.length > 0 && (
-          <div style={sectionStyle}>
-            <div style={sectionTitleStyle}>Answer Images</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              <button
-                style={imageButtonStyle}
-                onClick={() => handleImageClick(item.answerImages!, 'Answer Images')}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-              >
-                🖼️ {item.answerImages.length === 1 ? 'Image' : `${item.answerImages.length} Images`}
-              </button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
       
       <ImageViewerModal

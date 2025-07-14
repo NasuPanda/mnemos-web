@@ -1,7 +1,9 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException
 import shutil
 import uuid
+import os
 from config import IMAGES_DIR, MAX_FILE_SIZE, ALLOWED_IMAGE_EXTENSIONS, DEFAULT_IMAGE_EXTENSION
+from services.cloudinary_service import cloudinary_service
 
 router = APIRouter(prefix="/api", tags=["upload"])
 
@@ -26,19 +28,29 @@ async def upload_image(file: UploadFile = File(...)):
     if file_extension not in ALLOWED_IMAGE_EXTENSIONS:
         raise HTTPException(status_code=400, detail=f"File extension must be one of: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}")
     
-    unique_filename = f"{uuid.uuid4()}.{file_extension}"
-    file_path = IMAGES_DIR / unique_filename
-    
     try:
-        # Save file
+        # Read file content
+        file_content = await file.read()
+        
+        # Try Cloudinary first (for production)
+        if cloudinary_service.is_cloudinary_configured():
+            try:
+                cloudinary_url = cloudinary_service.upload_image(file_content, file.filename or f"image.{file_extension}")
+                return {"image_path": cloudinary_url}
+            except Exception as cloudinary_error:
+                # Log error and fall back to local storage
+                print(f"Cloudinary upload failed: {cloudinary_error}")
+        
+        # Fallback to local storage (for development)
+        unique_filename = f"{uuid.uuid4()}.{file_extension}"
+        file_path = IMAGES_DIR / unique_filename
+        
+        # Save file locally
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(file_content)
         
         # Return path relative to server root
         return {"image_path": f"/images/{unique_filename}"}
     
     except Exception as e:
-        # Clean up file if it was partially created
-        if file_path.exists():
-            file_path.unlink()
-        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")

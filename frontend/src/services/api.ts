@@ -1,7 +1,8 @@
 import type { StudyItem } from '../components/ItemCard';
 import type { AppSettings } from '../types/Settings';
 
-const API_BASE = 'http://localhost:8000';
+// Use relative URLs in production, localhost in development
+const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:8000';
 
 // Data transformation functions
 const transformToFrontend = (backendItem: any): StudyItem => ({
