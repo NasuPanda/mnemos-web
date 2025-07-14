@@ -32,14 +32,22 @@ async def upload_image(file: UploadFile = File(...)):
         # Read file content
         file_content = await file.read()
         
+        # Validate actual file content size (secondary check)
+        if len(file_content) > MAX_FILE_SIZE:
+            raise HTTPException(status_code=413, detail=f"File size must be less than {MAX_FILE_SIZE // (1024*1024)}MB")
+        
         # Try Cloudinary first (for production)
         if cloudinary_service.is_cloudinary_configured():
             try:
                 cloudinary_url = cloudinary_service.upload_image(file_content, file.filename or f"image.{file_extension}")
                 return {"image_path": cloudinary_url}
             except Exception as cloudinary_error:
-                # Log error and fall back to local storage
+                # Log error 
                 print(f"Cloudinary upload failed: {cloudinary_error}")
+                # If file is too large for Cloudinary, don't fall back to local storage
+                if "too large" in str(cloudinary_error).lower() or "5mb" in str(cloudinary_error).lower():
+                    raise HTTPException(status_code=413, detail=str(cloudinary_error))
+                # For other Cloudinary errors, fall back to local storage
         
         # Fallback to local storage (for development)
         unique_filename = f"{uuid.uuid4()}.{file_extension}"
@@ -52,5 +60,8 @@ async def upload_image(file: UploadFile = File(...)):
         # Return path relative to server root
         return {"image_path": f"/images/{unique_filename}"}
     
+    except HTTPException:
+        # Re-raise HTTP exceptions (like file size validation)
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")

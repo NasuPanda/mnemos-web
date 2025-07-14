@@ -28,7 +28,7 @@ class CloudinaryService:
 
     def upload_image(self, file_content: bytes, filename: str) -> str:
         """
-        Upload image to Cloudinary and return secure URL
+        Upload image to Cloudinary with FREE tier optimization
         
         Args:
             file_content: Image file content as bytes
@@ -38,26 +38,41 @@ class CloudinaryService:
             Secure HTTPS URL to the uploaded image
             
         Raises:
-            Exception: If upload fails
+            Exception: If upload fails or file too large
         """
         try:
+            # Pre-upload validation to stay within free tier limits
+            if len(file_content) > 5_000_000:  # 5MB limit
+                raise Exception("Image too large. Please compress to under 5MB.")
+            
             # Generate unique filename
-            file_extension = filename.split('.')[-1].lower()
+            file_extension = filename.split('.')[-1].lower() if '.' in filename else 'jpg'
             unique_id = str(uuid.uuid4())
             public_id = f"mnemos-images/{unique_id}"
             
-            # Upload to Cloudinary
+            # Upload to Cloudinary with FREE tier optimization
             result = cloudinary.uploader.upload(
                 file_content,
                 public_id=public_id,
                 folder="mnemos-images",
                 resource_type="image",
-                format=file_extension,
-                overwrite=False,
-                invalidate=True  # Clear CDN cache
+                
+                # FREE optimization features (no extra cost)
+                quality="auto:good",        # Smart compression
+                fetch_format="auto",        # WebP for modern browsers, fallback for others
+                width=1200,                 # Max width limit to save storage
+                height=1200,                # Max height limit to save storage
+                crop="limit",               # Only resize if larger (no upscaling)
+                
+                # Reduce storage usage (FREE features)
+                strip_metadata=True,        # Remove EXIF data
+                progressive=True,           # Progressive JPEG loading
+                overwrite=False,            # Don't replace existing images
+                invalidate=True             # Clear CDN cache
             )
             
-            logger.info(f"Successfully uploaded image to Cloudinary: {result['public_id']}")
+            logger.info(f"Successfully uploaded optimized image to Cloudinary: {result['public_id']} "
+                       f"(original: {len(file_content)} bytes, optimized: {result.get('bytes', 'unknown')} bytes)")
             return result['secure_url']
             
         except Exception as e:
@@ -115,6 +130,42 @@ class CloudinaryService:
         except Exception as e:
             logger.error(f"Error extracting public_id from URL: {str(e)}")
             return None
+
+    def get_optimized_url(self, cloudinary_url: str, context: str = "card") -> str:
+        """
+        Generate optimized URLs for different display contexts to save bandwidth
+        
+        Args:
+            cloudinary_url: Original Cloudinary URL
+            context: Display context ("thumbnail", "card", "modal", "fullscreen")
+            
+        Returns:
+            Optimized URL with transformations for the given context
+        """
+        if not cloudinary_url or "res.cloudinary.com" not in cloudinary_url:
+            return cloudinary_url
+            
+        try:
+            base_url = cloudinary_url.split('/upload/')[0] + '/upload/'
+            image_path = cloudinary_url.split('/upload/')[1]
+            
+            # FREE transformations for different contexts
+            transformations = {
+                "thumbnail": "w_200,h_200,c_fill,q_auto:low,f_auto",     # Card previews
+                "card": "w_400,h_400,c_fit,q_auto:good,f_auto",          # ItemCard display  
+                "modal": "w_800,h_800,c_fit,q_auto:good,f_auto",         # Modal viewing
+                "fullscreen": "w_1200,h_1200,c_fit,q_auto:best,f_auto"  # Full-screen viewing
+            }
+            
+            transformation = transformations.get(context, "")
+            if transformation:
+                return base_url + transformation + "/" + image_path
+            else:
+                return cloudinary_url  # Return original for unknown context
+                
+        except Exception as e:
+            logger.error(f"Error generating optimized URL: {str(e)}")
+            return cloudinary_url  # Return original on error
 
     def is_cloudinary_configured(self) -> bool:
         """Check if Cloudinary is properly configured"""
