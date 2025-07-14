@@ -10,18 +10,6 @@ import type { AppSettings } from './types/Settings';
 import { DEFAULT_SETTINGS } from './types/Settings';
 import { itemsApi, settingsApi, categoriesApi } from './services/api';
 
-// Helper function to get today's date in YYYY-MM-DD format
-const getTodayString = () => new Date().toISOString().split('T')[0];
-const getTomorrowString = () => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toISOString().split('T')[0];
-};
-const getYesterdayString = () => {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
-};
 
 // Dummy data for testing date-based filtering - COMMENTED OUT FOR API INTEGRATION
 /*

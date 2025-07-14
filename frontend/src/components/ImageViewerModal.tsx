@@ -162,6 +162,7 @@ const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
             key={index}
             src={imagePath}
             alt={`Image ${index + 1}`}
+            loading="lazy"
             style={imageStyle}
           />
         ))}

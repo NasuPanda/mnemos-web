@@ -109,17 +109,6 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
   };
 
 
-  const imageButtonStyle = {
-    backgroundColor: '#4a90b8',
-    border: '1px solid #4a90b8',
-    color: '#ffffff',
-    borderRadius: '4px',
-    padding: '8px 12px',
-    fontSize: '12px',
-    cursor: 'pointer',
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    marginBottom: '10px'
-  };
 
   const emptyStateStyle = {
     fontSize: '12px',
@@ -225,6 +214,7 @@ const ShowAnswerModal: React.FC<ShowAnswerModalProps> = ({
                     key={index}
                     src={imageUrl}
                     alt={`Image ${index + 1}`}
+                    loading="lazy"
                     style={{
                       maxWidth: '100%',
                       maxHeight: '300px',
