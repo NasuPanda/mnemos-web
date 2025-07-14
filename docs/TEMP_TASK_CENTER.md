@@ -11,6 +11,45 @@
 
 ### **CRITICAL**
 
+#### **Task 0: Cloud Run 502 Error Fix**
+**Status**: 🚨 **BLOCKING ALL PRODUCTION FUNCTIONALITY**
+
+**Problem**: FastAPI backend not starting in Cloud Run, causing 502 Bad Gateway errors for all API endpoints.
+
+**Root Cause**: Environment variable `DATA_FILE=/app/data/mnemos_data.json` points to non-existent file in container.
+
+**Evidence**:
+- ✅ Backend works locally when data file is properly mounted
+- ✅ `/api/items` returns data when file exists, `[]` when missing  
+- ❌ No FastAPI startup logs in Cloud Run (crashes immediately on startup)
+- ❌ Nginx shows "connect() failed (111: Connection refused)" when trying to proxy to FastAPI
+
+**Immediate Fix Required**:
+- [x] **LOCAL ENVIRONMENTS FIXED**: Moved data file to project root and updated config
+- [x] Test local development: FastAPI loads data from `../data/mnemos_data.json`
+- [x] Test docker-compose: Volume mount provides data file, API returns actual data
+- [ ] **PENDING**: Update main `Dockerfile` for Cloud Run deployment
+- [ ] Test Cloud Run deployment to verify FastAPI starts successfully
+
+**Important Notes**:
+- ⚠️ **Data Loss Risk**: This fix will cause user-created items to be lost on container restarts
+- ⚠️ **Temporary Solution**: Container includes initial data but doesn't persist changes
+- ✅ **Gets App Working**: Allows immediate testing of all other functionality
+- 🔄 **Future Task**: Implement Cloud Storage persistence for permanent data storage
+
+**Success Criteria**:
+- [x] ✅ **LOCAL DEV**: FastAPI starts and loads data from `../data/mnemos_data.json`
+- [x] ✅ **DOCKER COMPOSE**: Backend API returns actual data, frontend accessible 
+- [ ] **CLOUD RUN**: FastAPI starts successfully (visible in logs)
+- [ ] **CLOUD RUN**: All API endpoints return data instead of 502 errors
+- [ ] **CLOUD RUN**: Frontend can load categories and items from production API
+
+**Local Environment Changes Made**:
+- 📁 **File location**: Moved `backend/data/mnemos_data.json` → `data/mnemos_data.json`
+- ⚙️ **Config update**: `DATA_FILE = os.getenv("DATA_FILE", "../data/mnemos_data.json")`
+- 🐳 **Docker Compose**: Works with existing volume mount `./data:/app/data`
+- ✅ **Verification**: Both local development and docker-compose load actual data
+
 #### **Task 1: Frontend-Backend Integration**
 - [x] Create API service layer in frontend
 - [x] Replace DUMMY_ITEMS with GET /api/items calls

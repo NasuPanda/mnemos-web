@@ -1,7 +1,8 @@
+import os
 from pathlib import Path
 
 # File paths
-DATA_FILE = "mnemos_data.json"
+DATA_FILE = os.getenv("DATA_FILE", "../data/mnemos_data.json")
 IMAGES_DIR = Path("/app/data/images")
 
 # File upload settings
