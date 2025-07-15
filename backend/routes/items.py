@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from datetime import datetime
 import uuid
 from models import Item
-from services.data_service import load_data, save_data
+from services.data_service import load_data, save_data, get_active_items
 
 router = APIRouter(prefix="/api/items", tags=["items"])
 
@@ -29,9 +29,8 @@ async def create_item(item: Item):
 
 @router.get("")
 async def get_items():
-    """Get all items"""
-    data = load_data()
-    return data.items
+    """Get all non-archived items - SUPER FAST O(1) operation"""
+    return get_active_items()
 
 
 @router.delete("/{item_id}")

@@ -14,6 +14,10 @@ logger = logging.getLogger(__name__)
 _cached_data: Optional[AppData] = None
 _storage_service = None
 
+# Fast item filtering cache
+_cached_active_items: Optional[list] = None
+_cached_archived_items: Optional[list] = None
+
 def get_storage():
     """Get storage service instance (singleton pattern)"""
     global _storage_service
@@ -89,6 +93,41 @@ def _create_default_data() -> AppData:
         last_updated=datetime.now().isoformat()
     )
 
+def _rebuild_item_caches():
+    """Rebuild active/archived item caches - called when data changes"""
+    global _cached_active_items, _cached_archived_items, _cached_data
+    
+    if _cached_data is None:
+        _cached_active_items = []
+        _cached_archived_items = []
+        return
+    
+    # Split items into active and archived lists (O(n) operation)
+    _cached_active_items = [item for item in _cached_data.items if not item.archived]
+    _cached_archived_items = [item for item in _cached_data.items if item.archived]
+    
+    logger.debug(f"⚡ Cache rebuilt: {len(_cached_active_items)} active, {len(_cached_archived_items)} archived items")
+
+def get_active_items() -> list:
+    """Get active (non-archived) items - SUPER FAST O(1) operation"""
+    global _cached_active_items
+    
+    if _cached_active_items is None:
+        logger.debug("🔄 Building item cache for the first time")
+        _rebuild_item_caches()
+    
+    return _cached_active_items
+
+def get_archived_items() -> list:
+    """Get archived items - SUPER FAST O(1) operation"""
+    global _cached_archived_items
+    
+    if _cached_archived_items is None:
+        logger.debug("🔄 Building item cache for the first time")
+        _rebuild_item_caches()
+    
+    return _cached_archived_items
+
 async def preload_data_from_storage():
     """Preload data from storage during FastAPI startup"""
     global _cached_data
@@ -99,6 +138,7 @@ async def preload_data_from_storage():
     try:
         _cached_data = await _load_from_storage()
         if _cached_data:
+            _rebuild_item_caches()  # Build fast cache
             logger.info(f"✅ Data preloaded from storage service - {len(_cached_data.items)} items, {len(_cached_data.categories)} categories")
             return
     except Exception as e:
@@ -108,6 +148,7 @@ async def preload_data_from_storage():
     try:
         _cached_data = _load_from_local_file()
         if _cached_data:
+            _rebuild_item_caches()  # Build fast cache
             logger.info(f"✅ Data preloaded from local file - {len(_cached_data.items)} items, {len(_cached_data.categories)} categories")
             return
     except Exception as e:
@@ -116,6 +157,7 @@ async def preload_data_from_storage():
     # Create default data if nothing else works
     logger.info("🏗️  Creating default data (no existing data found)")
     _cached_data = _create_default_data()
+    _rebuild_item_caches()  # Build fast cache
 
 def load_data() -> AppData:
     """Load data with memory cache - should be preloaded during startup"""
@@ -151,12 +193,15 @@ async def save_data(data: AppData):
     _cached_data = data
     logger.debug("Data updated in memory cache")
     
-    # 2. Background save to storage (fire-and-forget)
+    # 2. Rebuild fast item caches (O(n) but only on data changes)
+    _rebuild_item_caches()
+    
+    # 3. Background save to storage (fire-and-forget)
     storage = get_storage()
     if storage.is_available():
         asyncio.create_task(_async_save_to_storage(data))
     
-    # 3. Also save to local file as backup
+    # 4. Also save to local file as backup
     _save_to_local_file(data)
 
 async def _async_save_to_storage(data: AppData):

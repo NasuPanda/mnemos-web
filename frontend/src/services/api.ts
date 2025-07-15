@@ -40,7 +40,7 @@ const transformToBackend = (frontendItem: Partial<StudyItem>): any => ({
   review_dates: frontendItem.reviewDates || [],
   created_date: frontendItem.createdAt || new Date().toISOString(),
   last_accessed: frontendItem.lastAccessedAt || new Date().toISOString(),
-  archived: false
+  archived: frontendItem.archived || false
 });
 
 // API service functions

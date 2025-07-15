@@ -477,9 +477,20 @@ function App() {
 
   const handleArchive = async (itemId: string) => {
     try {
-      await itemsApi.delete(itemId);
+      // Find the item and mark it as archived
+      const itemToArchive = items.find(item => item.id === itemId);
+      if (!itemToArchive) {
+        console.error('Item not found:', itemId);
+        return;
+      }
+
+      // Update item with archived flag
+      const archivedItem = { ...itemToArchive, archived: true };
+      await itemsApi.update(itemId, archivedItem);
+      
+      // Remove from UI (archived items should not display)
       setItems(prev => prev.filter(item => item.id !== itemId));
-      console.log(`Item ${itemId} archived`);
+      console.log(`Item ${itemId} archived successfully`);
     } catch (error) {
       console.error('Failed to archive item:', error);
       // Optionally show error message to user

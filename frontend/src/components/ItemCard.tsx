@@ -19,6 +19,9 @@ export interface StudyItem {
   nextReviewDate?: string; // ISO date string (YYYY-MM-DD)
   reviewDates?: string[];  // Array of past review dates
   
+  // Archive system
+  archived?: boolean;
+  
   // Extended fields for complete testing
   sideNote?: string;
   problemUrl?: string;
