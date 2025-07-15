@@ -3,10 +3,18 @@
 Remaining Tasks:
   🔴 HIGH PRIORITY
 
-1. [ ] BUG FIX: `Failed to upload image: Load failed` from iPhone. I guess the iPhone's weird image format?
-2. [ ] FIX: When the app is down, the data wouldn't be preserved in the production environment. First we need to look into the cause. The json file that manages data should be read/written/saved through Cloud Storage, and thus, permanent. The likely cause is that the app is incorrectly using Docker mounted json file and when the container restarts, the data get wiped away. But **we do not know** what is the culprit yet.
-3. [ ] FIX: When the user clicks "Archived," it should switch "archived" field to "true/True." Currently it only deletes the item, which is not the desired behavior. Related: when "archived" is true, the review item should NOT appear on the Frontend.
-4. [ ] MIGRATION: Write a migration script for migrating from the mnemos desktop to mnemos web. The fields of mnemos desktop data may be different from the mnemos web. **I will provide mnemos destop data when necessary.**
+1. [x] BUG FIX: `Failed to upload image: Load failed` from iPhone. I guess the iPhone's weird image format?
+2. [x] FIX: When the app is down, the data wouldn't be preserved in the production environment. First we need to look into the cause. The json file that manages data should be read/written/saved through Cloud Storage, and thus, permanent. The likely cause is that the app is incorrectly using Docker mounted json file and when the container restarts, the data get wiped away. But **we do not know** what is the culprit yet.
+3. [x] Archive
+   1. [x] FIX: When the user clicks "Archived," it should switch "archived" field to "true/True." Currently it only deletes the item, which is not the desired behavior. Related: when "archived" is true, the review item should NOT appear on the Frontend.
+   2. [x] Confirmation dialog & Success toast
+4. [ ] MIGRATION: Write a migration script for migrating data from the mnemos desktop to mnemos web. First understand the structure of `_MNEMOS_DESTOP_DATA.json`. List `section` field, which correspond to our current `category` field.
+NOTE for 4:
+- Do NOT migrate item with `archived=true.`
+- The path for the mnemos desktop file is `_MNEMOS_DESTOP_DATA.json.`
+- The fields of mnemos desktop data may be different from the mnemos web.
+- `section` field and its value should be appropriate modified to `category` field.
+5. [ ] FIX: When the user clicks "image," it shows EVERYTHING including answer images. It should only display PROBLEM images. In addition, it's unclear what "image" button represents.
 
 🟡 MEDIUM PRIORITY
 1. [ ] Keyboard Shortcuts

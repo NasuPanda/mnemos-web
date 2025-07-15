@@ -1,7 +1,5 @@
 import React from 'react';
-import { useResponsive } from '../hooks/useBreakpoint';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
-import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -26,8 +24,6 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 }) => {
   // Prevent background scrolling when modal is open
   useBodyScrollLock(isOpen);
-  
-  const breakpoint = useResponsive();
 
   if (!isOpen) return null;
 

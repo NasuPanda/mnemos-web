@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useResponsive } from '../hooks/useBreakpoint';
-import { getResponsiveTypography, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface ToastProps {
   message: string;
@@ -18,7 +16,6 @@ const Toast: React.FC<ToastProps> = ({
   isVisible
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
-  const breakpoint = useResponsive();
 
   useEffect(() => {
     if (isVisible) {
