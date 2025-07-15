@@ -38,6 +38,8 @@ steps:
       - '3'
       - '--concurrency'
       - '100'
+      - '--set-env-vars'
+      - 'USE_CLOUD_STORAGE=true,STORAGE_BUCKET_NAME=mnemos-data-bucket,GOOGLE_CLOUD_PROJECT=$PROJECT_ID'
 
 images:
   - 'gcr.io/$PROJECT_ID/mnemos-web'
