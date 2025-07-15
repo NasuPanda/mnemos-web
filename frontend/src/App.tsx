@@ -5,6 +5,8 @@ import NewItemModal from './components/NewItemModal';
 import ReviewModal from './components/ReviewModal';
 import ShowAnswerModal from './components/ShowAnswerModal';
 import SettingsModal from './components/SettingsModal';
+import ConfirmationDialog from './components/ConfirmationDialog';
+import { ToastProvider, useToast } from './components/Toast';
 import type { StudyItem } from './components/ItemCard';
 import type { AppSettings } from './types/Settings';
 import { DEFAULT_SETTINGS } from './types/Settings';
@@ -267,7 +269,8 @@ const DUMMY_ITEMS: StudyItem[] = [
 ];
 */
 
-function App() {
+// Main App component with Toast context
+function AppContent() {
   // State management
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -281,6 +284,13 @@ function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [allCategories, setAllCategories] = useState<string[]>([]);
+  
+  // Archive confirmation dialog state
+  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
+  const [itemToArchive, setItemToArchive] = useState<string | null>(null);
+  
+  // Toast context
+  const { showToast } = useToast();
 
   // Load data from API on component mount
   useEffect(() => {
@@ -475,25 +485,42 @@ function App() {
     }
   };
 
-  const handleArchive = async (itemId: string) => {
+  const handleArchive = (itemId: string) => {
+    // Show confirmation dialog
+    setItemToArchive(itemId);
+    setIsArchiveDialogOpen(true);
+  };
+
+  const confirmArchive = async () => {
+    if (!itemToArchive) return;
+
     try {
       // Find the item and mark it as archived
-      const itemToArchive = items.find(item => item.id === itemId);
-      if (!itemToArchive) {
-        console.error('Item not found:', itemId);
+      const itemToArchiveData = items.find(item => item.id === itemToArchive);
+      if (!itemToArchiveData) {
+        showToast('Item not found', 'error');
         return;
       }
 
       // Update item with archived flag
-      const archivedItem = { ...itemToArchive, archived: true };
-      await itemsApi.update(itemId, archivedItem);
+      const archivedItem = { ...itemToArchiveData, archived: true };
+      await itemsApi.update(itemToArchive, archivedItem);
       
       // Remove from UI (archived items should not display)
-      setItems(prev => prev.filter(item => item.id !== itemId));
-      console.log(`Item ${itemId} archived successfully`);
+      setItems(prev => prev.filter(item => item.id !== itemToArchive));
+      
+      // Show success toast after a brief delay to ensure dialog is closed
+      setTimeout(() => {
+        console.log('Triggering success toast...'); // Debug log
+        showToast(`"${itemToArchiveData.name}" has been archived`, 'success');
+      }, 100);
+      
+      console.log(`Item ${itemToArchive} archived successfully`);
     } catch (error) {
       console.error('Failed to archive item:', error);
-      // Optionally show error message to user
+      showToast('Failed to archive item. Please try again.', 'error');
+    } finally {
+      setItemToArchive(null);
     }
   };
 
@@ -584,7 +611,30 @@ function App() {
         settings={settings}
         onSaveSettings={handleSaveSettings}
       />
+
+      <ConfirmationDialog
+        isOpen={isArchiveDialogOpen}
+        onClose={() => {
+          setIsArchiveDialogOpen(false);
+          setItemToArchive(null);
+        }}
+        onConfirm={confirmArchive}
+        title="Archive Item"
+        message="Are you sure you want to archive this item? It will be hidden from your study sessions but can be restored later."
+        confirmText="Archive"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
+  );
+}
+
+// App wrapper with Toast provider
+function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
   );
 }
 
