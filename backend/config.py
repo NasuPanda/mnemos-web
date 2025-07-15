@@ -11,11 +11,26 @@ ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'}
 DEFAULT_IMAGE_EXTENSION = "jpg"
 
 # CORS settings
-ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev
-    "http://localhost:5173",  # Vite dev
-    "*"  # Allow all (for development)
-]
+def get_allowed_origins():
+    """Get allowed origins based on environment"""
+    # Development origins
+    dev_origins = [
+        "http://localhost:3000",  # React dev
+        "http://localhost:5173",  # Vite dev
+    ]
+    
+    # Check if we're in production (Cloud Storage enabled)
+    use_cloud_storage = os.getenv("USE_CLOUD_STORAGE", "false").lower() == "true"
+    
+    if use_cloud_storage:
+        # Production: same-origin requests (frontend and backend served from same domain)
+        # Only allow development origins for local testing
+        return dev_origins
+    else:
+        # Development: allow all for convenience
+        return dev_origins + ["*"]
+
+ALLOWED_ORIGINS = get_allowed_origins()
 
 # API settings
 API_TITLE = "Mnemos API"

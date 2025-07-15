@@ -385,10 +385,64 @@ gcloud run services add-iam-policy-binding mnemos-web \
 
 ### Environment Variables
 ```bash
-# Set environment variables securely
+# Set environment variables for Cloud Storage integration
+gcloud run services update mnemos-web \
+  --set-env-vars="USE_CLOUD_STORAGE=true,STORAGE_BUCKET_NAME=mnemos-data-bucket,GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID" \
+  --region us-central1
+
+# Alternative: Set individual environment variables
 gcloud run services update mnemos-web \
   --set-env-vars="DATA_FILE=/app/data/mnemos_data.json" \
   --region us-central1
+```
+
+**Cloud Storage Configuration:**
+- `USE_CLOUD_STORAGE=true`: Enables Cloud Storage for data persistence
+- `STORAGE_BUCKET_NAME=mnemos-data-bucket`: Cloud Storage bucket name
+- `GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID`: Google Cloud project ID for authentication
+
+## Cloud Storage Setup for Production
+
+### Required Service Account Permissions
+
+The Cloud Run service account needs specific permissions to access Cloud Storage:
+
+```bash
+# Grant Cloud Storage object access to the service account
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+  --role="roles/storage.objectAdmin"
+```
+
+**Important**: `roles/editor` includes bucket management but NOT object read/write permissions.
+
+### Bucket and Data Setup
+
+```bash
+# Create the Cloud Storage bucket
+gsutil mb gs://mnemos-data-bucket
+
+# Upload initial data file
+gsutil cp data/mnemos_data.json gs://mnemos-data-bucket/mnemos_data.json
+
+# Verify upload
+gsutil ls -l gs://mnemos-data-bucket/
+```
+
+### Backend Configuration
+
+The backend uses a factory function that switches between storage backends:
+
+- **Development**: `USE_CLOUD_STORAGE=false` → Uses local file storage
+- **Production**: `USE_CLOUD_STORAGE=true` → Uses Google Cloud Storage
+
+### Verification
+
+```bash
+# Test that the deployment can access your data
+curl https://YOUR_SERVICE_URL/api/data
+
+# Should return your actual items, not an empty array
 ```
 
 ## Summary
