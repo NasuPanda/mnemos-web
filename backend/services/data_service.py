@@ -24,13 +24,26 @@ def get_storage():
 async def _load_from_storage() -> Optional[AppData]:
     """Load data from storage service"""
     storage = get_storage()
+    storage_type = type(storage).__name__
+    logger.info(f"🔧 Using storage service: {storage_type}")
+    
     try:
         if storage.is_available():
+            logger.info("✅ Storage service is available, downloading data...")
             data_dict = await storage.download_json("mnemos_data.json")
             if data_dict:
-                return _process_data_dict(data_dict)
+                logger.info(f"📥 Successfully downloaded data from storage ({len(str(data_dict))} chars)")
+                processed_data = _process_data_dict(data_dict)
+                logger.info(f"🔄 Processed data: {len(processed_data.items)} items, {len(processed_data.categories)} categories")
+                return processed_data
+            else:
+                logger.warning("⚠️  Storage returned no data (empty/missing file)")
+        else:
+            logger.warning(f"❌ Storage service {storage_type} is not available")
     except Exception as e:
-        logger.warning(f"Failed to load from storage: {e}")
+        logger.error(f"💥 Exception loading from storage: {e}")
+        import traceback
+        logger.error(f"📋 Full traceback: {traceback.format_exc()}")
     return None
 
 def _load_from_local_file() -> Optional[AppData]:
@@ -76,46 +89,54 @@ def _create_default_data() -> AppData:
         last_updated=datetime.now().isoformat()
     )
 
-def load_data() -> AppData:
-    """Load data with memory cache - try storage first, fallback to local file"""
+async def preload_data_from_storage():
+    """Preload data from storage during FastAPI startup"""
     global _cached_data
     
-    if _cached_data is not None:
-        logger.debug("Serving data from memory cache")
-        return _cached_data
-
-    logger.info("Loading data for the first time")
+    logger.info("🔍 Attempting to preload data from storage...")
     
     # Try to load from storage service first
     try:
-        # Try to get existing event loop, or create new one if none exists
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Event loop is running, skip async storage for initial load
-                logger.info("Event loop running, skipping storage service for initial load")
-            else:
-                _cached_data = loop.run_until_complete(_load_from_storage())
-                if _cached_data:
-                    logger.info("Data loaded from storage service")
-                    return _cached_data
-        except RuntimeError:
-            # No event loop exists, create new one
-            _cached_data = asyncio.run(_load_from_storage())
-            if _cached_data:
-                logger.info("Data loaded from storage service")
-                return _cached_data
+        _cached_data = await _load_from_storage()
+        if _cached_data:
+            logger.info(f"✅ Data preloaded from storage service - {len(_cached_data.items)} items, {len(_cached_data.categories)} categories")
+            return
     except Exception as e:
-        logger.warning(f"Failed to load from storage service: {e}")
+        logger.warning(f"⚠️  Failed to load from storage service during preload: {e}")
 
     # Fallback to local file
-    _cached_data = _load_from_local_file()
-    if _cached_data:
-        logger.info("Data loaded from local file")
-        return _cached_data
+    try:
+        _cached_data = _load_from_local_file()
+        if _cached_data:
+            logger.info(f"✅ Data preloaded from local file - {len(_cached_data.items)} items, {len(_cached_data.categories)} categories")
+            return
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to load from local file during preload: {e}")
 
     # Create default data if nothing else works
-    logger.info("Creating default data")
+    logger.info("🏗️  Creating default data (no existing data found)")
+    _cached_data = _create_default_data()
+
+def load_data() -> AppData:
+    """Load data with memory cache - should be preloaded during startup"""
+    global _cached_data
+    
+    if _cached_data is not None:
+        logger.debug("📦 Serving data from memory cache")
+        return _cached_data
+
+    # This should not happen if preload worked correctly
+    logger.warning("⚠️  Memory cache is empty! This suggests startup preload failed.")
+    logger.info("🔄 Attempting fallback synchronous load...")
+    
+    # Emergency fallback - try local file only (sync)
+    _cached_data = _load_from_local_file()
+    if _cached_data:
+        logger.info("✅ Emergency fallback: loaded from local file")
+        return _cached_data
+
+    # Last resort - create default data
+    logger.warning("🚨 Last resort: creating default empty data")
     _cached_data = _create_default_data()
     return _cached_data
 
@@ -141,14 +162,18 @@ async def save_data(data: AppData):
 async def _async_save_to_storage(data: AppData):
     """Background task to save data to storage"""
     storage = get_storage()
+    storage_type = type(storage).__name__
     try:
+        logger.info(f"💾 Saving data to {storage_type}...")
         success = await storage.upload_json("mnemos_data.json", data.dict())
         if success:
-            logger.info("Data successfully saved to storage")
+            logger.info(f"✅ Data successfully saved to {storage_type}")
         else:
-            logger.warning("Failed to save data to storage")
+            logger.warning(f"❌ Failed to save data to {storage_type}")
     except Exception as e:
-        logger.error(f"Error saving to storage: {e}")
+        logger.error(f"💥 Error saving to {storage_type}: {e}")
+        import traceback
+        logger.error(f"📋 Full traceback: {traceback.format_exc()}")
 
 def _save_to_local_file(data: AppData):
     """Save data to local file as backup"""

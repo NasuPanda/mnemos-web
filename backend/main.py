@@ -3,8 +3,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from config import IMAGES_DIR, ALLOWED_ORIGINS, API_TITLE, API_DESCRIPTION
 from routes import items_router, settings_router, upload_router, data_router
+from services.data_service import preload_data_from_storage
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title=API_TITLE, description=API_DESCRIPTION)
+
+@app.on_event("startup")
+async def startup_event():
+    """Load data from Cloud Storage on application startup"""
+    logger.info("🚀 Starting Mnemos API - Loading data from storage...")
+    try:
+        await preload_data_from_storage()
+        logger.info("✅ Data successfully loaded from storage during startup")
+    except Exception as e:
+        logger.error(f"❌ Failed to load data from storage during startup: {e}")
+        logger.warning("⚠️  App will start with empty/default data")
 
 # Ensure images directory exists
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)

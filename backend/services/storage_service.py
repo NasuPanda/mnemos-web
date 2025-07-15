@@ -126,21 +126,27 @@ class CloudStorageService:
     def is_available(self) -> bool:
         """Check if Cloud Storage is available"""
         try:
+            logger.info("🔍 Checking Cloud Storage availability...")
             _, bucket = self._get_client()
             # Test access by checking if bucket exists
             bucket.reload()
+            logger.info(f"✅ Cloud Storage is available: bucket '{self.bucket_name}' accessible")
             return True
         except Exception as e:
-            logger.warning(f"Cloud Storage health check failed: {e}")
+            logger.warning(f"❌ Cloud Storage health check failed: {e}")
             return False
 
 def get_storage_service():
     """Factory function to get appropriate storage service based on environment"""
     use_cloud_storage = os.getenv("USE_CLOUD_STORAGE", "false").lower() == "true"
     
+    logger.info(f"🏭 Storage service factory: USE_CLOUD_STORAGE={use_cloud_storage}")
+    
     if use_cloud_storage:
         bucket_name = os.getenv("STORAGE_BUCKET_NAME", "mnemos-data-bucket")
+        project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "unknown")
+        logger.info(f"☁️  Creating CloudStorageService: bucket='{bucket_name}', project='{project_id}'")
         return CloudStorageService(bucket_name)
     else:
-        # Use file-based storage for local testing
+        logger.info("📁 Creating FileStorageService for local development")
         return FileStorageService()
