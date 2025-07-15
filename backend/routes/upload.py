@@ -11,9 +11,18 @@ router = APIRouter(prefix="/api", tags=["upload"])
 @router.post("/upload-image")
 async def upload_image(file: UploadFile = File(...)):
     """Upload an image file and return its path"""
-    # Validate file type
-    if not file.content_type or not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=400, detail="File must be an image")
+    # Validate file type (including HEIC support)
+    valid_content_types = {
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 
+        'image/webp', 'image/bmp', 'image/heic', 'image/heif'
+    }
+    
+    if not file.content_type:
+        raise HTTPException(status_code=400, detail="File must have a content type")
+    
+    # Accept general image/* or specific HEIC types
+    if not (file.content_type.startswith('image/') or file.content_type in valid_content_types):
+        raise HTTPException(status_code=400, detail=f"File must be an image. Received: {file.content_type}")
     
     # Validate file size
     if file.size and file.size > MAX_FILE_SIZE:

@@ -7,7 +7,7 @@ IMAGES_DIR = Path("/app/data/images")
 
 # File upload settings
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'}
+ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif'}
 DEFAULT_IMAGE_EXTENSION = "jpg"
 
 # CORS settings
