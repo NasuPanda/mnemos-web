@@ -61,26 +61,78 @@ class FileStorageService:
             return False
 
 class CloudStorageService:
-    """Google Cloud Storage service (to be implemented later)"""
+    """Google Cloud Storage service"""
     
     def __init__(self, bucket_name: str):
         self.bucket_name = bucket_name
+        self._client = None
+        self._bucket = None
         logger.info(f"CloudStorageService initialized with bucket: {bucket_name}")
+    
+    def _get_client(self):
+        """Get Google Cloud Storage client (lazy initialization)"""
+        if self._client is None:
+            try:
+                from google.cloud import storage
+                # Try to get project from environment, fallback to default
+                project = os.getenv("GOOGLE_CLOUD_PROJECT", "mnemos-web")
+                self._client = storage.Client(project=project)
+                self._bucket = self._client.bucket(self.bucket_name)
+                logger.info(f"Google Cloud Storage client initialized for project: {project}")
+            except Exception as e:
+                logger.error(f"Failed to initialize Cloud Storage client: {e}")
+                raise
+        return self._client, self._bucket
     
     async def download_json(self, filename: str) -> Optional[Dict[Any, Any]]:
         """Download JSON data from Cloud Storage"""
-        # TODO: Implement with google-cloud-storage
-        raise NotImplementedError("Cloud Storage not yet implemented")
+        try:
+            _, bucket = self._get_client()
+            blob = bucket.blob(filename)
+            
+            # Check if blob exists
+            if not blob.exists():
+                logger.warning(f"File {filename} not found in Cloud Storage bucket {self.bucket_name}")
+                return None
+            
+            # Download and parse JSON
+            json_data = blob.download_as_text()
+            data = json.loads(json_data)
+            logger.info(f"Successfully downloaded {filename} from Cloud Storage")
+            return data
+            
+        except Exception as e:
+            logger.error(f"Failed to download {filename} from Cloud Storage: {e}")
+            return None
     
     async def upload_json(self, filename: str, data: Dict[Any, Any]) -> bool:
         """Upload JSON data to Cloud Storage"""
-        # TODO: Implement with google-cloud-storage
-        raise NotImplementedError("Cloud Storage not yet implemented")
+        try:
+            _, bucket = self._get_client()
+            blob = bucket.blob(filename)
+            
+            # Convert data to JSON string
+            json_data = json.dumps(data, indent=2)
+            
+            # Upload to Cloud Storage
+            blob.upload_from_string(json_data, content_type='application/json')
+            logger.info(f"Successfully uploaded {filename} to Cloud Storage")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to upload {filename} to Cloud Storage: {e}")
+            return False
     
     def is_available(self) -> bool:
         """Check if Cloud Storage is available"""
-        # TODO: Implement with google-cloud-storage
-        return False
+        try:
+            _, bucket = self._get_client()
+            # Test access by checking if bucket exists
+            bucket.reload()
+            return True
+        except Exception as e:
+            logger.warning(f"Cloud Storage health check failed: {e}")
+            return False
 
 def get_storage_service():
     """Factory function to get appropriate storage service based on environment"""
