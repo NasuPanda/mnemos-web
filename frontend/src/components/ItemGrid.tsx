@@ -10,6 +10,7 @@ interface ItemGridProps {
   onEdit: (item: StudyItem) => void;
   onDelete: (item: StudyItem) => void;
   onDoubleClick: (item: StudyItem) => void;
+  onReview: (item: StudyItem) => void;
 }
 
 const ItemGrid: React.FC<ItemGridProps> = ({
@@ -18,7 +19,8 @@ const ItemGrid: React.FC<ItemGridProps> = ({
   onShowAnswer,
   onEdit,
   onDelete,
-  onDoubleClick
+  onDoubleClick,
+  onReview
 }) => {
   // Responsive design integration
   const { breakpoint, isMobile, isTablet, isDesktopOrWide } = useResponsive();
@@ -130,6 +132,7 @@ const ItemGrid: React.FC<ItemGridProps> = ({
               onEdit={onEdit}
               onDelete={onDelete}
               onDoubleClick={onDoubleClick}
+              onReview={onReview}
             />
           ))}
         </div>

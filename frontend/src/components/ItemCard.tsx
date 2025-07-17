@@ -36,6 +36,7 @@ interface ItemCardProps {
   onEdit: (item: StudyItem) => void;
   onDelete: (item: StudyItem) => void;
   onDoubleClick: (item: StudyItem) => void;
+  onReview: (item: StudyItem) => void;
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({
@@ -43,7 +44,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
   onShowAnswer,
   onEdit,
   onDelete,
-  onDoubleClick
+  onDoubleClick,
+  onReview
 }) => {
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [viewingImages, setViewingImages] = useState<string[]>([]);
@@ -58,7 +60,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   const formatDateForComparison = (date: Date): string => {
-    return date.toISOString().split('T')[0];
+    return date.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
   };
 
   const wasReviewedToday = (): boolean => {
@@ -77,6 +79,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
   const responsiveCard = getResponsiveCardStyles(breakpoint);
   const responsiveTypography = getResponsiveTypography(breakpoint);
   const responsiveSpacing = getResponsiveSpacing(breakpoint);
+  
+  // Mobile detection for Review button
+  const isMobile = breakpoint === 'mobile';
 
   const cardStyle = mergeResponsiveStyles({
     // Base styles that remain consistent
@@ -166,6 +171,15 @@ const ItemCard: React.FC<ItemCardProps> = ({
     fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
   }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
+  const reviewButtonStyle = mergeResponsiveStyles({
+    backgroundColor: '#2d5a87',
+    border: '1px solid #2d5a87',
+    color: '#ffffff',
+    borderRadius: '2px',
+    cursor: 'pointer',
+    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+  }, getResponsiveButtonStyles(breakpoint, 'primary'));
+
   const timestampStyle = mergeResponsiveStyles({
     color: '#4a90b8',
     textAlign: 'center' as const,
@@ -253,6 +267,20 @@ const ItemCard: React.FC<ItemCardProps> = ({
         >
           Show Answer
         </button>
+
+        {isMobile && (
+          <button 
+            style={reviewButtonStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onReview(item);
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#245073'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2d5a87'}
+          >
+            Review
+          </button>
+        )}
 
         <div style={actionButtonsStyle}>
           <button 

@@ -366,7 +366,7 @@ function AppContent() {
 
   // Helper function to format date for comparison (YYYY-MM-DD)
   const formatDateForComparison = (date: Date): string => {
-    return date.toISOString().split('T')[0];
+    return date.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
   };
 
   // Helper function to check if item should be shown on current date
@@ -453,7 +453,7 @@ function AppContent() {
     }
   };
 
-  const handleDoubleClick = (item: StudyItem) => {
+  const handleOpenReviewModal = (item: StudyItem) => {
     setSelectedItem(item);
     setIsReviewModalOpen(true);
   };
@@ -501,10 +501,10 @@ function AppContent() {
     // Calculate next review date
     const nextReviewDate = new Date();
     nextReviewDate.setDate(nextReviewDate.getDate() + daysToAdd);
-    const nextReviewDateString = nextReviewDate.toISOString().split('T')[0];
+    const nextReviewDateString = nextReviewDate.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
 
     // Current date for review history
-    const currentDateString = new Date().toISOString().split('T')[0];
+    const currentDateString = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
 
     try {
       const currentItem = items.find(item => item.id === itemId);
@@ -619,7 +619,8 @@ function AppContent() {
               onShowAnswer={handleShowAnswer}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onDoubleClick={handleDoubleClick}
+              onDoubleClick={handleOpenReviewModal}
+              onReview={handleOpenReviewModal}
             />
           ))
         )}
