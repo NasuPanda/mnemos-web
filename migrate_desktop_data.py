@@ -2,7 +2,7 @@
 """
 Mnemos Desktop → Web Migration Script
 
-Migrates data from _MNEMOS_DESTOP_DATA.json to mnemos web format.
+Migrates data from updated desktop data to mnemos web format.
 Category mappings: Math → Calculus Ⅰ, Language → Vocabulary, Other → Other
 """
 
@@ -17,7 +17,7 @@ class MnemosDesktopMigrator:
     """Handles migration from desktop to web format"""
     
     def __init__(self):
-        self.category_mappings = {
+        self.section_mappings = {
             "Math": "Calculus Ⅰ",
             "Language": "Vocabulary", 
             "Other": "Other"
@@ -49,9 +49,9 @@ class MnemosDesktopMigrator:
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in desktop data: {e}")
     
-    def map_categories(self, desktop_section: str) -> str:
-        """Convert desktop section to web category"""
-        return self.category_mappings.get(desktop_section, "Other")
+    def map_sections(self, desktop_section: str) -> str:
+        """Convert desktop section to web section"""
+        return self.section_mappings.get(desktop_section, "Other")
     
     def extract_review_dates(self, history: List[Dict[str, str]]) -> List[str]:
         """Extract review dates from desktop history, excluding archived entries"""
@@ -126,30 +126,34 @@ class MnemosDesktopMigrator:
             answer_text = self.clean_text(desktop_item.get("answer_text", ""))
             side_note = self.clean_text(desktop_item.get("side_note", ""))
             
-            # Generate web item
+            # Generate web item with correct backend model structure
             web_item = {
                 "id": str(uuid.uuid4()),
                 "name": name,
+                "section": self.map_sections(desktop_item.get("section", "Other")),  # FIXED: category → section
+                "side_note": side_note,
+                
+                # Problem fields
                 "problem_text": description,
-                "answer_text": answer_text,
-                "category": self.map_categories(desktop_item.get("section", "Other")),
-                "created_date": desktop_item.get("created", datetime.now().strftime("%Y-%m-%d")),
-                "next_review_date": desktop_item.get("next_review", ""),
-                "reviewed": len(review_dates) > 0,
-                "review_dates": review_dates,
-                "last_accessed": datetime.now().isoformat(),
-                "archived": False,
-                
-                # URL fields
                 "problem_url": desktop_item.get("url", ""),
-                "answer_url": "",
-                
-                # Image fields
+                "problem_image": None,  # FIXED: Add deprecated but required field
                 "problem_images": [],
+                
+                # Answer fields
+                "answer_text": answer_text,
+                "answer_url": "",
+                "answer_image": None,   # FIXED: Add deprecated but required field
                 "answer_images": flagged_images,
                 
-                # Additional fields
-                "side_note": side_note
+                # Review fields
+                "reviewed": len(review_dates) > 0,
+                "next_review_date": desktop_item.get("next_review", ""),
+                "review_dates": review_dates,
+                
+                # Timestamps
+                "created_date": desktop_item.get("created", datetime.now().strftime("%Y-%m-%d")),
+                "last_accessed": datetime.now().isoformat(),
+                "archived": False
             }
             
             self.migration_stats["migrated_items"] += 1
@@ -167,13 +171,13 @@ class MnemosDesktopMigrator:
     def generate_web_data(self, migrated_items: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Generate final web format with items, categories, and settings"""
         
-        # Extract unique categories from migrated items
-        categories = list(set(item["category"] for item in migrated_items))
+        # Extract unique sections from migrated items (backend uses "section" but AppData has "categories")
+        categories = list(set(item["section"] for item in migrated_items))
         categories.sort()
         
         return {
             "items": migrated_items,
-            "categories": categories,
+            "categories": categories,  # AppData.categories maps to Item.section values
             "settings": {
                 "confident_days": 7,
                 "medium_days": 3,
@@ -192,31 +196,58 @@ class MnemosDesktopMigrator:
             # Load desktop data
             desktop_data = self.load_desktop_data(input_file)
             
+            # Filter out archived items early to avoid Unicode issues
+            active_items = [item for item in desktop_data if not item.get("archived", False)]
+            archived_count = len(desktop_data) - len(active_items)
+            print(f"📊 Found {len(active_items)} active items ({archived_count} archived items skipped)")
+            
             # Incremental testing: process only first 5 items
             if incremental_test:
-                desktop_data = desktop_data[:5]
-                print(f"🧪 INCREMENTAL TEST MODE: Processing first 5 items only")
+                active_items = active_items[:5]
+                print(f"🧪 INCREMENTAL TEST MODE: Processing first 5 active items only")
             
             # Migrate items
             migrated_items = []
-            for i, desktop_item in enumerate(desktop_data, 1):
-                print(f"Processing item {i}/{len(desktop_data)}: {desktop_item.get('name', 'Unknown')}")
-                
-                web_item = self.migrate_item(desktop_item)
-                if web_item:
-                    migrated_items.append(web_item)
+            for i, desktop_item in enumerate(active_items, 1):
+                try:
+                    item_name = desktop_item.get('name', 'Unknown')
+                    print(f"Processing item {i}/{len(active_items)}: {item_name}")
+                    
+                    web_item = self.migrate_item(desktop_item)
+                    if web_item:
+                        migrated_items.append(web_item)
+                except Exception as e:
+                    print(f"🚨 Error processing item {i}: {e}")
+                    print(f"   Item name: {repr(desktop_item.get('name', 'Unknown'))}")
+                    # Skip this item and continue
+                    continue
             
             # Generate final web data
             web_data = self.generate_web_data(migrated_items)
             
-            # Save migrated data with safe UTF-8 handling
-            # First try to serialize to detect encoding issues
+            # Save migrated data - new desktop data should be clean
+            print(f"📊 Attempting to serialize {len(web_data['items'])} items to JSON...")
             try:
                 json_string = json.dumps(web_data, indent=2, ensure_ascii=True)
-            except UnicodeEncodeError as e:
-                print(f"⚠️  Encoding issue detected: {e}")
-                # Force ASCII encoding as fallback
-                json_string = json.dumps(web_data, indent=2, ensure_ascii=True)
+                print("✅ JSON serialization successful")
+            except Exception as e:
+                print(f"❌ JSON serialization failed: {e}")
+                print("🔍 Attempting to find problematic item...")
+                # Test each item individually
+                for i, item in enumerate(web_data['items']):
+                    try:
+                        json.dumps(item, ensure_ascii=True)
+                    except Exception as item_error:
+                        print(f"🚨 Problem in item {i+1}: {item.get('name', 'unknown')}")
+                        print(f"   Error: {item_error}")
+                        # Try each field
+                        for key, value in item.items():
+                            try:
+                                json.dumps({key: value}, ensure_ascii=True)
+                            except Exception as field_error:
+                                print(f"   Problem field '{key}': {field_error}")
+                        break
+                raise e
             
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(json_string)
@@ -277,7 +308,7 @@ def main():
     migrator = MnemosDesktopMigrator()
     
     # File paths
-    input_file = "_MNEMOS_DESTOP_DATA.json"
+    input_file = "/Users/ns/projects/2025/Mnemos/data/items.json"
     
     # Check command line arguments for test mode
     incremental_test = "--test" in sys.argv
@@ -286,7 +317,7 @@ def main():
         output_file = "test_migrated_data.json"
         print("🧪 Running incremental test with first 5 items")
     else:
-        output_file = "migrated_mnemos_data.json"
+        output_file = "migrated_mnemos_data_updated.json"
         print("🚀 Running full migration with all items")
     
     # Run migration
