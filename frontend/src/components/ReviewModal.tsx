@@ -32,6 +32,9 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   const responsiveModal = getResponsiveModalStyles(breakpoint, 'review');
   const responsiveTypography = getResponsiveTypography(breakpoint);
   const responsiveSpacing = getResponsiveSpacing(breakpoint);
+  
+  // Device-specific behavior
+  const isMobile = breakpoint === 'mobile';
 
   const handleConfidenceClick = (type: 'confident' | 'medium' | 'wtf') => {
     if (!item) return;
@@ -66,14 +69,33 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     zIndex: 1000
   }, responsiveModal.overlay);
 
-  const modalStyle = mergeResponsiveStyles({
-    backgroundColor: '#ffffff',
-    border: '3px solid #4a90b8',
-    position: 'relative' as const,
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    display: 'flex',
-    flexDirection: 'column' as const
-  }, responsiveModal.content);
+  const modalStyle = isMobile 
+    ? mergeResponsiveStyles({
+        backgroundColor: '#ffffff',
+        border: '3px solid #4a90b8',
+        position: 'relative' as const,
+        fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        maxHeight: '90vh',
+        maxWidth: '90vw',
+        width: 'auto',
+        minWidth: '280px',
+        overflow: 'hidden'
+      }, responsiveModal.content)
+    : {
+        backgroundColor: '#ffffff',
+        border: '3px solid #4a90b8',
+        position: 'relative' as const,
+        fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        // Desktop: flexible height, no constraints from responsive system
+        width: '600px',
+        minWidth: '500px',
+        borderRadius: '12px',
+        padding: '20px'
+      };
 
   const titleStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
@@ -221,6 +243,34 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     });
   };
 
+  // Device-specific content styling
+  const modalContentStyle = isMobile ? {
+    flexGrow: 1,
+    overflow: 'auto',
+    padding: `0 ${responsiveSpacing.sectionGap}`,
+    maxHeight: '60vh'
+  } : {
+    padding: `0 ${responsiveSpacing.sectionGap}`
+  };
+
+  const modalHeaderStyle = isMobile ? {
+    flexShrink: 0,
+    padding: responsiveSpacing.sectionGap,
+    paddingBottom: 0
+  } : {
+    padding: responsiveSpacing.sectionGap,
+    paddingBottom: 0
+  };
+
+  const modalFooterStyle = isMobile ? {
+    flexShrink: 0,
+    padding: responsiveSpacing.sectionGap,
+    paddingTop: 0
+  } : {
+    padding: responsiveSpacing.sectionGap,
+    paddingTop: 0
+  };
+
   return (
     <div style={overlayStyle} onClick={onClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
@@ -233,95 +283,199 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
           ✕
         </button>
 
-        <h2 style={titleStyle}>Review Item</h2>
-        <div style={itemNameStyle}>"{item.name}"</div>
+        {isMobile ? (
+          // Mobile layout: structured with scrollable content
+          <>
+            <div style={modalHeaderStyle}>
+              <h2 style={titleStyle}>Review Item</h2>
+              <div style={itemNameStyle}>"{item.name}"</div>
+            </div>
 
-        {item.reviewDates && item.reviewDates.length > 0 && (
-          <div style={reviewHistoryStyle}>
-            <div style={reviewHistoryTitleStyle}>Review History:</div>
-            <ul style={reviewHistoryListStyle}>
-              {(() => {
-                const totalReviews = item.reviewDates.length;
-                const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
-                
-                return latestFiveDates.map((date, index) => (
-                  <li key={index} style={reviewHistoryItemStyle}>
-                    {formatReviewDate(date)}
-                  </li>
-                ));
-              })()}
-            </ul>
-            {item.reviewDates.length > 5 && (
-              <div style={reviewHistoryTotalStyle}>
-                ({item.reviewDates.length} reviews in total, well done! 🔥)
+            <div style={modalContentStyle}>
+              {item.reviewDates && item.reviewDates.length > 0 && (
+                <div style={reviewHistoryStyle}>
+                  <div style={reviewHistoryTitleStyle}>Review History:</div>
+                  <ul style={reviewHistoryListStyle}>
+                    {(() => {
+                      const totalReviews = item.reviewDates.length;
+                      const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
+                      
+                      return latestFiveDates.map((date, index) => (
+                        <li key={index} style={reviewHistoryItemStyle}>
+                          {formatReviewDate(date)}
+                        </li>
+                      ));
+                    })()}
+                  </ul>
+                  {item.reviewDates.length > 5 && (
+                    <div style={reviewHistoryTotalStyle}>
+                      ({item.reviewDates.length} reviews in total, well done! 🔥)
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div style={confidenceButtonsStyle}>
+                <button
+                  style={confidentButtonStyle}
+                  onClick={() => handleConfidenceClick('confident')}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                >
+                  <span>🟢 Confident</span>
+                  <span>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
+                </button>
+
+                <button
+                  style={mediumButtonStyle}
+                  onClick={() => handleConfidenceClick('medium')}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
+                >
+                  <span>🔵 Medium</span>
+                  <span>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
+                </button>
+
+                <button
+                  style={wtfButtonStyle}
+                  onClick={() => handleConfidenceClick('wtf')}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F44336'}
+                >
+                  <span>🔴 WTF</span>
+                  <span>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
+                </button>
+              </div>
+
+              <div style={customSectionStyle}>
+                <label style={customLabelStyle}>Custom Review Date:</label>
+                <div style={customInputContainerStyle}>
+                  <input
+                    type="number"
+                    min="1"
+                    max="365"
+                    style={customInputStyle}
+                    value={customDays}
+                    onChange={(e) => setCustomDays(parseInt(e.target.value) || 1)}
+                  />
+                  <span style={mergeResponsiveStyles({ color: '#2d5a87' }, responsiveTypography.smallText)}>days</span>
+                  <button
+                    style={customButtonStyle}
+                    onClick={handleCustomReview}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#245073'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2d5a87'}
+                  >
+                    Set Review
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style={modalFooterStyle}>
+              <button
+                style={archiveButtonStyle}
+                onClick={handleArchive}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0f1a2a'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1a2e42'}
+              >
+                Archive Item
+              </button>
+            </div>
+          </>
+        ) : (
+          // Desktop layout: flat structure, no scrolling
+          <>
+            <h2 style={titleStyle}>Review Item</h2>
+            <div style={itemNameStyle}>"{item.name}"</div>
+
+            {item.reviewDates && item.reviewDates.length > 0 && (
+              <div style={reviewHistoryStyle}>
+                <div style={reviewHistoryTitleStyle}>Review History:</div>
+                <ul style={reviewHistoryListStyle}>
+                  {(() => {
+                    const totalReviews = item.reviewDates.length;
+                    const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
+                    
+                    return latestFiveDates.map((date, index) => (
+                      <li key={index} style={reviewHistoryItemStyle}>
+                        {formatReviewDate(date)}
+                      </li>
+                    ));
+                  })()}
+                </ul>
+                {item.reviewDates.length > 5 && (
+                  <div style={reviewHistoryTotalStyle}>
+                    ({item.reviewDates.length} reviews in total, well done! 🔥)
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
 
-        <div style={confidenceButtonsStyle}>
-          <button
-            style={confidentButtonStyle}
-            onClick={() => handleConfidenceClick('confident')}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
-          >
-            <span>🟢 Confident</span>
-            <span>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
-          </button>
+            <div style={confidenceButtonsStyle}>
+              <button
+                style={confidentButtonStyle}
+                onClick={() => handleConfidenceClick('confident')}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+              >
+                <span>🟢 Confident</span>
+                <span>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
+              </button>
 
-          <button
-            style={mediumButtonStyle}
-            onClick={() => handleConfidenceClick('medium')}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
-          >
-            <span>🔵 Medium</span>
-            <span>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
-          </button>
+              <button
+                style={mediumButtonStyle}
+                onClick={() => handleConfidenceClick('medium')}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
+              >
+                <span>🔵 Medium</span>
+                <span>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
+              </button>
 
-          <button
-            style={wtfButtonStyle}
-            onClick={() => handleConfidenceClick('wtf')}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F44336'}
-          >
-            <span>🔴 WTF</span>
-            <span>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
-          </button>
-        </div>
+              <button
+                style={wtfButtonStyle}
+                onClick={() => handleConfidenceClick('wtf')}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F44336'}
+              >
+                <span>🔴 WTF</span>
+                <span>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
+              </button>
+            </div>
 
-        <div style={customSectionStyle}>
-          <label style={customLabelStyle}>Custom Review Date:</label>
-          <div style={customInputContainerStyle}>
-            <input
-              type="number"
-              min="1"
-              max="365"
-              style={customInputStyle}
-              value={customDays}
-              onChange={(e) => setCustomDays(parseInt(e.target.value) || 1)}
-            />
-            <span style={mergeResponsiveStyles({ color: '#2d5a87' }, responsiveTypography.smallText)}>days</span>
+            <div style={customSectionStyle}>
+              <label style={customLabelStyle}>Custom Review Date:</label>
+              <div style={customInputContainerStyle}>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  style={customInputStyle}
+                  value={customDays}
+                  onChange={(e) => setCustomDays(parseInt(e.target.value) || 1)}
+                />
+                <span style={mergeResponsiveStyles({ color: '#2d5a87' }, responsiveTypography.smallText)}>days</span>
+                <button
+                  style={customButtonStyle}
+                  onClick={handleCustomReview}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#245073'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2d5a87'}
+                >
+                  Set Review
+                </button>
+              </div>
+            </div>
+
             <button
-              style={customButtonStyle}
-              onClick={handleCustomReview}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#245073'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2d5a87'}
+              style={archiveButtonStyle}
+              onClick={handleArchive}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0f1a2a'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1a2e42'}
             >
-              Set Review
+              Archive Item
             </button>
-          </div>
-        </div>
-
-        <button
-          style={archiveButtonStyle}
-          onClick={handleArchive}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0f1a2a'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1a2e42'}
-        >
-          Archive Item
-        </button>
+          </>
+        )}
       </div>
     </div>
   );
