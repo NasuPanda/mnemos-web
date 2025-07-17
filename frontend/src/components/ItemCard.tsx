@@ -195,7 +195,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
       {(() => {
         const hasLinks = !!(item.problemUrl || item.answerUrl);
-        const hasImages = !!(item.problemImages?.length || item.answerImages?.length);
+        const hasProblemImages = !!(item.problemImages?.length);
         
         const handleLinkClick = (e: React.MouseEvent) => {
           e.stopPropagation();
@@ -215,9 +215,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
           }
         };
         
-        const imageCount = (item.problemImages?.length || 0) + (item.answerImages?.length || 0);
+        const problemImageCount = item.problemImages?.length || 0;
         
-        return (hasLinks || hasImages) ? (
+        return (hasLinks || hasProblemImages) ? (
           <div style={mediaIndicatorsStyle}>
             {hasLinks && (
               <button 
@@ -228,13 +228,13 @@ const ItemCard: React.FC<ItemCardProps> = ({
                 📎 Link
               </button>
             )}
-            {hasImages && (
+            {hasProblemImages && (
               <button 
                 style={mediaButtonStyle}
                 onClick={handleImageClick}
-                title={`View ${imageCount} problem image${imageCount > 1 ? 's' : ''}`}
+                title={`View ${problemImageCount} problem image${problemImageCount > 1 ? 's' : ''}`}
               >
-                🖼️ Problem image{imageCount > 1 ? 's' : ''}
+                🖼️ Problem image{problemImageCount > 1 ? 's' : ''}
               </button>
             )}
           </div>
