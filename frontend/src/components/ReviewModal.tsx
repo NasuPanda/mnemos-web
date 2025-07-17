@@ -186,6 +186,41 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     marginTop: 'auto'
   }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
+  const reviewHistoryStyle = {
+    marginBottom: responsiveSpacing.sectionGap
+  };
+
+  const reviewHistoryTitleStyle = mergeResponsiveStyles({
+    color: '#1e3a5f',
+    fontWeight: 'bold' as const,
+    marginBottom: responsiveSpacing.buttonGap
+  }, responsiveTypography.smallText);
+
+  const reviewHistoryListStyle = {
+    margin: 0,
+    paddingLeft: '20px',
+    color: '#2d5a87'
+  };
+
+  const reviewHistoryItemStyle = mergeResponsiveStyles({
+    marginBottom: '4px'
+  }, responsiveTypography.smallText);
+
+  const reviewHistoryTotalStyle = mergeResponsiveStyles({
+    color: '#4a90b8',
+    textAlign: 'center' as const,
+    marginTop: responsiveSpacing.buttonGap,
+    fontStyle: 'italic' as const
+  }, responsiveTypography.smallText);
+
+  const formatReviewDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
     <div style={overlayStyle} onClick={onClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
@@ -200,6 +235,29 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
 
         <h2 style={titleStyle}>Review Item</h2>
         <div style={itemNameStyle}>"{item.name}"</div>
+
+        {item.reviewDates && item.reviewDates.length > 0 && (
+          <div style={reviewHistoryStyle}>
+            <div style={reviewHistoryTitleStyle}>Review History:</div>
+            <ul style={reviewHistoryListStyle}>
+              {(() => {
+                const totalReviews = item.reviewDates.length;
+                const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
+                
+                return latestFiveDates.map((date, index) => (
+                  <li key={index} style={reviewHistoryItemStyle}>
+                    {formatReviewDate(date)}
+                  </li>
+                ));
+              })()}
+            </ul>
+            {item.reviewDates.length > 5 && (
+              <div style={reviewHistoryTotalStyle}>
+                ({item.reviewDates.length} reviews in total, well done! 🔥)
+              </div>
+            )}
+          </div>
+        )}
 
         <div style={confidenceButtonsStyle}>
           <button
