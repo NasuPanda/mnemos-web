@@ -57,6 +57,21 @@ const ItemCard: React.FC<ItemCardProps> = ({
     });
   };
 
+  const formatDateForComparison = (date: Date): string => {
+    return date.toISOString().split('T')[0];
+  };
+
+  const wasReviewedToday = (): boolean => {
+    const today = formatDateForComparison(new Date());
+    return item.isReviewed && 
+      item.reviewDates && 
+      item.reviewDates.length > 0 &&
+      item.reviewDates[item.reviewDates.length - 1] === today;
+  };
+
+  // Calculate once for efficiency
+  const reviewedToday = wasReviewedToday();
+
   // Responsive design integration
   const { breakpoint } = useResponsive();
   const responsiveCard = getResponsiveCardStyles(breakpoint);
@@ -66,9 +81,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
   const cardStyle = mergeResponsiveStyles({
     // Base styles that remain consistent
     boxSizing: 'border-box' as const,
-    backgroundColor: item.isReviewed ? '#e8f0f5' : '#ffffff',
-    border: item.isReviewed ? '1px solid #4a90b8' : '2px solid #2d5a87',
-    opacity: item.isReviewed ? 0.7 : 1,
+    backgroundColor: reviewedToday ? '#e8f0f5' : '#ffffff',
+    border: reviewedToday ? '1px solid #4a90b8' : '2px solid #2d5a87',
+    opacity: reviewedToday ? 0.7 : 1,
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column' as const,
@@ -81,7 +96,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
     fontWeight: 'bold' as const,
     color: '#1e3a5f',
     margin: `0 0 ${responsiveSpacing.buttonGap} 0`,
-    opacity: item.isReviewed ? 0.8 : 1,
+    opacity: reviewedToday ? 0.8 : 1,
     overflow: 'hidden',
     wordWrap: 'break-word' as const,
     overflowWrap: 'break-word' as const
@@ -90,7 +105,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   const problemStyle = mergeResponsiveStyles({
     color: '#2d5a87',
     margin: `0 0 ${responsiveSpacing.buttonGap} 0`,
-    opacity: item.isReviewed ? 0.8 : 1,
+    opacity: reviewedToday ? 0.8 : 1,
     flexGrow: 1,
     overflow: 'hidden',
     wordWrap: 'break-word' as const,
@@ -155,7 +170,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
     color: '#4a90b8',
     textAlign: 'center' as const,
     marginTop: '2px',
-    opacity: item.isReviewed ? 0.8 : 1
+    opacity: reviewedToday ? 0.8 : 1
   }, responsiveTypography.smallText);
 
   const reviewedIndicatorStyle = mergeResponsiveStyles({
@@ -269,7 +284,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
         {formatDate(item.lastAccessedAt || item.createdAt)}
       </div>
 
-      {item.isReviewed && (
+      {reviewedToday && (
         <div style={reviewedIndicatorStyle}>
           ✓ Reviewed
         </div>

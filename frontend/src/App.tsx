@@ -297,6 +297,46 @@ function AppContent() {
     loadData();
   }, []);
 
+  // Reset review status when currentDate changes (e.g., when user navigates dates)
+  useEffect(() => {
+    if (items.length > 0) {
+      resetDueItemsReviewStatus(items).then(updatedItems => {
+        setItems(updatedItems);
+      });
+    }
+  }, [currentDate]);
+
+  // Reset review status for items that are due today
+  const resetDueItemsReviewStatus = async (itemsToCheck: StudyItem[]): Promise<StudyItem[]> => {
+    const today = formatDateForComparison(new Date());
+    const itemsToUpdate: StudyItem[] = [];
+    
+    // Find items that are due today but still marked as reviewed
+    const updatedItems = itemsToCheck.map(item => {
+      if (item.nextReviewDate === today && item.isReviewed) {
+        // Reset review status for items due today
+        const updatedItem = { ...item, isReviewed: false };
+        itemsToUpdate.push(updatedItem);
+        return updatedItem;
+      }
+      return item;
+    });
+    
+    // Update backend for items that need status reset
+    if (itemsToUpdate.length > 0) {
+      try {
+        await Promise.all(
+          itemsToUpdate.map(item => itemsApi.update(item.id, item))
+        );
+        console.log(`Reset review status for ${itemsToUpdate.length} items due today`);
+      } catch (error) {
+        console.error('Failed to reset review status for due items:', error);
+      }
+    }
+    
+    return updatedItems;
+  };
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -305,7 +345,11 @@ function AppContent() {
         settingsApi.get(),
         categoriesApi.getAll()
       ]);
-      setItems(itemsData);
+      
+      // Reset review status for items due today
+      const itemsWithResetStatus = await resetDueItemsReviewStatus(itemsData);
+      
+      setItems(itemsWithResetStatus);
       setSettings(settingsData);
       setAllCategories(categoriesData);
     } catch (error) {
