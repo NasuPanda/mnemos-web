@@ -63,10 +63,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
   const wasReviewedToday = (): boolean => {
     const today = formatDateForComparison(new Date());
-    return item.isReviewed && 
+    return !!(item.isReviewed && 
       item.reviewDates && 
       item.reviewDates.length > 0 &&
-      item.reviewDates[item.reviewDates.length - 1] === today;
+      item.reviewDates[item.reviewDates.length - 1] === today);
   };
 
   // Calculate once for efficiency
