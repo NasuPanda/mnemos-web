@@ -232,9 +232,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
               <button 
                 style={mediaButtonStyle}
                 onClick={handleImageClick}
-                title={`${imageCount} image${imageCount > 1 ? 's' : ''}`}
+                title={`View ${imageCount} problem image${imageCount > 1 ? 's' : ''}`}
               >
-                🖼️ {imageCount > 1 ? `${imageCount}` : 'Image'}
+                🖼️ Problem image{imageCount > 1 ? 's' : ''}
               </button>
             )}
           </div>
