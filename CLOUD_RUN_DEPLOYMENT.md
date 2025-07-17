@@ -401,6 +401,26 @@ gcloud run services update mnemos-web \
 - `STORAGE_BUCKET_NAME=mnemos-data-bucket`: Cloud Storage bucket name
 - `GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID`: Google Cloud project ID for authentication
 
+### Cloudinary Environment Variables
+
+**Required for image upload functionality in production:**
+
+```bash
+# Set Cloudinary credentials for image handling
+gcloud run services update mnemos-web \
+  --set-env-vars="CLOUDINARY_CLOUD_NAME=your_cloud_name,CLOUDINARY_API_KEY=your_api_key,CLOUDINARY_API_SECRET=your_api_secret" \
+  --region us-central1
+```
+
+**Environment Variables:**
+- `CLOUDINARY_CLOUD_NAME`: Cloudinary account identifier
+- `CLOUDINARY_API_KEY`: API access key  
+- `CLOUDINARY_API_SECRET`: API secret for authentication
+
+**Note**: These credentials are stored in the local `.env` file and must be manually applied to Cloud Run for production image upload functionality. Without these variables, the backend will crash when attempting to upload images.
+
+**Troubleshooting**: If you encounter 502 Bad Gateway errors when creating items with images, verify these environment variables are properly set on the Cloud Run service.
+
 ## Cloud Storage Setup for Production
 
 ### Required Service Account Permissions
