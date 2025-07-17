@@ -76,18 +76,26 @@ class CloudStorageService:
                 from google.cloud import storage
                 # Try to get project from environment, fallback to default
                 project = os.getenv("GOOGLE_CLOUD_PROJECT", "mnemos-web")
-                self._client = storage.Client(project=project)
-                self._bucket = self._client.bucket(self.bucket_name)
+                client = storage.Client(project=project)
+                bucket = client.bucket(self.bucket_name)
+                # Only set instance variables if both succeed
+                self._client = client
+                self._bucket = bucket
                 logger.info(f"Google Cloud Storage client initialized for project: {project}")
             except Exception as e:
                 logger.error(f"Failed to initialize Cloud Storage client: {e}")
-                raise
+                # Return None instead of raising to prevent service crash
+                return None, None
         return self._client, self._bucket
     
     async def download_json(self, filename: str) -> Optional[Dict[Any, Any]]:
         """Download JSON data from Cloud Storage"""
         try:
-            _, bucket = self._get_client()
+            client, bucket = self._get_client()
+            if client is None or bucket is None:
+                logger.warning(f"Cannot download {filename}: Cloud Storage client not available")
+                return None
+            
             blob = bucket.blob(filename)
             
             # Check if blob exists
@@ -108,7 +116,11 @@ class CloudStorageService:
     async def upload_json(self, filename: str, data: Dict[Any, Any]) -> bool:
         """Upload JSON data to Cloud Storage"""
         try:
-            _, bucket = self._get_client()
+            client, bucket = self._get_client()
+            if client is None or bucket is None:
+                logger.warning(f"Cannot upload {filename}: Cloud Storage client not available")
+                return False
+            
             blob = bucket.blob(filename)
             
             # Convert data to JSON string
@@ -127,7 +139,10 @@ class CloudStorageService:
         """Check if Cloud Storage is available"""
         try:
             logger.info("🔍 Checking Cloud Storage availability...")
-            _, bucket = self._get_client()
+            client, bucket = self._get_client()
+            if client is None or bucket is None:
+                logger.warning("❌ Cloud Storage client initialization failed")
+                return False
             # Test access by checking if bucket exists
             bucket.reload()
             logger.info(f"✅ Cloud Storage is available: bucket '{self.bucket_name}' accessible")
