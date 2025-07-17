@@ -297,7 +297,6 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   <div style={reviewHistoryTitleStyle}>Review History:</div>
                   <ul style={reviewHistoryListStyle}>
                     {(() => {
-                      const totalReviews = item.reviewDates.length;
                       const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
                       
                       return latestFiveDates.map((date, index) => (
@@ -393,7 +392,6 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 <div style={reviewHistoryTitleStyle}>Review History:</div>
                 <ul style={reviewHistoryListStyle}>
                   {(() => {
-                    const totalReviews = item.reviewDates.length;
                     const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
                     
                     return latestFiveDates.map((date, index) => (
