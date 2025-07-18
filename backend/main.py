@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from config import IMAGES_DIR, ALLOWED_ORIGINS, API_TITLE, API_DESCRIPTION
-from routes import items_router, settings_router, upload_router, data_router
+from routes import items_router, settings_router, upload_router, data_router, categories_router
 from services.data_service import preload_data_from_storage, is_data_ready, initialize_default_data, background_data_loading
 import logging
 import traceback
@@ -116,6 +116,7 @@ app.include_router(items_router)
 app.include_router(settings_router)
 app.include_router(upload_router)
 app.include_router(data_router)
+app.include_router(categories_router)
 
 @app.get("/")
 async def root():
