@@ -97,6 +97,59 @@ def _create_default_data() -> AppData:
         last_updated=datetime.now().isoformat()
     )
 
+def is_data_ready() -> bool:
+    """Check if service is ready with data (either default or loaded from storage)"""
+    return _service_ready
+
+def initialize_default_data():
+    """Initialize service with default data for quick startup"""
+    global _cached_data, _service_ready
+    logger.info("🏗️  Initializing service with default data for quick startup")
+    _cached_data = _create_default_data()
+    _rebuild_item_caches()
+    _service_ready = True
+    logger.info("✅ Service ready with default data")
+
+async def background_data_loading():
+    """Load real data from storage in background without blocking startup"""
+    global _cached_data, _data_loading, _service_ready
+    
+    if _data_loading:
+        logger.info("📋 Background data loading already in progress")
+        return
+    
+    _data_loading = True
+    logger.info("🔄 Starting background data loading from storage...")
+    
+    try:
+        # Try to load from storage service
+        loaded_data = await _load_from_storage()
+        if loaded_data:
+            logger.info(f"✅ Background loading successful: {len(loaded_data.items)} items, {len(loaded_data.categories)} categories")
+            _cached_data = loaded_data
+            _rebuild_item_caches()
+        else:
+            logger.info("⚠️  Background loading returned no data - keeping default data")
+            
+        # Try fallback to local file if storage failed
+        if not loaded_data:
+            logger.info("🔄 Trying local file fallback...")
+            local_data = _load_from_local_file()
+            if local_data:
+                logger.info(f"✅ Local file fallback successful: {len(local_data.items)} items")
+                _cached_data = local_data
+                _rebuild_item_caches()
+            else:
+                logger.info("⚠️  Local file fallback also failed - keeping default data")
+                
+    except Exception as e:
+        logger.error(f"💥 Background data loading failed: {e}")
+        import traceback
+        logger.error(f"📋 Full traceback: {traceback.format_exc()}")
+    finally:
+        _data_loading = False
+        logger.info("🏁 Background data loading completed")
+
 def _rebuild_item_caches():
     """Rebuild active/archived item caches - called when data changes"""
     global _cached_active_items, _cached_archived_items, _cached_data

@@ -4,9 +4,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from config import IMAGES_DIR, ALLOWED_ORIGINS, API_TITLE, API_DESCRIPTION
 from routes import items_router, settings_router, upload_router, data_router
-from services.data_service import preload_data_from_storage
+from services.data_service import preload_data_from_storage, is_data_ready, initialize_default_data, background_data_loading
 import logging
 import traceback
+import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -84,14 +85,16 @@ async def error_boundary_middleware(request: Request, call_next):
 
 @app.on_event("startup")
 async def startup_event():
-    """Load data from Cloud Storage on application startup"""
-    logger.info("🚀 Starting Mnemos API - Loading data from storage...")
-    try:
-        await preload_data_from_storage()
-        logger.info("✅ Data successfully loaded from storage during startup")
-    except Exception as e:
-        logger.error(f"❌ Failed to load data from storage during startup: {e}")
-        logger.warning("⚠️  App will start with empty/default data")
+    """Start service quickly with background data loading"""
+    logger.info("🚀 Starting Mnemos API - Quick start with background loading...")
+    
+    # Initialize service immediately with default data
+    initialize_default_data()
+    
+    # Start background data loading (non-blocking)
+    asyncio.create_task(background_data_loading())
+    
+    logger.info("✅ Service started quickly - data loading in background")
 
 # Ensure images directory exists
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)
@@ -117,6 +120,15 @@ app.include_router(data_router)
 @app.get("/")
 async def root():
     return {"message": "Mnemos API is running"}
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring service status"""
+    return {
+        "status": "healthy" if is_data_ready() else "loading",
+        "data_ready": is_data_ready(),
+        "message": "Service is ready" if is_data_ready() else "Loading data in background"
+    }
 
 if __name__ == "__main__":
     import uvicorn

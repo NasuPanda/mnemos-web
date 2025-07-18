@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from datetime import datetime
 import uuid
 from models import Item
-from services.data_service import load_data, save_data, get_active_items
+from services.data_service import load_data, save_data, get_active_items, is_data_ready
 
 router = APIRouter(prefix="/api/items", tags=["items"])
 
@@ -30,6 +30,11 @@ async def create_item(item: Item):
 @router.get("")
 async def get_items():
     """Get all non-archived items - SUPER FAST O(1) operation"""
+    if not is_data_ready():
+        raise HTTPException(
+            status_code=503,
+            detail="Service starting up - data loading in background. Please try again in a moment."
+        )
     return get_active_items()
 
 
