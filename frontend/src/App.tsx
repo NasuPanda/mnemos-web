@@ -6,6 +6,7 @@ import ReviewModal from './components/ReviewModal';
 import ShowAnswerModal from './components/ShowAnswerModal';
 import SettingsModal from './components/SettingsModal';
 import ConfirmationDialog from './components/ConfirmationDialog';
+import LoadingSpinner from './components/LoadingSpinner';
 import { ToastProvider, useToast } from './components/Toast';
 import type { StudyItem } from './components/ItemCard';
 import type { AppSettings } from './types/Settings';
@@ -276,6 +277,8 @@ function AppContent() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [items, setItems] = useState<StudyItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isServiceStarting, setIsServiceStarting] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isShowAnswerModalOpen, setIsShowAnswerModalOpen] = useState(false);
@@ -340,6 +343,9 @@ function AppContent() {
   const loadData = async () => {
     try {
       setLoading(true);
+      setIsServiceStarting(false);
+      setRetryCount(0);
+      
       const [itemsData, settingsData, categoriesData] = await Promise.all([
         itemsApi.getAll(),
         settingsApi.get(),
@@ -354,10 +360,35 @@ function AppContent() {
       setAllCategories(categoriesData);
     } catch (error) {
       console.error('Failed to load data:', error);
-      // Fallback to default settings if API fails
-      setSettings(DEFAULT_SETTINGS);
+      
+      // Check if this is a service startup error (503)
+      if (error instanceof Error && (error.message.includes('503') || error.message.includes('Service Unavailable'))) {
+        setIsServiceStarting(true);
+        // Listen for retry attempts from the console logs
+        const originalLog = console.log;
+        console.log = (...args) => {
+          if (args[0]?.includes('attempt')) {
+            const match = args[0].match(/attempt (\d+)/);
+            if (match) {
+              setRetryCount(parseInt(match[1]));
+            }
+          }
+          originalLog(...args);
+        };
+        
+        // Retry loading data automatically
+        setTimeout(() => {
+          console.log = originalLog; // Restore original console.log
+          loadData();
+        }, 1000);
+      } else {
+        // For other errors, just fallback to default settings
+        setSettings(DEFAULT_SETTINGS);
+      }
     } finally {
-      setLoading(false);
+      if (!isServiceStarting) {
+        setLoading(false);
+      }
     }
   };
 
@@ -607,9 +638,19 @@ function AppContent() {
         </button>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            Loading...
-          </div>
+          isServiceStarting ? (
+            <LoadingSpinner
+              message="Service Starting Up"
+              submessage={`Please wait while the service initializes... ${retryCount > 0 ? `(Attempt ${retryCount})` : ''}`}
+              type="service-starting"
+            />
+          ) : (
+            <LoadingSpinner
+              message="Loading Your Study Items"
+              submessage="This should only take a moment..."
+              type="normal"
+            />
+          )
         ) : (
           Object.entries(itemsByCategory).map(([categoryName, categoryItems]) => (
             <ItemGrid
