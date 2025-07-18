@@ -8,13 +8,70 @@ Remaining Tasks:
 3. [x] Archive
    1. [x] FIX: When the user clicks "Archived," it should switch "archived" field to "true/True." Currently it only deletes the item, which is not the desired behavior. Related: when "archived" is true, the review item should NOT appear on the Frontend.
    2. [x] Confirmation dialog & Success toast
-4. [ ] MIGRATION: Write a migration script for migrating data from the mnemos desktop to mnemos web. First understand the structure of `_MNEMOS_DESTOP_DATA.json`. List `section` field, which correspond to our current `category` field.
-NOTE for 4:
-- Do NOT migrate item with `archived=true.`
-- The path for the mnemos desktop file is `_MNEMOS_DESTOP_DATA.json.`
-- The fields of mnemos desktop data may be different from the mnemos web.
-- `section` field and its value should be appropriate modified to `category` field.
-5. [ ] FIX: When the user clicks "image," it shows EVERYTHING including answer images. It should only display PROBLEM images. In addition, it's unclear what "image" button represents.
+4. [x] MIGRATION: Write a migration script for migrating data from the mnemos desktop to mnemos web. First understand the structure of `_MNEMOS_DESTOP_DATA.json`. List `section` field, which correspond to our current `category` field.
+5. [x] FIX: Implement Global Exception Handlers (PRODUCTION STABILITY)
+   1. [x] **CRITICAL**: Prevent any unhandled exceptions from crashing the entire service
+   2. [x] Implement FastAPI global exception handler to catch all unhandled errors
+   3. [x] Add middleware-level error boundary for request-level error handling
+   4. [x] Log errors for debugging while keeping service alive
+   5. [x] Return user-friendly error messages instead of 502 Bad Gateway
+   6. [x] Test error handling with various failure scenarios
+6. [x] FIX: Cloud Run Cloudinary Environment Variables Missing
+   1. [x] **HIGH**: Backend crashes when creating items with images (after global handlers)
+   2. [x] Root cause: "Cloudinary credentials not found in environment variables"
+   3. [x] Missing env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+   4. [x] Solution: Add Cloudinary env vars to Cloud Run deployment
+   5. [x] Expected result: Service stays alive, shows "Image upload unavailable" error
+6. [x] `Reviewed` status:
+	1. [x] `reviewed = true + review data = today` should be checked. Otherwise it shouldn't be.
+	2. [x] `reviewed`should be reset to false when the review data = today.
+8. [x] It's unclear what "image" button represents. Currently it displays either "image" or the number of images, like "2" or "5" It should be "show problem image(s)."
+9. [x] Display "problem image(s)" only when an item has problem images. Currently it displays "problem image(s)" when it only has "**answer** image(s)," which is not how it is supposed to work.
+10. [x] Display "review history" on "Review item" modal. That is, list the past review dates as a list of bullet points. The size of modal should adjust according to the amount/size of the content.
+11. [x] The vertical positions of the contents (review history, buttons, ...) of "Review Item" modal are not adjusted according to the size/amount of the content as it should be. It comes out of the modal and looks off. The size of the modal should be more flexible. Plus, consider mobile UX too.
+13. [ ] FIX: Backend Auto-Shutdown Issue (Production Stability)
+    **Problem**: Cloud Run auto-shuts down idle instances + 3-minute startup = 502 errors for users
+    **Root Cause**: Slow Cloud Storage initialization blocks service startup for 3+ minutes
+    **Impact**: Users get 502 errors when service restarts after idle periods
+
+    **Phase 1: Core Backend Fixes (Critical)**
+    1. [ ] Add service state tracking to data_service.py
+        - Add global flags for service readiness (`_service_ready`, `_data_loading`)
+        - Add helper functions (`is_data_ready()`, `initialize_default_data()`)
+        - Add background loading function
+
+    2. [ ] Implement non-blocking startup in main.py
+        - Change startup event to be non-blocking (start with default data)
+        - Add background task for real data loading (`asyncio.create_task()`)
+        - Add basic health check endpoint (`/health`)
+
+    3. [ ] Add route protection to prevent 502 errors
+        - Add readiness checks to main API routes (`/api/items`, `/api/data`)
+        - Return 503 "Service starting" instead of 502 during startup
+
+    **Phase 2: Frontend Resilience (Important)**
+    4. [ ] Add basic retry logic to API calls
+        - Handle 503 responses with simple retry mechanism
+        - Add timeout and error handling
+
+    5. [ ] Add loading state indicators
+        - Show "service starting" message when appropriate
+        - Improve user experience during startup
+
+    **Phase 3: Optimization (Nice to have)**
+    6. [ ] Add advanced health checks and progress reporting
+    7. [ ] Consider Cloud Run min-instances configuration
+
+    **Success Criteria**:
+    - Service starts in <10 seconds instead of 3+ minutes
+    - No 502 errors during startup (503 with retry instead)
+    - Background data loading completes without blocking users
+    - Better UX during service restarts
+14. [ ] Add "Review" button to the review item **only for mobile**.
+15. [ ] Display side note
+16. [ ] Make sure there's no ts error
+17.  [ ] Responsive Design (Improvement)
+	  1. [ ] Modal is not working well on mobile. (in what way?: I can't scroll until "Create Item" shows up on "New item" modal. The vertical arrangement of the items is too tight.)
 
 🟡 MEDIUM PRIORITY
 1. [ ] Keyboard Shortcuts
@@ -25,8 +82,6 @@ NOTE for 4:
 	  - Cmd+Space: Review item
 	  - Cmd+L: Review item
 - Current: Only double-click to review works
-1. [ ] Responsive Design (Improvement)
-	  1. [ ] Modal is not working well on mobile. (in what way?: For instance, I can't scroll until "Create Item" shows up. Modal is not blocking things as it should?)
 2. [ ] Add a calender functionality to the date display in Header
 3. [ ] Quick Stats Sidebar
 - Documented: "Finished - unreviewed item count/total item count for the day (e.g., 12/20)"

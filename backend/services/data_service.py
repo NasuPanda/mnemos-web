@@ -18,6 +18,10 @@ _storage_service = None
 _cached_active_items: Optional[list] = None
 _cached_archived_items: Optional[list] = None
 
+# Service state tracking for non-blocking startup
+_service_ready: bool = False
+_data_loading: bool = False
+
 def get_storage():
     """Get storage service instance (singleton pattern)"""
     global _storage_service
