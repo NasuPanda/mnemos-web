@@ -29,65 +29,110 @@ Remaining Tasks:
 9. [x] Display "problem image(s)" only when an item has problem images. Currently it displays "problem image(s)" when it only has "**answer** image(s)," which is not how it is supposed to work.
 10. [x] Display "review history" on "Review item" modal. That is, list the past review dates as a list of bullet points. The size of modal should adjust according to the amount/size of the content.
 11. [x] The vertical positions of the contents (review history, buttons, ...) of "Review Item" modal are not adjusted according to the size/amount of the content as it should be. It comes out of the modal and looks off. The size of the modal should be more flexible. Plus, consider mobile UX too.
-13. [ ] FIX: Backend Auto-Shutdown Issue (Production Stability)
+13. [x] FIX: Backend Auto-Shutdown Issue (Production Stability)
     **Problem**: Cloud Run auto-shuts down idle instances + 3-minute startup = 502 errors for users
     **Root Cause**: Slow Cloud Storage initialization blocks service startup for 3+ minutes
     **Impact**: Users get 502 errors when service restarts after idle periods
 
     **Phase 1: Core Backend Fixes (Critical)**
-    1. [ ] Add service state tracking to data_service.py
+    1. [x] Add service state tracking to data_service.py
         - Add global flags for service readiness (`_service_ready`, `_data_loading`)
         - Add helper functions (`is_data_ready()`, `initialize_default_data()`)
         - Add background loading function
 
-    2. [ ] Implement non-blocking startup in main.py
+    2. [x] Implement non-blocking startup in main.py
         - Change startup event to be non-blocking (start with default data)
         - Add background task for real data loading (`asyncio.create_task()`)
         - Add basic health check endpoint (`/health`)
 
-    3. [ ] Add route protection to prevent 502 errors
+    3. [x] Add route protection to prevent 502 errors
         - Add readiness checks to main API routes (`/api/items`, `/api/data`)
         - Return 503 "Service starting" instead of 502 during startup
 
     **Phase 2: Frontend Resilience (Important)**
-    4. [ ] Add basic retry logic to API calls
+    4. [x] Add basic retry logic to API calls
         - Handle 503 responses with simple retry mechanism
         - Add timeout and error handling
 
-    5. [ ] Add loading state indicators
+    5. [x] Add loading state indicators
         - Show "service starting" message when appropriate
         - Improve user experience during startup
+14. [x] Add "Review" button to the review item **only for mobile**.
+15. [ ] FEATURE: Category Management in Settings Modal
+    **Problem**: Currently no way to manually add/delete categories without creating items
+    **Solution**: Extend Settings modal with tabs for Review Intervals and Category Management
 
-    **Phase 3: Optimization (Nice to have)**
-    6. [ ] Add advanced health checks and progress reporting
-    7. [ ] Consider Cloud Run min-instances configuration
+    **Phase 1: Backend API Foundation (Critical)**
+    1. [x] Create category management API endpoints
+        - POST /api/categories (add new category)
+        - DELETE /api/categories/{name} (delete category)
+        - PUT /api/categories/{old_name} (rename category)
+        - Add validation: no duplicates, no empty names, no reserved names
+
+    2. [x] Add category deletion safety checks
+        - Check if category is in use before allowing deletion
+        - Return proper error messages for conflicts
+        - Handle data consistency (what happens to items if category deleted)
+
+    **Phase 2: Frontend Tab Structure (Important)**
+    3. [x] Design and implement tabbed Settings modal
+        - Add tab navigation (Review Intervals | Categories)
+        - Maintain responsive design consistency
+        - Preserve existing review intervals functionality
+
+    4. [x] Create Categories tab UI
+        - List all existing categories
+        - Add "Add Category" input field and button
+        - Add delete button for each category
+        - Add rename functionality (inline editing)
+
+    **Phase 3: Integration and Data Flow (Important)**
+    5. [x] Connect frontend to backend APIs
+        - Implement category add/delete/rename functions
+        - Add loading states for all operations
+        - Ensure real-time updates to category list
+
+    6. [ ] Integrate with existing category system
+        - Update NewItemModal dropdown immediately after changes
+        - Maintain auto-add behavior for backward compatibility
+        - Ensure category changes persist across app reload
+
+    **Phase 4: Error Handling and Polish (Nice to have)**
+    7. [ ] Add comprehensive error handling
+        - Network errors, validation errors, conflicts
+        - User-friendly error messages
+        - Graceful degradation if API fails
+
+    8. [ ] End-to-end testing
+        - Test add/delete/rename operations
+        - Verify NewItemModal integration
+        - Test error scenarios and edge cases
 
     **Success Criteria**:
-    - Service starts in <10 seconds instead of 3+ minutes
-    - No 502 errors during startup (503 with retry instead)
-    - Background data loading completes without blocking users
-    - Better UX during service restarts
-14. [ ] Add "Review" button to the review item **only for mobile**.
-15. [ ] Display side note
-16. [ ] Make sure there's no ts error
-17.  [ ] Responsive Design (Improvement)
-	  1. [ ] Modal is not working well on mobile. (in what way?: I can't scroll until "Create Item" shows up on "New item" modal. The vertical arrangement of the items is too tight.)
+    - Users can add new categories via Settings modal
+    - Users can delete unused categories with safety checks
+    - Users can rename categories with items updating accordingly
+    - Category changes reflect immediately in NewItemModal dropdown
+    - No data loss or inconsistency during category operations
 
-🟡 MEDIUM PRIORITY
-1. [ ] Keyboard Shortcuts
-- Documented: Multiple shortcuts listed
-- Missing:
-	- Cmd+N: New item
-	  - Cmd+E: Edit item
-	  - Cmd+Space: Review item
-	  - Cmd+L: Review item
-- Current: Only double-click to review works
-2. [ ] Add a calender functionality to the date display in Header
-3. [ ] Quick Stats Sidebar
-- Documented: "Finished - unreviewed item count/total item count for the day (e.g., 12/20)"
-- Location: /docs/views/DisplayItem.md
-- Current: No stats display anywhere
-- Missing: Progress tracking sidebar
+**URGENT** When trying to upload an image, it shows "Fail to fetch."
+
+16. [ ] Quick Stats Sidebar
+    - Documented: "Finished - unreviewed item count/total item count for the day (e.g., 12/20)"
+    - Location: /docs/views/DisplayItem.md
+    - Current: No stats display anywhere
+    - Missing: Progress tracking sidebar
+17. [ ] Display the difference between today (review date) and the last review date (if any) to help the user decide the next review date
+18. [ ] Display `side note` on review items
+19.  [ ] Responsive Design (Improvement)
+	  1. [ ] Modal is not working well on mobile. (in what way?: I can't scroll until "Create Item" shows up on "New item" modal. The vertical arrangement of the items is too tight.)
+20. [ ] Keyboard Shortcuts
+Current: Only double-click to review works
+Missing:
+- Cmd+N: New item
+- Cmd+E: Edit item
+- Cmd+Space: Review item
+
 
 ---
 
