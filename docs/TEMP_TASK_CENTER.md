@@ -117,6 +117,7 @@ Remaining Tasks:
 
 **URGENT** When trying to upload an image, it shows "Fail to fetch."
 
+
 16. [ ] Quick Stats Sidebar
     - Documented: "Finished - unreviewed item count/total item count for the day (e.g., 12/20)"
     - Location: /docs/views/DisplayItem.md
