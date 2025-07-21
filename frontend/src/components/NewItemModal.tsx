@@ -4,6 +4,9 @@ import { useResponsive } from '../hooks/useBreakpoint';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { getResponsiveModalStyles, getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
+// Use relative URLs in production, localhost in development
+const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:8000';
+
 interface NewItemModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -136,7 +139,7 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
         const formDataUpload = new FormData();
         formDataUpload.append('file', files[i]);
 
-        const response = await fetch('http://localhost:8000/api/upload-image', {
+        const response = await fetch(`${API_BASE}/api/upload-image`, {
           method: 'POST',
           body: formDataUpload
         });
