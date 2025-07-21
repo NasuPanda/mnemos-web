@@ -40,6 +40,8 @@ steps:
       - '100'
       - '--set-env-vars'
       - 'USE_CLOUD_STORAGE=true,STORAGE_BUCKET_NAME=mnemos-data-bucket,GOOGLE_CLOUD_PROJECT=$PROJECT_ID'
+      - '--set-secrets'
+      - 'CLOUDINARY_CLOUD_NAME=cloudinary-cloud-name:latest,CLOUDINARY_API_KEY=cloudinary-api-key:latest,CLOUDINARY_API_SECRET=cloudinary-api-secret:latest'
 
 images:
   - 'gcr.io/$PROJECT_ID/mnemos-web'
