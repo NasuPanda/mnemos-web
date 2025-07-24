@@ -114,20 +114,17 @@ Remaining Tasks:
     - Users can rename categories with items updating accordingly
     - Category changes reflect immediately in NewItemModal dropdown
     - No data loss or inconsistency during category operations
-
-**URGENT** When trying to upload an image, it shows "Fail to fetch."
-
-
 16. [ ] Quick Stats Sidebar
     - Documented: "Finished - unreviewed item count/total item count for the day (e.g., 12/20)"
     - Location: /docs/views/DisplayItem.md
     - Current: No stats display anywhere
     - Missing: Progress tracking sidebar
 17. [ ] Display the difference between today (review date) and the last review date (if any) to help the user decide the next review date
-18. [ ] Display `side note` on review items
-19.  [ ] Responsive Design (Improvement)
+18. [ ] Toast for "new item," "update item."
+19. [ ] Display `side note` on review items
+20.  [ ] Responsive Design (Improvement)
 	  1. [ ] Modal is not working well on mobile. (in what way?: I can't scroll until "Create Item" shows up on "New item" modal. The vertical arrangement of the items is too tight.)
-20. [ ] Keyboard Shortcuts
+21. [ ] Keyboard Shortcuts
 Current: Only double-click to review works
 Missing:
 - Cmd+N: New item
