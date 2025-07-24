@@ -32,7 +32,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   const responsiveModal = getResponsiveModalStyles(breakpoint, 'review');
   const responsiveTypography = getResponsiveTypography(breakpoint);
   const responsiveSpacing = getResponsiveSpacing(breakpoint);
-  
+
   // Device-specific behavior
   const isMobile = breakpoint === 'mobile';
 
@@ -69,7 +69,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     zIndex: 1000
   }, responsiveModal.overlay);
 
-  const modalStyle = isMobile 
+  const modalStyle = isMobile
     ? mergeResponsiveStyles({
         backgroundColor: '#ffffff',
         border: '3px solid #4a90b8',
@@ -125,45 +125,46 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   const confidenceButtonsStyle = {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: responsiveSpacing.buttonGap,
+    gap: isMobile ? '16px' : responsiveSpacing.buttonGap, // Increased spacing for mobile
     marginBottom: responsiveSpacing.sectionGap
+  };
+
+  // Base button style for confidence buttons with mobile-specific fixes
+  const baseConfidenceButtonStyle = {
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: isMobile ? '48px' : 'auto',
+    padding: isMobile ? '12px 16px' : '8px 12px',
+    // Mobile-specific fixes
+    width: isMobile ? '100%' : 'auto',
+    minWidth: isMobile ? '280px' : 'auto',
+    boxSizing: 'border-box' as const
   };
 
   const confidentButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#4CAF50',
     border: '1px solid #4CAF50',
     color: '#ffffff',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  }, getResponsiveButtonStyles(breakpoint, 'primary'));
+    ...baseConfidenceButtonStyle
+  }, isMobile ? {} : getResponsiveButtonStyles(breakpoint, 'primary'));
 
   const mediumButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#2196F3',
     border: '1px solid #2196F3',
     color: '#ffffff',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  }, getResponsiveButtonStyles(breakpoint, 'primary'));
+    ...baseConfidenceButtonStyle
+  }, isMobile ? {} : getResponsiveButtonStyles(breakpoint, 'primary'));
 
   const wtfButtonStyle = mergeResponsiveStyles({
     backgroundColor: '#F44336',
     border: '1px solid #F44336',
     color: '#ffffff',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  }, getResponsiveButtonStyles(breakpoint, 'primary'));
+    ...baseConfidenceButtonStyle
+  }, isMobile ? {} : getResponsiveButtonStyles(breakpoint, 'primary'));
 
   const customSectionStyle = {
     marginBottom: responsiveSpacing.sectionGap
@@ -208,6 +209,17 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     marginTop: 'auto'
   }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
+  // Span styles for proper text distribution in confidence buttons
+  const leftSpanStyle = {
+    flex: '0 0 auto',
+    textAlign: 'left' as const
+  };
+
+  const rightSpanStyle = {
+    flex: '0 0 auto',
+    textAlign: 'right' as const
+  };
+
   const reviewHistoryStyle = {
     marginBottom: responsiveSpacing.sectionGap
   };
@@ -228,12 +240,13 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     marginBottom: '4px'
   }, responsiveTypography.smallText);
 
-  const reviewHistoryTotalStyle = mergeResponsiveStyles({
+  const reviewHistoryStatsStyle = mergeResponsiveStyles({
     color: '#4a90b8',
     textAlign: 'center' as const,
     marginTop: responsiveSpacing.buttonGap,
     fontStyle: 'italic' as const
   }, responsiveTypography.smallText);
+
 
   const formatReviewDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -241,6 +254,26 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  // Calculate days since last review
+  const getDaysSinceLastReview = (): { text: string; dayCount: number | null } => {
+    if (!item.reviewDates || item.reviewDates.length === 0) {
+      return { text: "Never reviewed before", dayCount: null };
+    }
+
+    const lastReviewDate = new Date(item.reviewDates[item.reviewDates.length - 1]);
+    const today = new Date();
+    const diffTime = today.getTime() - lastReviewDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return { text: "Last reviewed today", dayCount: 0 };
+    } else if (diffDays === 1) {
+      return { text: "Last reviewed 1 day ago", dayCount: 1 };
+    } else {
+      return { text: `Last reviewed ${diffDays} days ago`, dayCount: diffDays };
+    }
   };
 
   // Device-specific content styling
@@ -298,7 +331,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   <ul style={reviewHistoryListStyle}>
                     {(() => {
                       const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
-                      
+
                       return latestFiveDates.map((date, index) => (
                         <li key={index} style={reviewHistoryItemStyle}>
                           {formatReviewDate(date)}
@@ -307,7 +340,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                     })()}
                   </ul>
                   {item.reviewDates.length > 5 && (
-                    <div style={reviewHistoryTotalStyle}>
+                    <div style={reviewHistoryStatsStyle}>
                       ({item.reviewDates.length} reviews in total, well done! 🔥)
                     </div>
                   )}
@@ -321,8 +354,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
                 >
-                  <span>🟢 Confident</span>
-                  <span>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
+                  <span style={leftSpanStyle}>🟢 Confident</span>
+                  <span style={rightSpanStyle}>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
                 </button>
 
                 <button
@@ -331,8 +364,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
                 >
-                  <span>🔵 Medium</span>
-                  <span>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
+                  <span style={leftSpanStyle}>🔵 Medium</span>
+                  <span style={rightSpanStyle}>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
                 </button>
 
                 <button
@@ -341,8 +374,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F44336'}
                 >
-                  <span>🔴 WTF</span>
-                  <span>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
+                  <span style={leftSpanStyle}>🔴 WTF</span>
+                  <span style={rightSpanStyle}>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
                 </button>
               </div>
 
@@ -366,6 +399,10 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   >
                     Set Review
                   </button>
+                </div>
+                {/* Days since last review text - same style as review history total */}
+                <div style={reviewHistoryStatsStyle}>
+                  {getDaysSinceLastReview().text}
                 </div>
               </div>
             </div>
@@ -393,7 +430,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 <ul style={reviewHistoryListStyle}>
                   {(() => {
                     const latestFiveDates = item.reviewDates.slice(-5); // Get last 5 dates
-                    
+
                     return latestFiveDates.map((date, index) => (
                       <li key={index} style={reviewHistoryItemStyle}>
                         {formatReviewDate(date)}
@@ -402,7 +439,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   })()}
                 </ul>
                 {item.reviewDates.length > 5 && (
-                  <div style={reviewHistoryTotalStyle}>
+                  <div style={reviewHistoryStatsStyle}>
                     ({item.reviewDates.length} reviews in total, well done! 🔥)
                   </div>
                 )}
@@ -416,8 +453,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
               >
-                <span>🟢 Confident</span>
-                <span>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
+                <span style={leftSpanStyle}>🟢 Confident</span>
+                <span style={rightSpanStyle}>Review in {settings.confidentDays} day{settings.confidentDays !== 1 ? 's' : ''}</span>
               </button>
 
               <button
@@ -426,8 +463,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
               >
-                <span>🔵 Medium</span>
-                <span>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
+                <span style={leftSpanStyle}>🔵 Medium</span>
+                <span style={rightSpanStyle}>Review in {settings.mediumDays} day{settings.mediumDays !== 1 ? 's' : ''}</span>
               </button>
 
               <button
@@ -436,8 +473,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F44336'}
               >
-                <span>🔴 WTF</span>
-                <span>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
+                <span style={leftSpanStyle}>🔴 WTF</span>
+                <span style={rightSpanStyle}>Review in {settings.wtfDays} day{settings.wtfDays !== 1 ? 's' : ''}</span>
               </button>
             </div>
 
@@ -461,6 +498,10 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 >
                   Set Review
                 </button>
+              </div>
+              {/* Days since last review text - same style as review history total */}
+              <div style={reviewHistoryStatsStyle}>
+                {getDaysSinceLastReview().text}
               </div>
             </div>
 
