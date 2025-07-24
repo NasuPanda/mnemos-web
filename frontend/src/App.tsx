@@ -477,9 +477,15 @@ function AppContent() {
       try {
         await itemsApi.delete(item.id);
         setItems(prev => prev.filter(i => i.id !== item.id));
+        
+        // Show success toast with delay to ensure UI updates properly
+        setTimeout(() => {
+          showToast(`"${item.name}" has been deleted`, 'success');
+        }, 100);
+        
       } catch (error) {
         console.error('Failed to delete item:', error);
-        // Optionally show error message to user
+        showToast('Failed to delete item. Please try again.', 'error');
       }
     }
   };
@@ -498,14 +504,28 @@ function AppContent() {
           item.id === editingItem.id ? updatedItem : item
         ));
         setEditingItem(null);
+        
+        // Show success toast with delay to ensure modal closes first
+        setTimeout(() => {
+          showToast(`"${newItemData.name}" has been updated`, 'success');
+        }, 100);
+        
       } else {
         // Create new item
         const newItem = await itemsApi.create(newItemData);
         setItems(prev => [...prev, newItem]);
+        
+        // Show success toast with delay to ensure modal closes first
+        setTimeout(() => {
+          showToast(`"${newItemData.name}" has been created`, 'success');
+        }, 100);
       }
     } catch (error) {
       console.error('Failed to save item:', error);
-      // Optionally show error message to user
+      
+      // Show error toast with user-friendly message
+      const operation = editingItem ? 'update' : 'create';
+      showToast(`Failed to ${operation} item. Please try again.`, 'error');
     }
   };
 
