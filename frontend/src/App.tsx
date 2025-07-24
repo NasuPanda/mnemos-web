@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header';
 import ItemGrid from './components/ItemGrid';
 import NewItemModal from './components/NewItemModal';
@@ -550,6 +550,7 @@ function AppContent() {
       };
 
       const savedItem = await itemsApi.update(itemId, updatedItem);
+      
       setItems(prev => prev.map(item => 
         item.id === itemId ? savedItem : item
       ));
@@ -607,6 +608,41 @@ function AppContent() {
     setEditingItem(null);
   };
 
+  // Calculate daily progress stats for all items - only show for today
+  const stats = useMemo(() => {
+    const dateString = currentDate.toLocaleDateString('en-CA');
+    const todayString = new Date().toLocaleDateString('en-CA');
+    
+    // Only calculate stats if viewing today's date
+    if (dateString !== todayString) {
+      return { total: 0, reviewed: 0 };
+    }
+    
+    // All items that have any interaction with this date
+    const allRelevantItems = items.filter(item => {
+      // Currently due today
+      const isDueToday = (item.nextReviewDate === dateString) || 
+                        (!item.nextReviewDate && !item.isReviewed);
+      
+      // Was reviewed today (even if now scheduled for future)
+      // Note: lastAccessedAt is ISO timestamp from backend, need to extract date part
+      const itemAccessDate = item.lastAccessedAt ? item.lastAccessedAt.split('T')[0] : null;
+      const wasReviewedToday = item.isReviewed && itemAccessDate === dateString;
+      
+      return isDueToday || wasReviewedToday;
+    });
+    
+    const reviewedToday = allRelevantItems.filter(item => {
+      const itemAccessDate = item.lastAccessedAt ? item.lastAccessedAt.split('T')[0] : null;
+      return item.isReviewed && itemAccessDate === dateString;
+    });
+    
+    return { 
+      total: allRelevantItems.length, 
+      reviewed: reviewedToday.length 
+    };
+  }, [items, currentDate]);
+
   return (
     <div style={{ backgroundColor: '#e8f0f5', minHeight: '100vh' }}>
       <Header
@@ -617,6 +653,7 @@ function AppContent() {
         onDateNavigate={handleDateNavigate}
         currentDate={currentDate}
         categories={categories}
+        stats={stats}
       />
       
       <div style={{ padding: '0 20px' }}>

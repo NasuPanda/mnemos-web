@@ -10,6 +10,7 @@ interface HeaderProps {
   onDateNavigate: (direction: 'prev' | 'next') => void;
   currentDate: Date;
   categories: string[];
+  stats: { total: number; reviewed: number };
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -19,7 +20,8 @@ const Header: React.FC<HeaderProps> = ({
   onSettingsClick,
   onDateNavigate,
   currentDate,
-  categories
+  categories,
+  stats
 }) => {
   // Responsive design integration
   const { breakpoint, isMobile, isTablet } = useResponsive();
@@ -29,16 +31,16 @@ const Header: React.FC<HeaderProps> = ({
   const formatDate = (date: Date) => {
     // Shorter format on mobile to save space
     if (isMobile) {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
       });
     }
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -114,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({
             >
               Today
             </button>
-            
+
             <select
               value={selectedCategory || ''}
               onChange={(e) => onCategoryChange(e.target.value)}
@@ -133,7 +135,7 @@ const Header: React.FC<HeaderProps> = ({
                 </option>
               ))}
             </select>
-            
+
             <button
               onClick={onSettingsClick}
               style={mergeResponsiveStyles({
@@ -156,7 +158,7 @@ const Header: React.FC<HeaderProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: responsiveSpacing.buttonGap,
-            height: '48px'
+            height: '60px'
           }}>
             <button
               onClick={() => onDateNavigate('prev')}
@@ -181,9 +183,21 @@ const Header: React.FC<HeaderProps> = ({
               color: '#2d5a87',
               fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
               textAlign: 'center',
-              flex: '1'
+              flex: '1',
+              height: '60px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              padding: '4px 8px'
             }, getResponsiveButtonStyles(breakpoint, 'secondary'))}>
-              {formatDate(currentDate)}
+              <div style={{ fontSize: '14px', lineHeight: '1.2' }}>
+                {formatDate(currentDate)}
+              </div>
+              {stats.total > 0 && (
+                <div style={{ fontSize: '11px', color: '#4a90b8', marginTop: '2px' }}>
+                  ✓ {stats.reviewed}/{stats.total}
+                </div>
+              )}
             </div>
 
             <button
@@ -315,22 +329,42 @@ const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Right Section: Settings Button */}
-          <button
-            onClick={onSettingsClick}
-            style={mergeResponsiveStyles({
-              backgroundColor: '#e8f0f5',
-              border: '1px solid #4a90b8',
-              color: '#2d5a87',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-            }, isTablet ? getResponsiveButtonStyles(breakpoint, 'small') : { padding: '6px 12px', fontSize: '12px' })}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d1e3f0'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#e8f0f5'}
-          >
-            ⚙️
-          </button>
+          {/* Right Section: Stats and Settings Button */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            {stats.total > 0 && (
+              <div style={{
+                backgroundColor: '#e8f0f5',
+                border: '1px solid #4a90b8',
+                borderRadius: '4px',
+                padding: isTablet ? '6px 10px' : '8px 12px',
+                fontSize: isTablet ? '12px' : '13px',
+                color: '#2d5a87',
+                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+              }}>
+                ✓ {stats.reviewed}/{stats.total}
+              </div>
+            )}
+
+            <button
+              onClick={onSettingsClick}
+              style={mergeResponsiveStyles({
+                backgroundColor: '#e8f0f5',
+                border: '1px solid #4a90b8',
+                color: '#2d5a87',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+              }, isTablet ? getResponsiveButtonStyles(breakpoint, 'small') : { padding: '6px 12px', fontSize: '12px' })}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d1e3f0'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#e8f0f5'}
+            >
+              ⚙️
+            </button>
+          </div>
         </div>
       )}
     </div>
