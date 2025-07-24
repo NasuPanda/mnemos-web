@@ -207,6 +207,25 @@ const ItemCard: React.FC<ItemCardProps> = ({
         {item.problem}
       </div>
 
+      {item.sideNote && item.sideNote.trim().length > 0 && (
+        <div style={mergeResponsiveStyles({
+          color: '#4a90b8',
+          fontStyle: 'italic' as const,
+          fontSize: '0.9em',
+          margin: `0 0 ${responsiveSpacing.buttonGap} 0`,
+          padding: '8px',
+          backgroundColor: '#f8fbff',
+          border: '1px solid #d1e3f0',
+          borderRadius: '4px',
+          opacity: reviewedToday ? 0.8 : 1,
+          overflow: 'hidden',
+          wordWrap: 'break-word' as const,
+          overflowWrap: 'break-word' as const
+        }, responsiveTypography.smallText)}>
+          💭 {item.sideNote}
+        </div>
+      )}
+
       {(() => {
         const hasLinks = !!(item.problemUrl || item.answerUrl);
         const hasProblemImages = !!(item.problemImages?.length);
