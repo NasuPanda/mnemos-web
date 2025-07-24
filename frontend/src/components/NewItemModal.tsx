@@ -219,7 +219,13 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
     border: '3px solid #4a90b8',
     position: 'relative' as const,
     overflowY: 'auto' as const,
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    // Ensure proper mobile scrolling with safe area for absolute positioning
+    ...(breakpoint === 'mobile' && {
+      top: 'calc(15px + env(safe-area-inset-top, 0px))',
+      bottom: 'calc(15px + env(safe-area-inset-bottom, 0px))',
+      paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))'
+    })
   }, responsiveModal.content);
 
   const titleStyle = mergeResponsiveStyles({
@@ -285,7 +291,8 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
     borderRadius: '4px',
     cursor: 'pointer',
     width: '100%',
-    marginTop: responsiveSpacing.sectionGap
+    marginTop: responsiveSpacing.sectionGap,
+    marginBottom: breakpoint === 'mobile' ? '30px' : responsiveSpacing.buttonGap
   }, getResponsiveButtonStyles(breakpoint, 'primary'));
 
   const helperTextStyle = mergeResponsiveStyles({
@@ -309,7 +316,9 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
           {editItem ? 'Edit Item' : 'New Item'}
         </h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{
+          paddingBottom: breakpoint === 'mobile' ? '20px' : '0'
+        }}>
           <div style={formGroupStyle}>
             <label style={labelStyle}>Name</label>
             <input

@@ -140,9 +140,14 @@ export const getResponsiveModalStyles = (breakpoint: Breakpoint, modalType: 'set
         padding: '0'
       },
       content: {
-        width: '100vw',
-        height: '100vh',
-        borderRadius: '0px',
+        position: 'absolute' as const,
+        left: '15px',
+        right: '15px',
+        top: '15px',
+        bottom: '15px',
+        width: 'auto',
+        height: 'auto',
+        borderRadius: '12px',
         padding: '20px'
       }
     },
