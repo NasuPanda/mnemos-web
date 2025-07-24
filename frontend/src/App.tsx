@@ -696,6 +696,8 @@ function AppContent() {
         onClose={() => setIsSettingsModalOpen(false)}
         settings={settings}
         onSaveSettings={handleSaveSettings}
+        allCategories={allCategories}
+        onCategoriesUpdate={loadData}
       />
 
       <ConfirmationDialog
