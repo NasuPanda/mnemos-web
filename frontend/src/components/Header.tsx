@@ -3,24 +3,18 @@ import { useResponsive } from '../hooks/useBreakpoint';
 import { getResponsiveTypography, getResponsiveButtonStyles, getResponsiveSpacing, mergeResponsiveStyles } from '../utils/responsive';
 
 interface HeaderProps {
-  selectedCategory: string | null;
-  onCategoryChange: (category: string) => void;
   onTodayClick: () => void;
   onSettingsClick: () => void;
   onDateNavigate: (direction: 'prev' | 'next') => void;
   currentDate: Date;
-  categories: string[];
   stats: { total: number; reviewed: number };
 }
 
 const Header: React.FC<HeaderProps> = ({
-  selectedCategory,
-  onCategoryChange,
   onTodayClick,
   onSettingsClick,
   onDateNavigate,
   currentDate,
-  categories,
   stats
 }) => {
   // Responsive design integration
@@ -93,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({
           flexDirection: 'column',
           gap: responsiveSpacing.buttonGap
         }}>
-          {/* First Row: Today + Category + Settings (horizontal) */}
+          {/* First Row: Today + Settings (horizontal) */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -116,25 +110,6 @@ const Header: React.FC<HeaderProps> = ({
             >
               Today
             </button>
-
-            <select
-              value={selectedCategory || ''}
-              onChange={(e) => onCategoryChange(e.target.value)}
-              style={mergeResponsiveStyles({
-                backgroundColor: '#e8f0f5',
-                border: '1px solid #4a90b8',
-                borderRadius: '4px',
-                color: '#2d5a87',
-                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-                flex: '2'
-              }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
 
             <button
               onClick={onSettingsClick}
@@ -231,7 +206,7 @@ const Header: React.FC<HeaderProps> = ({
           justifyContent: 'space-between',
           position: 'relative'
         }}>
-          {/* Left Section: Today Button and Category Selector */}
+          {/* Left Section: Today Button */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -252,25 +227,6 @@ const Header: React.FC<HeaderProps> = ({
             >
               Today
             </button>
-
-            <select
-              value={selectedCategory || ''}
-              onChange={(e) => onCategoryChange(e.target.value)}
-              style={mergeResponsiveStyles({
-                backgroundColor: '#e8f0f5',
-                border: '1px solid #4a90b8',
-                borderRadius: '4px',
-                color: '#2d5a87',
-                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-                minWidth: isTablet ? '120px' : '150px'
-              }, isTablet ? getResponsiveButtonStyles(breakpoint, 'secondary') : { padding: '10px 14px', fontSize: '14px' })}
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Center Section: Date Navigation */}

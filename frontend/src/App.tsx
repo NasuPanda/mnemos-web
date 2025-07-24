@@ -666,33 +666,64 @@ function AppContent() {
   return (
     <div style={{ backgroundColor: '#e8f0f5', minHeight: '100vh' }}>
       <Header
-        selectedCategory={selectedCategory}
-        onCategoryChange={handleCategoryChange}
         onTodayClick={handleTodayClick}
         onSettingsClick={handleSettingsClick}
         onDateNavigate={handleDateNavigate}
         currentDate={currentDate}
-        categories={categories}
         stats={stats}
       />
       
       <div style={{ padding: '0 20px' }}>
-        <button
-          onClick={() => setIsNewItemModalOpen(true)}
-          style={{
-            backgroundColor: '#2d5a87',
-            border: '1px solid #2d5a87',
-            color: '#ffffff',
-            borderRadius: '4px',
-            padding: '12px 24px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            marginBottom: '20px',
-            fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-          }}
-        >
-          + New Item
-        </button>
+        {/* New Item Button and Category Selector Container */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '15px',
+          marginBottom: '20px',
+          flexWrap: 'wrap' // Allow wrapping on very small screens
+        }}>
+          <button
+            onClick={() => setIsNewItemModalOpen(true)}
+            style={{
+              backgroundColor: '#2d5a87',
+              border: '1px solid #2d5a87',
+              color: '#ffffff',
+              borderRadius: '4px',
+              padding: '12px 24px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              flex: '0 0 auto', // Don't grow or shrink
+              minWidth: '120px'
+            }}
+          >
+            + New Item
+          </button>
+          
+          <select
+            value={selectedCategory || ''}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            style={{
+              backgroundColor: '#e8f0f5',
+              border: '1px solid #4a90b8',
+              borderRadius: '4px',
+              color: '#2d5a87',
+              fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              padding: '12px 16px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              flex: '1', // Take remaining space
+              minWidth: '150px',
+              maxWidth: '250px' // Prevent getting too wide on desktop
+            }}
+          >
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {loading ? (
           isServiceStarting ? (
