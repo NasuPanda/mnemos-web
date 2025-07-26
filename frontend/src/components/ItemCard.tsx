@@ -159,7 +159,11 @@ const ItemCard: React.FC<ItemCardProps> = ({
     color: '#1e3a5f',
     borderRadius: '2px',
     cursor: 'pointer',
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    ...(breakpoint === 'desktop' || breakpoint === 'wide' ? {
+      fontSize: '14px',
+      padding: '4px 10px'
+    } : {})
   }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
   const deleteButtonStyle = mergeResponsiveStyles({
@@ -168,7 +172,11 @@ const ItemCard: React.FC<ItemCardProps> = ({
     color: '#ffffff',
     borderRadius: '2px',
     cursor: 'pointer',
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    ...(breakpoint === 'desktop' || breakpoint === 'wide' ? {
+      fontSize: '14px',
+      padding: '4px 10px'
+    } : {})
   }, getResponsiveButtonStyles(breakpoint, 'secondary'));
 
   const reviewButtonStyle = mergeResponsiveStyles({
@@ -301,7 +309,13 @@ const ItemCard: React.FC<ItemCardProps> = ({
           </button>
         )}
 
-        <div style={actionButtonsStyle}>
+        <div style={{
+          ...actionButtonsStyle,
+          ...(breakpoint === 'desktop' || breakpoint === 'wide' ? {
+            justifyContent: 'flex-end',
+            gap: '5px'
+          } : {})
+        }}>
           <button
             style={editButtonStyle}
             onClick={(e) => {
@@ -311,7 +325,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f7d666'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f5c842'}
           >
-            📝 Edit
+            {breakpoint === 'desktop' || breakpoint === 'wide' ? '📝' : '📝 Edit'}
           </button>
           <button
             style={deleteButtonStyle}
@@ -322,7 +336,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0f1a2a'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1a2e42'}
           >
-            🗑️ Delete
+            {breakpoint === 'desktop' || breakpoint === 'wide' ? '🗑️' : '🗑️ Delete'}
           </button>
         </div>
       </div>

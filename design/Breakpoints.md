@@ -15,23 +15,23 @@ const breakpoints = {
     orientation: 'portrait',
     typical: '375px'
   },
-  
+
   tablet: {
-    min: '768px', 
+    min: '768px',
     max: '1023px',
     devices: ['iPad', 'iPad Air', 'Android tablets'],
     orientation: 'portrait/landscape',
     typical: '768px'
   },
-  
+
   desktop: {
     min: '1024px',
-    max: '1439px', 
+    max: '1439px',
     devices: ['Laptops', 'Desktop monitors'],
     orientation: 'landscape',
     typical: '1280px'
   },
-  
+
   wide: {
     min: '1440px',
     max: 'infinite',
@@ -73,13 +73,13 @@ const headerMobile = {
     padding: '15px',
     gap: '12px'
   },
-  
+
   // Title section (full width, centered)
   title: {
     textAlign: 'center',
     marginBottom: '12px'
   },
-  
+
   // First row: Today + Category + Settings (horizontal)
   topRow: {
     display: 'flex',
@@ -87,7 +87,7 @@ const headerMobile = {
     gap: '12px',
     height: '48px'
   },
-  
+
   // Today button (left, flexible)
   todayButton: {
     flex: '1',
@@ -95,7 +95,7 @@ const headerMobile = {
     padding: '12px 20px',
     fontSize: '16px'
   },
-  
+
   // Category selector (center, more flexible width)
   categorySelector: {
     flex: '2',
@@ -103,7 +103,7 @@ const headerMobile = {
     padding: '10px 16px',
     fontSize: '14px'
   },
-  
+
   // Settings button (right, fixed width)
   settingsButton: {
     minHeight: '44px',
@@ -111,7 +111,7 @@ const headerMobile = {
     padding: '10px 16px',
     fontSize: '14px'
   },
-  
+
   // Second row: Date navigation (horizontal, centered)
   bottomRow: {
     display: 'flex',
@@ -119,14 +119,14 @@ const headerMobile = {
     gap: '12px',
     height: '48px'
   },
-  
+
   // Navigation buttons
   navButtons: {
     minHeight: '44px',
     minWidth: '44px',
-    padding: '8px 12px'
+    padding: '8 px 12px'
   },
-  
+
   // Date display (center, flexible)
   dateDisplay: {
     flex: '1',
@@ -147,21 +147,21 @@ const headerTablet = {
     padding: '0 20px',
     justifyContent: 'space-between'
   },
-  
+
   // Left section: Today + Category
   leftSection: {
     display: 'flex',
     alignItems: 'center',
     gap: '15px'
   },
-  
+
   // Center: Date navigation
   centerSection: {
     position: 'absolute',
     left: '50%',
     transform: 'translateX(-50%)'
   },
-  
+
   // Right: Settings
   rightSection: {
     display: 'flex',
@@ -188,30 +188,30 @@ const cardMobile = {
     padding: '15px',
     borderRadius: '8px'
   },
-  
+
   title: {
     fontSize: '14px',
     lineHeight: '1.3',
     marginBottom: '8px'
   },
-  
+
   content: {
     fontSize: '14px',
     lineHeight: '1.4',
     marginBottom: '12px'
   },
-  
+
   buttons: {
     gap: '8px',
     marginTop: '15px'
   },
-  
+
   primaryButton: {
     padding: '12px 20px',
     fontSize: '16px',
     minHeight: '48px'
   },
-  
+
   secondaryButtons: {
     padding: '10px 16px',
     fontSize: '14px',
@@ -230,21 +230,21 @@ const cardTablet = {
     maxWidth: '300px',
     padding: '12px'
   },
-  
+
   title: {
     fontSize: '13px',
     lineHeight: '1.3'
   },
-  
+
   content: {
     fontSize: '13px',
     lineHeight: '1.4'
   },
-  
+
   buttons: {
     gap: '6px'
   },
-  
+
   primaryButton: {
     padding: '8px 14px',
     fontSize: '14px'
@@ -288,7 +288,7 @@ const modalMobile = {
   overlay: {
     padding: '0'
   },
-  
+
   content: {
     width: '100vw',
     height: '100vh',
@@ -296,7 +296,7 @@ const modalMobile = {
     padding: '20px',
     overflow: 'auto'
   },
-  
+
   header: {
     position: 'sticky',
     top: '0',
@@ -304,7 +304,7 @@ const modalMobile = {
     padding: '15px 0',
     borderBottom: '1px solid #4a90b8'
   },
-  
+
   closeButton: {
     position: 'absolute',
     top: '15px',
@@ -322,7 +322,7 @@ const modalTablet = {
   overlay: {
     padding: '20px'
   },
-  
+
   content: {
     width: '90vw',
     maxWidth: '600px',
@@ -336,7 +336,7 @@ const modalTablet = {
 #### Desktop (1024px+)
 **Layout**: Current modal sizing maintained
 - ReviewModal: 400px × 300px
-- EditModal: 640px × 540px  
+- EditModal: 640px × 540px
 - SettingsModal: 450px × auto
 
 ### ItemGrid Layout
@@ -415,7 +415,7 @@ const modalTablet = {
 // Custom hook for responsive behavior
 const useBreakpoint = () => {
   const [breakpoint, setBreakpoint] = useState('mobile');
-  
+
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -424,12 +424,12 @@ const useBreakpoint = () => {
       else if (width < 1440) setBreakpoint('desktop');
       else setBreakpoint('wide');
     };
-    
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
+
   return breakpoint;
 };
 ```
@@ -459,13 +459,13 @@ const testingDevices = {
     { name: 'iPhone 12', width: '390px', height: '844px' },
     { name: 'Pixel 5', width: '393px', height: '851px' }
   ],
-  
+
   tablet: [
     { name: 'iPad', width: '768px', height: '1024px' },
     { name: 'iPad Air', width: '820px', height: '1180px' },
     { name: 'Galaxy Tab', width: '800px', height: '1280px' }
   ],
-  
+
   desktop: [
     { name: 'Laptop', width: '1366px', height: '768px' },
     { name: 'Desktop', width: '1920px', height: '1080px' },

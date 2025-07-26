@@ -8,10 +8,10 @@ import type { Breakpoint } from '../hooks/useBreakpoint';
 export const getTouchTargetStyles = (size: 'minimum' | 'recommended' | 'large' = 'recommended') => {
   const sizes = {
     minimum: '44px',
-    recommended: '48px', 
+    recommended: '48px',
     large: '56px'
   };
-  
+
   return {
     minWidth: sizes[size],
     minHeight: sizes[size],
@@ -208,7 +208,7 @@ export const getResponsiveModalStyles = (breakpoint: Breakpoint, modalType: 'set
   };
 
   const styles = baseModalStyles[breakpoint];
-  
+
   // Add modal-specific sizing for desktop and wide screens
   if ((breakpoint === 'desktop' || breakpoint === 'wide') && modalSpecificSizes[modalType]) {
     styles.content = {
