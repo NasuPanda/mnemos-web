@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { StudyItem } from './ItemCard';
 import { useResponsive } from '../hooks/useBreakpoint';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
@@ -32,6 +32,9 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
 
   // Prevent background scrolling when modal is open
   useBodyScrollLock(isOpen);
+
+  // Ref for name input field auto-focus
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -80,6 +83,35 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
       });
     }
   }, [editItem, selectedCategory, isOpen]);
+
+  // Cmd+Enter form submission keyboard shortcut
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+        event.preventDefault();
+        // Submit the form programmatically
+        const form = document.querySelector('form');
+        if (form) {
+          form.requestSubmit();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+  }, [isOpen]);
+
+  // Auto-focus on name field when modal opens
+  useEffect(() => {
+    if (isOpen && nameInputRef.current) {
+      // Small delay to ensure modal is fully rendered
+      setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -322,6 +354,7 @@ const NewItemModal: React.FC<NewItemModalProps> = ({
           <div style={formGroupStyle}>
             <label style={labelStyle}>Name</label>
             <input
+              ref={nameInputRef}
               type="text"
               style={inputStyle}
               value={formData.name}

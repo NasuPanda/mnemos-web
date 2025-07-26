@@ -27,11 +27,11 @@ const DUMMY_ITEMS: StudyItem[] = [
     isReviewed: false,
     hasLink: true,
     hasImage: true,
-    
+
     // Review system - unreviewed item (shows on all dates)
     nextReviewDate: undefined,
     reviewDates: [],
-    
+
     // Extended fields with all possible content
     sideNote: 'This is a side note that provides additional context or personal thoughts about this item.',
     problemUrl: 'https://www.wolframalpha.com/input/?i=derivative+of+x%5E2%2B3x%2B1',
@@ -49,7 +49,7 @@ const DUMMY_ITEMS: StudyItem[] = [
     isReviewed: true,
     hasLink: false,
     hasImage: true,
-    
+
     // Review system - due today
     nextReviewDate: getTodayString(),
     reviewDates: ['2024-06-26']
@@ -64,7 +64,7 @@ const DUMMY_ITEMS: StudyItem[] = [
     isReviewed: false,
     hasLink: false,
     hasImage: false,
-    
+
     // Review system - new unreviewed item (shows on all dates)
     nextReviewDate: undefined,
     reviewDates: []
@@ -79,11 +79,11 @@ const DUMMY_ITEMS: StudyItem[] = [
     isReviewed: true,
     hasLink: false,
     hasImage: true,
-    
+
     // Review system - due tomorrow
     nextReviewDate: getTomorrowString(),
     reviewDates: ['2024-06-24', '2024-06-27'],
-    
+
     problemImages: ['http://localhost:8000/images/b570bda5-0275-4562-a21f-554402d7d9f2.jpeg'],
     answerImages: ['http://localhost:8000/images/d4098a6b-bf60-469a-9f92-6718ff980218.png']
   },
@@ -97,7 +97,7 @@ const DUMMY_ITEMS: StudyItem[] = [
     isReviewed: true,
     hasLink: false,
     hasImage: false,
-    
+
     // Review system - was due yesterday (won't show unless user navigates to yesterday)
     nextReviewDate: getYesterdayString(),
     reviewDates: ['2024-06-28']
@@ -287,11 +287,11 @@ function AppContent() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [allCategories, setAllCategories] = useState<string[]>([]);
-  
+
   // Archive confirmation dialog state
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const [itemToArchive, setItemToArchive] = useState<string | null>(null);
-  
+
   // Toast context
   const { showToast } = useToast();
 
@@ -299,6 +299,25 @@ function AppContent() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleGlobalKeydown = (event: KeyboardEvent) => {
+      // Cmd+K or Ctrl+K for New Item
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        const isOtherModalOpen = isReviewModalOpen || isShowAnswerModalOpen || isSettingsModalOpen || isArchiveDialogOpen;
+
+        if (!isOtherModalOpen) {
+          setEditingItem(null);
+          setIsNewItemModalOpen(true);
+          return false;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleGlobalKeydown, { capture: true, passive: false });
+    return () => document.removeEventListener('keydown', handleGlobalKeydown, { capture: true });
+  }, [isReviewModalOpen, isShowAnswerModalOpen, isSettingsModalOpen, isArchiveDialogOpen]);
 
   // Reset review status when currentDate changes (e.g., when user navigates dates)
   useEffect(() => {
@@ -313,7 +332,7 @@ function AppContent() {
   const resetDueItemsReviewStatus = async (itemsToCheck: StudyItem[]): Promise<StudyItem[]> => {
     const today = formatDateForComparison(new Date());
     const itemsToUpdate: StudyItem[] = [];
-    
+
     // Find items that are due today but still marked as reviewed
     const updatedItems = itemsToCheck.map(item => {
       if (item.nextReviewDate === today && item.isReviewed) {
@@ -324,7 +343,7 @@ function AppContent() {
       }
       return item;
     });
-    
+
     // Update backend for items that need status reset
     if (itemsToUpdate.length > 0) {
       try {
@@ -336,7 +355,7 @@ function AppContent() {
         console.error('Failed to reset review status for due items:', error);
       }
     }
-    
+
     return updatedItems;
   };
 
@@ -345,22 +364,22 @@ function AppContent() {
       setLoading(true);
       setIsServiceStarting(false);
       setRetryCount(0);
-      
+
       const [itemsData, settingsData, categoriesData] = await Promise.all([
         itemsApi.getAll(),
         settingsApi.get(),
         categoriesApi.getAll()
       ]);
-      
+
       // Reset review status for items due today
       const itemsWithResetStatus = await resetDueItemsReviewStatus(itemsData);
-      
+
       setItems(itemsWithResetStatus);
       setSettings(settingsData);
       setAllCategories(categoriesData);
     } catch (error) {
       console.error('Failed to load data:', error);
-      
+
       // Check if this is a service startup error (503)
       if (error instanceof Error && (error.message.includes('503') || error.message.includes('Service Unavailable'))) {
         setIsServiceStarting(true);
@@ -375,7 +394,7 @@ function AppContent() {
           }
           originalLog(...args);
         };
-        
+
         // Retry loading data automatically
         setTimeout(() => {
           console.log = originalLog; // Restore original console.log
@@ -403,23 +422,23 @@ function AppContent() {
   // Helper function to check if item should be shown on current date
   const shouldShowItemOnDate = (item: StudyItem, displayDate: Date): boolean => {
     const dateString = formatDateForComparison(displayDate);
-    
+
     // If item has a specific next review date, check if it matches
     if (item.nextReviewDate) {
       return item.nextReviewDate === dateString;
     }
-    
+
     // If item is unreviewed and has no review date, show it (new items)
     if (!item.isReviewed) {
       return true;
     }
-    
+
     // Reviewed items without a next review date are not shown
     return false;
   };
 
   // Filter items by date only (no category filtering)
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     shouldShowItemOnDate(item, currentDate)
   );
 
@@ -477,12 +496,12 @@ function AppContent() {
       try {
         await itemsApi.delete(item.id);
         setItems(prev => prev.filter(i => i.id !== item.id));
-        
+
         // Show success toast with delay to ensure UI updates properly
         setTimeout(() => {
           showToast(`"${item.name}" has been deleted`, 'success');
         }, 100);
-        
+
       } catch (error) {
         console.error('Failed to delete item:', error);
         showToast('Failed to delete item. Please try again.', 'error');
@@ -500,21 +519,21 @@ function AppContent() {
       if (editingItem) {
         // Update existing item
         const updatedItem = await itemsApi.update(editingItem.id, { ...editingItem, ...newItemData });
-        setItems(prev => prev.map(item => 
+        setItems(prev => prev.map(item =>
           item.id === editingItem.id ? updatedItem : item
         ));
         setEditingItem(null);
-        
+
         // Show success toast with delay to ensure modal closes first
         setTimeout(() => {
           showToast(`"${newItemData.name}" has been updated`, 'success');
         }, 100);
-        
+
       } else {
         // Create new item
         const newItem = await itemsApi.create(newItemData);
         setItems(prev => [...prev, newItem]);
-        
+
         // Show success toast with delay to ensure modal closes first
         setTimeout(() => {
           showToast(`"${newItemData.name}" has been created`, 'success');
@@ -522,7 +541,7 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Failed to save item:', error);
-      
+
       // Show error toast with user-friendly message
       const operation = editingItem ? 'update' : 'create';
       showToast(`Failed to ${operation} item. Please try again.`, 'error');
@@ -570,8 +589,8 @@ function AppContent() {
       };
 
       const savedItem = await itemsApi.update(itemId, updatedItem);
-      
-      setItems(prev => prev.map(item => 
+
+      setItems(prev => prev.map(item =>
         item.id === itemId ? savedItem : item
       ));
       console.log(`Item ${itemId} reviewed with ${reviewType}${customDays ? ` for ${customDays} days` : ` for ${daysToAdd} days`} - next review: ${nextReviewDateString}`);
@@ -601,16 +620,16 @@ function AppContent() {
       // Update item with archived flag
       const archivedItem = { ...itemToArchiveData, archived: true };
       await itemsApi.update(itemToArchive, archivedItem);
-      
+
       // Remove from UI (archived items should not display)
       setItems(prev => prev.filter(item => item.id !== itemToArchive));
-      
+
       // Show success toast after a brief delay to ensure dialog is closed
       setTimeout(() => {
         console.log('Triggering success toast...'); // Debug log
         showToast(`"${itemToArchiveData.name}" has been archived`, 'success');
       }, 100);
-      
+
       console.log(`Item ${itemToArchive} archived successfully`);
     } catch (error) {
       console.error('Failed to archive item:', error);
@@ -632,34 +651,34 @@ function AppContent() {
   const stats = useMemo(() => {
     const dateString = currentDate.toLocaleDateString('en-CA');
     const todayString = new Date().toLocaleDateString('en-CA');
-    
+
     // Only calculate stats if viewing today's date
     if (dateString !== todayString) {
       return { total: 0, reviewed: 0 };
     }
-    
+
     // All items that have any interaction with this date
     const allRelevantItems = items.filter(item => {
       // Currently due today
-      const isDueToday = (item.nextReviewDate === dateString) || 
+      const isDueToday = (item.nextReviewDate === dateString) ||
                         (!item.nextReviewDate && !item.isReviewed);
-      
+
       // Was reviewed today (even if now scheduled for future)
       // Note: lastAccessedAt is ISO timestamp from backend, need to extract date part
       const itemAccessDate = item.lastAccessedAt ? item.lastAccessedAt.split('T')[0] : null;
       const wasReviewedToday = item.isReviewed && itemAccessDate === dateString;
-      
+
       return isDueToday || wasReviewedToday;
     });
-    
+
     const reviewedToday = allRelevantItems.filter(item => {
       const itemAccessDate = item.lastAccessedAt ? item.lastAccessedAt.split('T')[0] : null;
       return item.isReviewed && itemAccessDate === dateString;
     });
-    
-    return { 
-      total: allRelevantItems.length, 
-      reviewed: reviewedToday.length 
+
+    return {
+      total: allRelevantItems.length,
+      reviewed: reviewedToday.length
     };
   }, [items, currentDate]);
 
@@ -672,7 +691,7 @@ function AppContent() {
         currentDate={currentDate}
         stats={stats}
       />
-      
+
       <div style={{ padding: '0 20px' }}>
         {/* New Item Button and Category Selector Container */}
         <div style={{
@@ -699,7 +718,7 @@ function AppContent() {
           >
             + New Item
           </button>
-          
+
           <select
             value={selectedCategory || ''}
             onChange={(e) => handleCategoryChange(e.target.value)}
