@@ -51,16 +51,23 @@ const Header: React.FC<HeaderProps> = ({
 
   const titleStyle = mergeResponsiveStyles({
     fontWeight: 'bold' as const,
-    color: '#1e3a5f',
-    margin: `0 0 ${responsiveSpacing.buttonGap} 0`,
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    color: '#2d5a87',
+    margin: '0',
+    fontFamily: 'Playfair Display',
+    display: 'inline'
   }, responsiveTypography.appTitle);
 
   const subtitleStyle = mergeResponsiveStyles({
-    color: '#2d5a87',
+    color: '#4a90b8',
     margin: '0',
-    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-  }, responsiveTypography.bodyText);
+    fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontWeight: '300' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '1px',
+    fontSize: isMobile ? '6px' : '10px',
+    display: 'inline',
+    marginLeft: '8px'
+  }, responsiveTypography.smallText);
 
   return (
     <div style={containerStyle}>
@@ -69,14 +76,14 @@ const Header: React.FC<HeaderProps> = ({
         <h1 style={titleStyle}>
           Mnemos
         </h1>
-        <p style={subtitleStyle}>
+        <span style={subtitleStyle}>
           Memory & Knowledge Organization
-        </p>
+        </span>
       </div>
 
       {/* Responsive Header Box */}
       {isMobile ? (
-        // Mobile Layout: Two-row horizontal layout
+        // Mobile Layout: Two-row layout with grouped controls and centered status
         <div style={{
           backgroundColor: '#ffffff',
           border: '2px solid #4a90b8',
@@ -85,32 +92,71 @@ const Header: React.FC<HeaderProps> = ({
           marginBottom: responsiveSpacing.sectionGap,
           display: 'flex',
           flexDirection: 'column',
-          gap: responsiveSpacing.buttonGap
+          gap: '8px'
         }}>
-          {/* First Row: Today + Settings (horizontal) */}
+          {/* Top Row: Navigation Controls (left) + Settings (right) */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: responsiveSpacing.buttonGap,
-            height: '48px'
+            justifyContent: 'space-between',
+            height: '36px'
           }}>
-            <button
-              onClick={onTodayClick}
-              style={mergeResponsiveStyles({
-                backgroundColor: '#2d5a87',
-                border: '1px solid #2d5a87',
-                color: '#ffffff',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-                flex: '1'
-              }, getResponsiveButtonStyles(breakpoint, 'primary'))}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#245073'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2d5a87'}
-            >
-              Today
-            </button>
+            {/* Left: Navigation group */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <button
+                onClick={() => onDateNavigate('prev')}
+                style={mergeResponsiveStyles({
+                  backgroundColor: '#4a90b8',
+                  border: '1px solid #4a90b8',
+                  color: '#ffffff',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+                }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
+              >
+                ←
+              </button>
 
+              <button
+                onClick={onTodayClick}
+                style={mergeResponsiveStyles({
+                  backgroundColor: '#2d5a87',
+                  border: '1px solid #2d5a87',
+                  color: '#ffffff',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+                }, getResponsiveButtonStyles(breakpoint, 'primary'))}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#245073'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2d5a87'}
+              >
+                Today
+              </button>
+
+              <button
+                onClick={() => onDateNavigate('next')}
+                style={mergeResponsiveStyles({
+                  backgroundColor: '#4a90b8',
+                  border: '1px solid #4a90b8',
+                  color: '#ffffff',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+                }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
+              >
+                →
+              </button>
+            </div>
+
+            {/* Right: Settings */}
             <button
               onClick={onSettingsClick}
               style={mergeResponsiveStyles({
@@ -119,7 +165,8 @@ const Header: React.FC<HeaderProps> = ({
                 color: '#2d5a87',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                fontSize: '16px'
               }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d1e3f0'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#e8f0f5'}
@@ -128,68 +175,37 @@ const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Second Row: Date Navigation (horizontal) */}
+          {/* Subtle Divider */}
+          <div style={{
+            height: '1px',
+            backgroundColor: '#d1e3f0',
+            margin: '0 -15px'
+          }} />
+
+          {/* Bottom Row: Date and Stats (centered) */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: responsiveSpacing.buttonGap,
-            height: '60px'
+            justifyContent: 'center',
+            gap: '12px',
+            height: '28px'
           }}>
-            <button
-              onClick={() => onDateNavigate('prev')}
-              style={mergeResponsiveStyles({
-                backgroundColor: '#4a90b8',
-                border: '1px solid #4a90b8',
-                color: '#ffffff',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-              }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-            >
-              ←
-            </button>
-
-            <div style={mergeResponsiveStyles({
-              backgroundColor: '#e8f0f5',
-              border: '1px solid #4a90b8',
-              borderRadius: '4px',
+            <div style={{
+              fontSize: '14px',
               color: '#2d5a87',
-              fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-              textAlign: 'center',
-              flex: '1',
-              height: '60px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              padding: '4px 8px'
-            }, getResponsiveButtonStyles(breakpoint, 'secondary'))}>
-              <div style={{ fontSize: '14px', lineHeight: '1.2' }}>
-                {formatDate(currentDate)}
-              </div>
-              {stats.total > 0 && (
-                <div style={{ fontSize: '11px', color: '#4a90b8', marginTop: '2px' }}>
-                  ✓ {stats.reviewed}/{stats.total}
-                </div>
-              )}
+              fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+            }}>
+              {formatDate(currentDate)}
             </div>
-
-            <button
-              onClick={() => onDateNavigate('next')}
-              style={mergeResponsiveStyles({
-                backgroundColor: '#4a90b8',
-                border: '1px solid #4a90b8',
-                color: '#ffffff',
-                borderRadius: '4px',
-                cursor: 'pointer',
+            {stats.total > 0 && (
+              <div style={{
+                fontSize: '12px',
+                color: '#4a90b8',
                 fontFamily: 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-              }, getResponsiveButtonStyles(breakpoint, 'secondary'))}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a7a9d'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90b8'}
-            >
-              →
-            </button>
+              }}>
+                ✓ {stats.reviewed}/{stats.total}
+              </div>
+            )}
           </div>
         </div>
       ) : (

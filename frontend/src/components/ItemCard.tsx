@@ -14,14 +14,14 @@ export interface StudyItem {
   isReviewed: boolean;
   hasLink?: boolean;
   hasImage?: boolean;
-  
+
   // Review system fields
   nextReviewDate?: string; // ISO date string (YYYY-MM-DD)
   reviewDates?: string[];  // Array of past review dates
-  
+
   // Archive system
   archived?: boolean;
-  
+
   // Extended fields for complete testing
   sideNote?: string;
   problemUrl?: string;
@@ -65,8 +65,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
   const wasReviewedToday = (): boolean => {
     const today = formatDateForComparison(new Date());
-    return !!(item.isReviewed && 
-      item.reviewDates && 
+    return !!(item.isReviewed &&
+      item.reviewDates &&
       item.reviewDates.length > 0 &&
       item.reviewDates[item.reviewDates.length - 1] === today);
   };
@@ -79,7 +79,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   const responsiveCard = getResponsiveCardStyles(breakpoint);
   const responsiveTypography = getResponsiveTypography(breakpoint);
   const responsiveSpacing = getResponsiveSpacing(breakpoint);
-  
+
   // Mobile detection for Review button
   const isMobile = breakpoint === 'mobile';
 
@@ -195,14 +195,14 @@ const ItemCard: React.FC<ItemCardProps> = ({
   }, responsiveTypography.smallText);
 
   return (
-    <div 
+    <div
       style={cardStyle}
       onDoubleClick={() => onDoubleClick(item)}
     >
       <div style={titleStyle}>
         {item.name}
       </div>
-      
+
       <div style={problemStyle}>
         {item.problem}
       </div>
@@ -229,7 +229,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
       {(() => {
         const hasLinks = !!(item.problemUrl || item.answerUrl);
         const hasProblemImages = !!(item.problemImages?.length);
-        
+
         const handleLinkClick = (e: React.MouseEvent) => {
           e.stopPropagation();
           const url = item.problemUrl || item.answerUrl;
@@ -237,7 +237,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
             window.open(url, '_blank', 'noopener,noreferrer');
           }
         };
-        
+
         const handleImageClick = (e: React.MouseEvent) => {
           e.stopPropagation();
           const problemImages = item.problemImages || [];
@@ -247,13 +247,13 @@ const ItemCard: React.FC<ItemCardProps> = ({
             setIsImageViewerOpen(true);
           }
         };
-        
+
         const problemImageCount = item.problemImages?.length || 0;
-        
+
         return (hasLinks || hasProblemImages) ? (
           <div style={mediaIndicatorsStyle}>
             {hasLinks && (
-              <button 
+              <button
                 style={mediaButtonStyle}
                 onClick={handleLinkClick}
                 title={item.problemUrl || item.answerUrl}
@@ -262,7 +262,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
               </button>
             )}
             {hasProblemImages && (
-              <button 
+              <button
                 style={mediaButtonStyle}
                 onClick={handleImageClick}
                 title={`View ${problemImageCount} problem image${problemImageCount > 1 ? 's' : ''}`}
@@ -275,7 +275,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
       })()}
 
       <div style={buttonsContainerStyle}>
-        <button 
+        <button
           style={showAnswerButtonStyle}
           onClick={(e) => {
             e.stopPropagation();
@@ -288,7 +288,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
         </button>
 
         {isMobile && (
-          <button 
+          <button
             style={reviewButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
@@ -302,7 +302,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
         )}
 
         <div style={actionButtonsStyle}>
-          <button 
+          <button
             style={editButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
@@ -311,9 +311,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f7d666'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f5c842'}
           >
-            Edit
+            📝 Edit
           </button>
-          <button 
+          <button
             style={deleteButtonStyle}
             onClick={(e) => {
               e.stopPropagation();
@@ -322,7 +322,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0f1a2a'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1a2e42'}
           >
-            Delete
+            🗑️ Delete
           </button>
         </div>
       </div>
@@ -336,7 +336,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
           ✓ Reviewed
         </div>
       )}
-      
+
       <ImageViewerModal
         isOpen={isImageViewerOpen}
         onClose={() => setIsImageViewerOpen(false)}
